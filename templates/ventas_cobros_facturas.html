@@ -1,0 +1,366 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
+    .filter-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: flex-end;
+    }
+    .filter-col {
+        flex: 1;
+        min-width: 160px;
+    }
+    .filter-col label {
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 6px;
+        font-weight: 500;
+        display: block;
+    }
+    .filter-col input, .filter-col select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.92rem;
+    }
+    .filter-col input:focus, .filter-col select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+    }
+    .total-kpi {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #27ae60;
+        white-space: nowrap;
+    }
+    .tab-navigation {
+        margin: 0 0 25px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .tab-btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        background: #e5e7eb;
+        color: #4b5563;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+        background: #3498db;
+        color: white;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .card-chart {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    .chart-title {
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 16px;
+    }
+    .chart-container { position: relative; height: 420px; }
+    #tablaDetalle { width: 100%; font-size: 0.9rem; }
+    #tablaDetalle th {
+        background: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    #tablaDetalle td, #tablaDetalle th { padding: 8px 10px; vertical-align: middle; }
+</style>
+
+<div class="dashboard-wrapper">
+    <div class="filter-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cobros (Facturas)</h4>
+            <div class="total-kpi" id="txt_total_general">0,00</div>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-col">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="cargarDatos()">
+            </div>
+            <div class="filter-col">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="cargarDatos()">
+            </div>
+            <div class="filter-col">
+                <label>Moneda</label>
+                <select id="moneda" onchange="cargarDatos()">
+                    <option value="Bs">Bolívares (Bs)</option>
+                    <option value="USD">Dólares (USD)</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Forma Pago</label>
+                <select id="forma_pago" onchange="cargarDatos()">
+                    <option value="TODAS">Todas</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Vendedor</label>
+                <select id="filtro_vendedor" onchange="cargarDatos()">
+                    <option value="TODOS">Todos</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Top N</label>
+                <select id="top_n" onchange="cargarDatos()">
+                    <option value="10">Top 10</option>
+                    <option value="15">Top 15</option>
+                    <option value="25">Top 25</option>
+                    <option value="50">Top 50</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="resumen">Resumen General</button>
+        <button class="tab-btn" data-tab="vendedores">Top Vendedores</button>
+        <button class="tab-btn" data-tab="detalle">Detalle Facturas</button>
+    </div>
+
+    <div id="resumen" class="tab-pane active">
+        <div class="row g-4">
+            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Formas de Pago</div><div class="chart-container"><canvas id="chartFormas"></canvas></div></div></div>
+            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Cobros por Vendedor</div><div class="chart-container"><canvas id="chartVendedores"></canvas></div></div></div>
+            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Cajas / Puntos</div><div class="chart-container"><canvas id="chartCajas"></canvas></div></div></div>
+        </div>
+    </div>
+
+    <div id="vendedores" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title">Ranking de Vendedores (Monto Cobrado)</div>
+            <div class="chart-container" style="height: 520px;"><canvas id="chartTopVendedores"></canvas></div>
+        </div>
+    </div>
+
+    <div id="detalle" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title">Últimas Facturas Cobradas</div>
+            <div style="max-height: 520px; overflow-y: auto;">
+                <table class="table table-sm table-hover" id="tablaDetalle">
+                    <thead>
+                        <tr>
+                            <th>CÓDIGO</th>
+                            <th>FECHA</th>
+                            <th>CLIENTE</th>
+                            <th>VENDEDOR</th>
+                            <th>CAJA</th>
+                            <th>FORMA</th>
+                            <th class="text-end">MONTO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDetalle"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let charts = {};
+
+function generarColores(cantidad = 15) {
+    const paleta = ['#3498db','#2ecc71','#e74c3c','#f1c40f','#9b59b6','#1abc9c','#e67e22','#34495e','#27ae60','#c0392b','#16a085','#d35400','#8e44ad','#2980b9','#f39c12'];
+    return Array.from({length: cantidad}, (_, i) => paleta[i % paleta.length]);
+}
+
+async function cargarDatos() {
+    const selForma    = document.getElementById('forma_pago');
+    const selVendedor = document.getElementById('filtro_vendedor');
+
+    const formaValue    = selForma.value?.trim()    || 'TODAS';
+    const vendedorValue = selVendedor.value?.trim() || 'TODOS';
+
+    const params = {
+        fecha_inicio: document.getElementById('fecha_inicio').value,
+        fecha_fin:    document.getElementById('fecha_fin').value,
+        moneda:       document.getElementById('moneda').value,
+        forma_pago:   formaValue.toUpperCase(),
+        vendedor:     vendedorValue.toUpperCase(),
+        top_n:        document.getElementById('top_n').value
+    };
+
+    console.log("=== DEPURACIÓN FILTROS ===");
+    console.log("Forma → value:", selForma.value, " | texto:", selForma.options[selForma.selectedIndex]?.text || 'sin selección');
+    console.log("Vendedor → value:", selVendedor.value, " | texto:", selVendedor.options[selVendedor.selectedIndex]?.text || 'sin selección');
+    console.log("Parámetros enviados:", params);
+    console.log("===========================");
+
+    try {
+        const res = await fetch('/api/cobros-facturas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        console.log("Respuesta backend:", data);
+
+        if (data.error) {
+            console.error("Error backend:", data.error);
+            return;
+        }
+
+        document.getElementById('txt_total_general').textContent = 
+            (data.total_general || 0).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2}) + 
+            ' ' + params.moneda;
+
+        
+            // ──────────────── FORMA DE PAGO ────────────────
+            const formaSeleccionadaAntes = selForma.value;
+            // Limpiamos opciones (dejamos solo "Todas")
+        while (selForma.options.length > 1) selForma.remove(1);
+
+
+        if (data.lista_formas?.length) {
+            const formasVistas = new Set();
+            data.lista_formas.forEach(forma => {
+                const formaNorm = (forma || '').trim().toUpperCase();
+                if (!formaNorm || formaNorm === 'TODAS' || formasVistas.has(formaNorm)) return;
+                formasVistas.add(formaNorm);
+                const opt = document.createElement('option');
+                opt.value = formaNorm;
+                opt.textContent = forma.trim();
+                selForma.appendChild(opt);
+            });
+          if (formaSeleccionadaAntes && formaSeleccionadaAntes !== 'TODAS') {
+        if ([...selForma.options].some(opt => opt.value === formaSeleccionadaAntes)) {
+            selForma.value = formaSeleccionadaAntes;
+        } else {
+            // Si ya no existe (por ejemplo por cambio de fechas), volvemos a TODAS
+            selForma.value = 'TODAS';
+        }
+    }
+
+    console.log("Formas en select:", Array.from(selForma.options).map(o => o.value));
+}
+        // ──────────────── VENDEDORES ────────────────
+        const vendedorSeleccionadoAntes = selVendedor.value;  // guardamos
+        while (selVendedor.options.length > 1) selVendedor.remove(1);
+
+        if (data.lista_vendedores?.length) {
+            const vendedoresVistos = new Set();
+            data.lista_vendedores.forEach(vend => {
+                const vendNorm = (vend || '').trim().toUpperCase();
+                if (!vendNorm || vendNorm === 'TODOS' || ['S/V','SIN VENDEDOR'].includes(vendNorm) || vendedoresVistos.has(vendNorm)) return;
+                vendedoresVistos.add(vendNorm);
+                const opt = document.createElement('option');
+                opt.value = vendNorm;
+                opt.textContent = vend.trim();
+                selVendedor.appendChild(opt);
+            });
+            if (vendedorSeleccionadoAntes && vendedorSeleccionadoAntes !== 'TODOS') {
+        if ([...selVendedor.options].some(opt => opt.value === vendedorSeleccionadoAntes)) {
+            selVendedor.value = vendedorSeleccionadoAntes;
+        } else {
+            selVendedor.value = 'TODOS';
+        }
+    }
+    console.log("Vendedores en select:", Array.from(selVendedor.options).map(o => o.value));
+}
+
+        const colores = generarColores();
+
+        renderDonut('chartFormas', 'Formas de Pago', data.formas_pago?.map(x=>x.label)||[], data.formas_pago?.map(x=>x.value)||[], colores);
+        renderBar('chartVendedores', 'Cobros por Vendedor', data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
+        renderDonut('chartCajas', 'Cajas / Puntos', data.cajas?.map(x=>x.label)||[], data.cajas?.map(x=>x.value)||[], colores);
+        renderBar('chartTopVendedores', 'Ranking Vendedores', data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
+
+        const tbody = document.getElementById('tbodyDetalle');
+        tbody.innerHTML = '';
+        (data.tabla || []).forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.CODIGO || '-'}</td>
+                <td>${row.FECHA || '-'}</td>
+                <td>${row.CLIENTE || 'S/C'}</td>
+                <td>${row.VENDEDOR || 'S/V'}</td>
+                <td>${row.CAJA || 'S/C'}</td>
+                <td>${row.FORMAPAGO || 'S/I'}</td>
+                <td class="text-end">${(row.MONTO||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error('Error al cargar:', err);
+    }
+}
+
+function renderDonut(id, title, labels, values, colors) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(canvas.getContext('2d'), {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors.slice(0, labels.length), borderWidth: 1 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {position:'bottom'}, title: {display:true, text:title, font:{size:16}} } }
+    });
+}
+
+function renderBar(id, title, labels, values, colors, indexAxis = 'x') {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Monto', data: values, backgroundColor: colors.slice(0, labels.length), borderWidth: 0, borderRadius: 5 }] },
+        options: {
+            indexAxis,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: {display:false}, title: {display:true, text:title, font:{size:16}} },
+            scales: { [indexAxis==='y'?'x':'y']: { beginAtZero: true } }
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date();
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+    const mesAnterior = new Date(hoy);
+    mesAnterior.setMonth(hoy.getMonth() - 1);
+    document.getElementById('fecha_inicio').value = mesAnterior.toISOString().split('T')[0];
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    cargarDatos();
+});
+</script>
+
+{% endblock %}

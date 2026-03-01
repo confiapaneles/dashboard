@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .kpi-box { background: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .kpi-val { font-size: 22px; font-weight: 800; color: #9b59b6; display: block; }
+    .kpi-lab { font-size: 11px; color: #7f8c8d; text-transform: uppercase; font-weight: 700; }
+    .grid-cob { display: grid; grid-template-columns: 350px 1fr; gap: 15px; }
+    .card-cob { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 500px; display: flex; flex-direction: column; }
+    .panel-title { border-left: 5px solid #9b59b6; padding-left: 10px; margin-bottom: 15px; font-weight: 700; }
+</style>
+
+<div class="dashboard-container">
+    <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 mb-3 shadow-sm">
+        <div class="d-flex gap-2 align-items-center">
+            <span class="fw-bold">Rango:</span>
+            <input type="date" id="f_ini_cob" class="form-control form-control-sm" onchange="cargarCobranzas()">
+            <input type="date" id="f_fin_cob" class="form-control form-control-sm" onchange="cargarCobranzas()">
+            <select id="moneda_cob" class="form-select form-select-sm" onchange="cargarCobranzas()">
+                <option value="Bs">Bs</option><option value="USD">USD</option>
+            </select>
+        </div>
+        <div id="total_cobranza" class="fw-bold text-primary fs-3" style="color:#9b59b6 !important;">0,00</div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-4"><div class="kpi-box"><span class="kpi-lab">Ticket Promedio</span><span id="kpi_ticket" class="kpi-val">0,00</span></div></div>
+        <div class="col-md-4"><div class="kpi-box"><span class="kpi-lab">Operaciones</span><span id="kpi_conteo" class="kpi-val">0</span></div></div>
+        <div class="col-md-4"><div class="kpi-box"><span class="kpi-lab">Método Top</span><span id="kpi_metodo" class="kpi-val">---</span></div></div>
+    </div>
+
+    <div class="grid-cob">
+        <div class="card-cob">
+            <h5 class="panel-title">Composición (%)</h5>
+            <div id="lista_porcentajes" class="mb-3" style="overflow-y: auto; flex-grow: 1;"></div>
+            <div style="height: 200px;"><canvas id="chartFormasPago"></canvas></div>
+        </div>
+        <div class="card-cob">
+            <h5 class="panel-title">Evolución Diaria</h5>
+            <div style="flex-grow: 1;"><canvas id="chartCobranzaDiaria"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chartsCob = {};
+
+    async function cargarCobranzas() {
+        const p = {
+            fecha_inicio: document.getElementById("f_ini_cob").value,
+            fecha_fin: document.getElementById("f_fin_cob").value,
+            moneda: document.getElementById("moneda_cob").value
+        };
+
+        try {
+            const r = await fetch("/api/cobranzas", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(p)
+            });
+            const d = await r.json();
+
+            document.getElementById("total_cobranza").innerText = d.total_general.toLocaleString();
+            document.getElementById("kpi_ticket").innerText = d.ticket_promedio.toLocaleString();
+            document.getElementById("kpi_conteo").innerText = d.conteo;
+            document.getElementById("kpi_metodo").innerText = d.formas_pago[0]?.FORMA || "---";
+
+            document.getElementById("lista_porcentajes").innerHTML = d.formas_pago.map(f => `
+                <div class="d-flex justify-content-between border-bottom py-1 small">
+                    <span>${f.FORMA}</span><span class="fw-bold">${f.P}%</span>
+                </div>
+            `).join("");
+
+            renderCob("chartFormasPago", "doughnut", d.formas_pago.map(x => x.FORMA), d.formas_pago.map(x => x.V), ['#9b59b6', '#8e44ad', '#a569bd', '#bb8fce']);
+            renderCob("chartCobranzaDiaria", "line", d.historico.map(x => x.F), d.historico.map(x => x.V), '#9b59b6');
+        } catch (e) { console.error(e); }
+    }
+
+    function renderCob(id, type, labels, values, colors) {
+        const ctx = document.getElementById(id).getContext('2d');
+        if (chartsCob[id]) chartsCob[id].destroy();
+        chartsCob[id] = new Chart(ctx, {
+            type: type,
+            data: { labels: labels, datasets: [{ data: values, backgroundColor: colors, tension: 0.4, fill: type==='line' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type==='doughnut', position: 'bottom' } } }
+        });
+    }
+    document.addEventListener("DOMContentLoaded", cargarCobranzas);
+</script>
+{% endblock %}

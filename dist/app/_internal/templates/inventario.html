@@ -1,0 +1,228 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .panel-title { border-left: 5px solid #3498db; padding-left: 10px; font-weight: 700; }
+    .table-responsive { max-height: 65vh; overflow-y: auto; }
+    .bg-soft-info { background-color: #e3f2fd; color: #0d47a1; }
+    .kpi-box { transition: all 0.3s ease; border: 1px solid #eee; }
+    .kpi-box:hover { border-color: #3498db; background: #f8fbff; }
+    .text-costo { color: #c0392b; font-weight: 600; }
+    .text-pvp { color: #2e7d32; font-weight: 600; }
+    .text-valor { color: #1a5fb4; font-weight: 700; }
+</style>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <h4 class="mb-0"><i class="bi bi-box-seam me-2"></i>Inventario</h4>
+                        
+                        <select id="moneda_inv" class="form-select w-auto" onchange="cargarInv()">
+                            <option value="Bs">Bolívares (Bs.)</option>
+                            <option value="USD">Dólares ($)</option>
+                        </select>
+
+                        <select id="valorizar_a" class="form-select w-auto" onchange="cargarInv()">
+                            <option value="costo">Valorizar al Costo</option>
+                            <option value="precio1">Valorizar al Precio 1</option>
+                            <option value="precio2">Valorizar al Precio 2</option>
+                            <option value="precio3">Valorizar al Precio 3</option>
+                        </select>
+
+                        <div class="input-group" style="min-width: 300px;">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" id="inv_prod" class="form-control border-start-0" 
+                                   placeholder="Buscar por descripción o código..." onkeyup="cargarInv()">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-4 flex-wrap">
+                        <div class="text-end">
+                            <small class="text-muted d-block">Valorización Total</small>
+                            <span id="t_val" class="fw-bold fs-5 text-primary">0,00</span>
+                        </div>
+                        <div class="vr text-muted opacity-25"></div>
+                        <div class="text-end">
+                            <small class="text-muted d-block">Stock Físico</small>
+                            <span id="t_exi" class="fw-bold fs-5 text-dark">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="panel-title mb-0">Detalle de Existencias</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th class="ps-3">CÓDIGO</th>
+                                    <th>DESCRIPCIÓN DEL ARTÍCULO</th>
+                                    <th>MARCA</th>
+                                    <th class="text-end">STOCK</th>
+                                    <th class="text-end text-costo">COSTO UNIT.</th>
+                                    <th class="text-end text-pvp">PVP NUEVO</th>
+                                    <th class="text-end text-pvp">PVP M.E.</th>
+                                    <th class="text-end text-pvp">COSTO × ME</th>
+                                    <th class="text-end pe-3 text-valor fw-bold" id="th-valor-total">
+                                        Valoración Total
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla_inv"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-white py-3">
+                    <h5 class="panel-title mb-0">Inversión por Marca</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 280px;">
+                        <canvas id="chartInvMarca"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="p-3 mb-3 kpi-box rounded">
+                        <small class="text-muted d-block">Variedad de Artículos</small>
+                        <h4 id="t_art" class="mb-0 fw-bold">0</h4>
+                    </div>
+                    <div class="p-3 kpi-box rounded">
+                        <small class="text-muted d-block">Volumen Total (Kg/Unid)</small>
+                        <h4 id="t_kg" class="mb-0 fw-bold">0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let instInv = {};
+
+async function cargarInv() {
+    try {
+        const moneda      = document.getElementById("moneda_inv").value;
+        const busqueda    = document.getElementById("inv_prod").value.trim();
+        const valorizar_a = document.getElementById("valorizar_a").value;
+
+        const r = await fetch("/api/inventario", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ moneda, producto: busqueda, valorizar_a })
+        });
+        
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const d = await r.json();
+
+        const fmt = (n) => (n || 0).toLocaleString('es-VE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        // KPIs
+        document.getElementById("t_val").innerText = `${fmt(d.totales.valor_total || 0)} ${moneda}`;
+        document.getElementById("t_exi").innerText = (d.totales.existencia || 0).toLocaleString('es-VE');
+        document.getElementById("t_art").innerText = (d.totales.articulos || 0).toLocaleString('es-VE');
+        document.getElementById("t_kg").innerText   = (d.totales.kilos || 0).toLocaleString('es-VE');
+
+        // Título dinámico de la columna final
+        const titulos = {
+            'costo':   'Costo Total',
+            'precio1': `Valor al ${d.nombres_precios?.["1"] || 'Precio 1'}`,
+            'precio2': `Valor al ${d.nombres_precios?.["2"] || 'Precio 2'}`,
+            'precio3': `Valor al ${d.nombres_precios?.["3"] || 'Precio 3'}`
+        };
+        document.getElementById("th-valor-total").textContent = titulos[valorizar_a] || 'Valoración Total';
+
+        // Tabla
+        const tbody = document.getElementById("tabla_inv");
+        tbody.innerHTML = (d.tabla || []).map(i => {
+            const ex = i.EXISTENCIA || 0;
+            const cu = ex > 0 ? i.COSTO_UNITARIO : 0;
+            const costo_x_me = (cu * 3).toFixed(2);  // ← mantengo tu lógica, cámbialo si necesitas
+
+            return `
+                <tr>
+                    <td class="ps-3 small text-muted fw-bold">${i.CODIGO || '-'}</td>
+                    <td style="font-size: 0.85rem;" class="fw-medium">${i.DESCRIPCION || '—'}</td>
+                    <td><span class="badge bg-soft-info">${i.MARCA || 'Sin marca'}</span></td>
+                    <td class="text-end fw-bold">${ex.toLocaleString('es-VE')}</td>
+                    <td class="text-end text-costo">${fmt(cu)}</td>
+                    <td class="text-end text-pvp">${fmt(i.PRECIO1 || 0)}</td>
+                    <td class="text-end text-pvp">${fmt(i.PRECIO2 || 0)}</td>
+                    <td class="text-end text-pvp">${fmt(costo_x_me)}</td>
+                    <td class="text-end pe-3 text-valor fw-bold">
+                        ${fmt(i.VALOR_TOTAL || i.COSTO_TOTAL || 0)}
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        // Gráfico
+        renderInvChart("chartInvMarca", 
+            d.marcas_chart?.map(x => x.MARCA) || [], 
+            d.marcas_chart?.map(x => x.V) || []
+        );
+
+    } catch (e) { 
+        console.error("Error cargando inventario:", e);
+        document.getElementById("tabla_inv").innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Error al cargar datos</td></tr>`;
+    }
+}
+
+function renderInvChart(id, labels, values) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    if (instInv[id]) instInv[id].destroy();
+
+    instInv[id] = new Chart(canvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#3498db','#2ecc71','#f1c40f','#e67e22','#e74c3c','#9b59b6','#34495e','#1abc9c'],
+                borderWidth: 2,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ` ${ctx.label}: ${ctx.raw.toLocaleString('es-VE', {minimumFractionDigits: 2})}`
+                    }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", cargarInv);
+</script>
+
+{% endblock %}

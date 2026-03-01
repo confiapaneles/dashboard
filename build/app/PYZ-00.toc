@@ -1,0 +1,4339 @@
+('C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA 2\\build\\app\\PYZ-00.pyz',
+ [('__future__',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\__future__.py',
+   'PYMODULE'),
+  ('_aix_support',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_aix_support.py',
+   'PYMODULE'),
+  ('_compat_pickle',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_compat_pickle.py',
+   'PYMODULE'),
+  ('_compression',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_compression.py',
+   'PYMODULE'),
+  ('_distutils_hack',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\_distutils_hack\\__init__.py',
+   'PYMODULE'),
+  ('_distutils_hack.override',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\_distutils_hack\\override.py',
+   'PYMODULE'),
+  ('_py_abc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_py_abc.py',
+   'PYMODULE'),
+  ('_pydatetime',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_pydatetime.py',
+   'PYMODULE'),
+  ('_pydecimal',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_pydecimal.py',
+   'PYMODULE'),
+  ('_sitebuiltins',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_sitebuiltins.py',
+   'PYMODULE'),
+  ('_strptime',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_strptime.py',
+   'PYMODULE'),
+  ('_threading_local',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_threading_local.py',
+   'PYMODULE'),
+  ('argparse',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\argparse.py',
+   'PYMODULE'),
+  ('ast',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ast.py',
+   'PYMODULE'),
+  ('asyncio',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\__init__.py',
+   'PYMODULE'),
+  ('asyncio.base_events',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_events.py',
+   'PYMODULE'),
+  ('asyncio.base_futures',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_futures.py',
+   'PYMODULE'),
+  ('asyncio.base_subprocess',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_subprocess.py',
+   'PYMODULE'),
+  ('asyncio.base_tasks',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_tasks.py',
+   'PYMODULE'),
+  ('asyncio.constants',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\constants.py',
+   'PYMODULE'),
+  ('asyncio.coroutines',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\coroutines.py',
+   'PYMODULE'),
+  ('asyncio.events',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\events.py',
+   'PYMODULE'),
+  ('asyncio.exceptions',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\exceptions.py',
+   'PYMODULE'),
+  ('asyncio.format_helpers',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\format_helpers.py',
+   'PYMODULE'),
+  ('asyncio.futures',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\futures.py',
+   'PYMODULE'),
+  ('asyncio.locks',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\locks.py',
+   'PYMODULE'),
+  ('asyncio.log',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\log.py',
+   'PYMODULE'),
+  ('asyncio.mixins',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\mixins.py',
+   'PYMODULE'),
+  ('asyncio.proactor_events',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\proactor_events.py',
+   'PYMODULE'),
+  ('asyncio.protocols',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\protocols.py',
+   'PYMODULE'),
+  ('asyncio.queues',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\queues.py',
+   'PYMODULE'),
+  ('asyncio.runners',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\runners.py',
+   'PYMODULE'),
+  ('asyncio.selector_events',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\selector_events.py',
+   'PYMODULE'),
+  ('asyncio.sslproto',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\sslproto.py',
+   'PYMODULE'),
+  ('asyncio.staggered',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\staggered.py',
+   'PYMODULE'),
+  ('asyncio.streams',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\streams.py',
+   'PYMODULE'),
+  ('asyncio.subprocess',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\subprocess.py',
+   'PYMODULE'),
+  ('asyncio.taskgroups',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\taskgroups.py',
+   'PYMODULE'),
+  ('asyncio.tasks',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\tasks.py',
+   'PYMODULE'),
+  ('asyncio.threads',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\threads.py',
+   'PYMODULE'),
+  ('asyncio.timeouts',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\timeouts.py',
+   'PYMODULE'),
+  ('asyncio.transports',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\transports.py',
+   'PYMODULE'),
+  ('asyncio.trsock',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\trsock.py',
+   'PYMODULE'),
+  ('asyncio.unix_events',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\unix_events.py',
+   'PYMODULE'),
+  ('asyncio.windows_events',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\windows_events.py',
+   'PYMODULE'),
+  ('asyncio.windows_utils',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\windows_utils.py',
+   'PYMODULE'),
+  ('base64',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\base64.py',
+   'PYMODULE'),
+  ('bdb',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\bdb.py',
+   'PYMODULE'),
+  ('bisect',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\bisect.py',
+   'PYMODULE'),
+  ('blinker',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\blinker\\__init__.py',
+   'PYMODULE'),
+  ('blinker._utilities',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\blinker\\_utilities.py',
+   'PYMODULE'),
+  ('blinker.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\blinker\\base.py',
+   'PYMODULE'),
+  ('bz2',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\bz2.py',
+   'PYMODULE'),
+  ('calendar',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\calendar.py',
+   'PYMODULE'),
+  ('certifi',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\certifi\\__init__.py',
+   'PYMODULE'),
+  ('certifi.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\certifi\\core.py',
+   'PYMODULE'),
+  ('charset_normalizer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\__init__.py',
+   'PYMODULE'),
+  ('charset_normalizer.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\api.py',
+   'PYMODULE'),
+  ('charset_normalizer.cd',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\cd.py',
+   'PYMODULE'),
+  ('charset_normalizer.constant',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\constant.py',
+   'PYMODULE'),
+  ('charset_normalizer.legacy',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\legacy.py',
+   'PYMODULE'),
+  ('charset_normalizer.models',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\models.py',
+   'PYMODULE'),
+  ('charset_normalizer.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\utils.py',
+   'PYMODULE'),
+  ('charset_normalizer.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\charset_normalizer\\version.py',
+   'PYMODULE'),
+  ('click',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\__init__.py',
+   'PYMODULE'),
+  ('click._compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\_compat.py',
+   'PYMODULE'),
+  ('click._termui_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\_termui_impl.py',
+   'PYMODULE'),
+  ('click._textwrap',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\_textwrap.py',
+   'PYMODULE'),
+  ('click._utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\_utils.py',
+   'PYMODULE'),
+  ('click._winconsole',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\_winconsole.py',
+   'PYMODULE'),
+  ('click.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\core.py',
+   'PYMODULE'),
+  ('click.decorators',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\decorators.py',
+   'PYMODULE'),
+  ('click.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\exceptions.py',
+   'PYMODULE'),
+  ('click.formatting',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\formatting.py',
+   'PYMODULE'),
+  ('click.globals',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\globals.py',
+   'PYMODULE'),
+  ('click.parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\parser.py',
+   'PYMODULE'),
+  ('click.shell_completion',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\shell_completion.py',
+   'PYMODULE'),
+  ('click.termui',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\termui.py',
+   'PYMODULE'),
+  ('click.testing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\testing.py',
+   'PYMODULE'),
+  ('click.types',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\types.py',
+   'PYMODULE'),
+  ('click.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\click\\utils.py',
+   'PYMODULE'),
+  ('cmd',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\cmd.py',
+   'PYMODULE'),
+  ('code',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\code.py',
+   'PYMODULE'),
+  ('codeop',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\codeop.py',
+   'PYMODULE'),
+  ('colorama',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\colorama\\__init__.py',
+   'PYMODULE'),
+  ('colorama.ansi',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\colorama\\ansi.py',
+   'PYMODULE'),
+  ('colorama.ansitowin32',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\colorama\\ansitowin32.py',
+   'PYMODULE'),
+  ('colorama.initialise',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\colorama\\initialise.py',
+   'PYMODULE'),
+  ('colorama.win32',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\colorama\\win32.py',
+   'PYMODULE'),
+  ('colorama.winterm',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\colorama\\winterm.py',
+   'PYMODULE'),
+  ('concurrent',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\__init__.py',
+   'PYMODULE'),
+  ('concurrent.futures',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\__init__.py',
+   'PYMODULE'),
+  ('concurrent.futures._base',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\_base.py',
+   'PYMODULE'),
+  ('concurrent.futures.process',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\process.py',
+   'PYMODULE'),
+  ('concurrent.futures.thread',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\thread.py',
+   'PYMODULE'),
+  ('configparser',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\configparser.py',
+   'PYMODULE'),
+  ('contextlib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\contextlib.py',
+   'PYMODULE'),
+  ('contextvars',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\contextvars.py',
+   'PYMODULE'),
+  ('copy',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\copy.py',
+   'PYMODULE'),
+  ('csv',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\csv.py',
+   'PYMODULE'),
+  ('ctypes',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\__init__.py',
+   'PYMODULE'),
+  ('ctypes._aix',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\_aix.py',
+   'PYMODULE'),
+  ('ctypes._endian',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\_endian.py',
+   'PYMODULE'),
+  ('ctypes.macholib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\__init__.py',
+   'PYMODULE'),
+  ('ctypes.macholib.dyld',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\dyld.py',
+   'PYMODULE'),
+  ('ctypes.macholib.dylib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\dylib.py',
+   'PYMODULE'),
+  ('ctypes.macholib.framework',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\framework.py',
+   'PYMODULE'),
+  ('ctypes.util',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\util.py',
+   'PYMODULE'),
+  ('ctypes.wintypes',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\wintypes.py',
+   'PYMODULE'),
+  ('dataclasses',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\dataclasses.py',
+   'PYMODULE'),
+  ('datetime',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\datetime.py',
+   'PYMODULE'),
+  ('dateutil',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\__init__.py',
+   'PYMODULE'),
+  ('dateutil._common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\_common.py',
+   'PYMODULE'),
+  ('dateutil._version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\_version.py',
+   'PYMODULE'),
+  ('dateutil.easter',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\easter.py',
+   'PYMODULE'),
+  ('dateutil.parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\parser\\__init__.py',
+   'PYMODULE'),
+  ('dateutil.parser._parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\parser\\_parser.py',
+   'PYMODULE'),
+  ('dateutil.parser.isoparser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\parser\\isoparser.py',
+   'PYMODULE'),
+  ('dateutil.relativedelta',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\relativedelta.py',
+   'PYMODULE'),
+  ('dateutil.rrule',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\rrule.py',
+   'PYMODULE'),
+  ('dateutil.tz',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\tz\\__init__.py',
+   'PYMODULE'),
+  ('dateutil.tz._common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\tz\\_common.py',
+   'PYMODULE'),
+  ('dateutil.tz._factories',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\tz\\_factories.py',
+   'PYMODULE'),
+  ('dateutil.tz.tz',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\tz\\tz.py',
+   'PYMODULE'),
+  ('dateutil.tz.win',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\tz\\win.py',
+   'PYMODULE'),
+  ('dateutil.zoneinfo',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dateutil\\zoneinfo\\__init__.py',
+   'PYMODULE'),
+  ('dbfread',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\__init__.py',
+   'PYMODULE'),
+  ('dbfread.codepages',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\codepages.py',
+   'PYMODULE'),
+  ('dbfread.dbf',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\dbf.py',
+   'PYMODULE'),
+  ('dbfread.dbversions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\dbversions.py',
+   'PYMODULE'),
+  ('dbfread.deprecated_dbf',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\deprecated_dbf.py',
+   'PYMODULE'),
+  ('dbfread.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\exceptions.py',
+   'PYMODULE'),
+  ('dbfread.field_parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\field_parser.py',
+   'PYMODULE'),
+  ('dbfread.ifiles',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\ifiles.py',
+   'PYMODULE'),
+  ('dbfread.memo',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\memo.py',
+   'PYMODULE'),
+  ('dbfread.struct_parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\struct_parser.py',
+   'PYMODULE'),
+  ('dbfread.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\dbfread\\version.py',
+   'PYMODULE'),
+  ('decimal',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\decimal.py',
+   'PYMODULE'),
+  ('difflib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\difflib.py',
+   'PYMODULE'),
+  ('dis',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\dis.py',
+   'PYMODULE'),
+  ('doctest',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\doctest.py',
+   'PYMODULE'),
+  ('email',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\__init__.py',
+   'PYMODULE'),
+  ('email._encoded_words',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_encoded_words.py',
+   'PYMODULE'),
+  ('email._header_value_parser',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_header_value_parser.py',
+   'PYMODULE'),
+  ('email._parseaddr',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_parseaddr.py',
+   'PYMODULE'),
+  ('email._policybase',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_policybase.py',
+   'PYMODULE'),
+  ('email.base64mime',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\base64mime.py',
+   'PYMODULE'),
+  ('email.charset',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\charset.py',
+   'PYMODULE'),
+  ('email.contentmanager',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\contentmanager.py',
+   'PYMODULE'),
+  ('email.encoders',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\encoders.py',
+   'PYMODULE'),
+  ('email.errors',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\errors.py',
+   'PYMODULE'),
+  ('email.feedparser',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\feedparser.py',
+   'PYMODULE'),
+  ('email.generator',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\generator.py',
+   'PYMODULE'),
+  ('email.header',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\header.py',
+   'PYMODULE'),
+  ('email.headerregistry',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\headerregistry.py',
+   'PYMODULE'),
+  ('email.iterators',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\iterators.py',
+   'PYMODULE'),
+  ('email.message',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\message.py',
+   'PYMODULE'),
+  ('email.parser',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\parser.py',
+   'PYMODULE'),
+  ('email.policy',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\policy.py',
+   'PYMODULE'),
+  ('email.quoprimime',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\quoprimime.py',
+   'PYMODULE'),
+  ('email.utils',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\utils.py',
+   'PYMODULE'),
+  ('fileinput',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\fileinput.py',
+   'PYMODULE'),
+  ('flask',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\__init__.py',
+   'PYMODULE'),
+  ('flask.app',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\app.py',
+   'PYMODULE'),
+  ('flask.blueprints',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\blueprints.py',
+   'PYMODULE'),
+  ('flask.cli',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\cli.py',
+   'PYMODULE'),
+  ('flask.config',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\config.py',
+   'PYMODULE'),
+  ('flask.ctx',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\ctx.py',
+   'PYMODULE'),
+  ('flask.debughelpers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\debughelpers.py',
+   'PYMODULE'),
+  ('flask.globals',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\globals.py',
+   'PYMODULE'),
+  ('flask.helpers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\helpers.py',
+   'PYMODULE'),
+  ('flask.json',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\json\\__init__.py',
+   'PYMODULE'),
+  ('flask.json.provider',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\json\\provider.py',
+   'PYMODULE'),
+  ('flask.json.tag',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\json\\tag.py',
+   'PYMODULE'),
+  ('flask.logging',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\logging.py',
+   'PYMODULE'),
+  ('flask.sansio', '-', 'PYMODULE'),
+  ('flask.sansio.app',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\sansio\\app.py',
+   'PYMODULE'),
+  ('flask.sansio.blueprints',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\sansio\\blueprints.py',
+   'PYMODULE'),
+  ('flask.sansio.scaffold',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\sansio\\scaffold.py',
+   'PYMODULE'),
+  ('flask.sessions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\sessions.py',
+   'PYMODULE'),
+  ('flask.signals',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\signals.py',
+   'PYMODULE'),
+  ('flask.templating',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\templating.py',
+   'PYMODULE'),
+  ('flask.testing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\testing.py',
+   'PYMODULE'),
+  ('flask.typing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\typing.py',
+   'PYMODULE'),
+  ('flask.wrappers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask\\wrappers.py',
+   'PYMODULE'),
+  ('flask_login',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\__init__.py',
+   'PYMODULE'),
+  ('flask_login.__about__',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\__about__.py',
+   'PYMODULE'),
+  ('flask_login.config',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\config.py',
+   'PYMODULE'),
+  ('flask_login.login_manager',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\login_manager.py',
+   'PYMODULE'),
+  ('flask_login.mixins',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\mixins.py',
+   'PYMODULE'),
+  ('flask_login.signals',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\signals.py',
+   'PYMODULE'),
+  ('flask_login.test_client',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\test_client.py',
+   'PYMODULE'),
+  ('flask_login.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\flask_login\\utils.py',
+   'PYMODULE'),
+  ('fnmatch',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\fnmatch.py',
+   'PYMODULE'),
+  ('fractions',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\fractions.py',
+   'PYMODULE'),
+  ('ftplib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ftplib.py',
+   'PYMODULE'),
+  ('getopt',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\getopt.py',
+   'PYMODULE'),
+  ('getpass',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\getpass.py',
+   'PYMODULE'),
+  ('gettext',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\gettext.py',
+   'PYMODULE'),
+  ('glob',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\glob.py',
+   'PYMODULE'),
+  ('gzip',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\gzip.py',
+   'PYMODULE'),
+  ('hashlib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\hashlib.py',
+   'PYMODULE'),
+  ('hmac',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\hmac.py',
+   'PYMODULE'),
+  ('html',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\html\\__init__.py',
+   'PYMODULE'),
+  ('html.entities',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\html\\entities.py',
+   'PYMODULE'),
+  ('http',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\__init__.py',
+   'PYMODULE'),
+  ('http.client',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\client.py',
+   'PYMODULE'),
+  ('http.cookiejar',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\cookiejar.py',
+   'PYMODULE'),
+  ('http.cookies',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\cookies.py',
+   'PYMODULE'),
+  ('http.server',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\server.py',
+   'PYMODULE'),
+  ('idna',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\idna\\__init__.py',
+   'PYMODULE'),
+  ('idna.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\idna\\core.py',
+   'PYMODULE'),
+  ('idna.idnadata',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\idna\\idnadata.py',
+   'PYMODULE'),
+  ('idna.intranges',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\idna\\intranges.py',
+   'PYMODULE'),
+  ('idna.package_data',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\idna\\package_data.py',
+   'PYMODULE'),
+  ('idna.uts46data',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\idna\\uts46data.py',
+   'PYMODULE'),
+  ('importlib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\__init__.py',
+   'PYMODULE'),
+  ('importlib._abc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\_abc.py',
+   'PYMODULE'),
+  ('importlib._bootstrap',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\_bootstrap.py',
+   'PYMODULE'),
+  ('importlib._bootstrap_external',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\_bootstrap_external.py',
+   'PYMODULE'),
+  ('importlib.abc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\abc.py',
+   'PYMODULE'),
+  ('importlib.machinery',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\machinery.py',
+   'PYMODULE'),
+  ('importlib.metadata',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\__init__.py',
+   'PYMODULE'),
+  ('importlib.metadata._adapters',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_adapters.py',
+   'PYMODULE'),
+  ('importlib.metadata._collections',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_collections.py',
+   'PYMODULE'),
+  ('importlib.metadata._functools',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_functools.py',
+   'PYMODULE'),
+  ('importlib.metadata._itertools',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_itertools.py',
+   'PYMODULE'),
+  ('importlib.metadata._meta',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_meta.py',
+   'PYMODULE'),
+  ('importlib.metadata._text',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_text.py',
+   'PYMODULE'),
+  ('importlib.readers',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\readers.py',
+   'PYMODULE'),
+  ('importlib.resources',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\__init__.py',
+   'PYMODULE'),
+  ('importlib.resources._adapters',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_adapters.py',
+   'PYMODULE'),
+  ('importlib.resources._common',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_common.py',
+   'PYMODULE'),
+  ('importlib.resources._itertools',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_itertools.py',
+   'PYMODULE'),
+  ('importlib.resources._legacy',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_legacy.py',
+   'PYMODULE'),
+  ('importlib.resources.abc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\abc.py',
+   'PYMODULE'),
+  ('importlib.resources.readers',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\readers.py',
+   'PYMODULE'),
+  ('importlib.util',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\util.py',
+   'PYMODULE'),
+  ('inspect',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\inspect.py',
+   'PYMODULE'),
+  ('ipaddress',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ipaddress.py',
+   'PYMODULE'),
+  ('itsdangerous',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\__init__.py',
+   'PYMODULE'),
+  ('itsdangerous._json',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\_json.py',
+   'PYMODULE'),
+  ('itsdangerous.encoding',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\encoding.py',
+   'PYMODULE'),
+  ('itsdangerous.exc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\exc.py',
+   'PYMODULE'),
+  ('itsdangerous.serializer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\serializer.py',
+   'PYMODULE'),
+  ('itsdangerous.signer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\signer.py',
+   'PYMODULE'),
+  ('itsdangerous.timed',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\timed.py',
+   'PYMODULE'),
+  ('itsdangerous.url_safe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\itsdangerous\\url_safe.py',
+   'PYMODULE'),
+  ('jinja2',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\__init__.py',
+   'PYMODULE'),
+  ('jinja2._identifier',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\_identifier.py',
+   'PYMODULE'),
+  ('jinja2.async_utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\async_utils.py',
+   'PYMODULE'),
+  ('jinja2.bccache',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\bccache.py',
+   'PYMODULE'),
+  ('jinja2.compiler',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\compiler.py',
+   'PYMODULE'),
+  ('jinja2.constants',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\constants.py',
+   'PYMODULE'),
+  ('jinja2.debug',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\debug.py',
+   'PYMODULE'),
+  ('jinja2.defaults',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\defaults.py',
+   'PYMODULE'),
+  ('jinja2.environment',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\environment.py',
+   'PYMODULE'),
+  ('jinja2.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\exceptions.py',
+   'PYMODULE'),
+  ('jinja2.ext',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\ext.py',
+   'PYMODULE'),
+  ('jinja2.filters',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\filters.py',
+   'PYMODULE'),
+  ('jinja2.idtracking',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\idtracking.py',
+   'PYMODULE'),
+  ('jinja2.lexer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\lexer.py',
+   'PYMODULE'),
+  ('jinja2.loaders',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\loaders.py',
+   'PYMODULE'),
+  ('jinja2.nodes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\nodes.py',
+   'PYMODULE'),
+  ('jinja2.optimizer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\optimizer.py',
+   'PYMODULE'),
+  ('jinja2.parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\parser.py',
+   'PYMODULE'),
+  ('jinja2.runtime',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\runtime.py',
+   'PYMODULE'),
+  ('jinja2.sandbox',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\sandbox.py',
+   'PYMODULE'),
+  ('jinja2.tests',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\tests.py',
+   'PYMODULE'),
+  ('jinja2.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\utils.py',
+   'PYMODULE'),
+  ('jinja2.visitor',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\jinja2\\visitor.py',
+   'PYMODULE'),
+  ('json',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\__init__.py',
+   'PYMODULE'),
+  ('json.decoder',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py',
+   'PYMODULE'),
+  ('json.encoder',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\encoder.py',
+   'PYMODULE'),
+  ('json.scanner',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\scanner.py',
+   'PYMODULE'),
+  ('logging',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\logging\\__init__.py',
+   'PYMODULE'),
+  ('lzma',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\lzma.py',
+   'PYMODULE'),
+  ('markupsafe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\markupsafe\\__init__.py',
+   'PYMODULE'),
+  ('markupsafe._native',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\markupsafe\\_native.py',
+   'PYMODULE'),
+  ('mimetypes',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\mimetypes.py',
+   'PYMODULE'),
+  ('multiprocessing',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\__init__.py',
+   'PYMODULE'),
+  ('multiprocessing.connection',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\connection.py',
+   'PYMODULE'),
+  ('multiprocessing.context',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\context.py',
+   'PYMODULE'),
+  ('multiprocessing.dummy',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\dummy\\__init__.py',
+   'PYMODULE'),
+  ('multiprocessing.dummy.connection',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\dummy\\connection.py',
+   'PYMODULE'),
+  ('multiprocessing.forkserver',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\forkserver.py',
+   'PYMODULE'),
+  ('multiprocessing.heap',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\heap.py',
+   'PYMODULE'),
+  ('multiprocessing.managers',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\managers.py',
+   'PYMODULE'),
+  ('multiprocessing.pool',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\pool.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_fork',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_fork.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_forkserver',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_forkserver.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_spawn_posix',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_spawn_posix.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_spawn_win32',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_spawn_win32.py',
+   'PYMODULE'),
+  ('multiprocessing.process',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\process.py',
+   'PYMODULE'),
+  ('multiprocessing.queues',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\queues.py',
+   'PYMODULE'),
+  ('multiprocessing.reduction',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\reduction.py',
+   'PYMODULE'),
+  ('multiprocessing.resource_sharer',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\resource_sharer.py',
+   'PYMODULE'),
+  ('multiprocessing.resource_tracker',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\resource_tracker.py',
+   'PYMODULE'),
+  ('multiprocessing.shared_memory',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\shared_memory.py',
+   'PYMODULE'),
+  ('multiprocessing.sharedctypes',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\sharedctypes.py',
+   'PYMODULE'),
+  ('multiprocessing.spawn',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\spawn.py',
+   'PYMODULE'),
+  ('multiprocessing.synchronize',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\synchronize.py',
+   'PYMODULE'),
+  ('multiprocessing.util',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\util.py',
+   'PYMODULE'),
+  ('netrc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\netrc.py',
+   'PYMODULE'),
+  ('nturl2path',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\nturl2path.py',
+   'PYMODULE'),
+  ('numbers',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\numbers.py',
+   'PYMODULE'),
+  ('numpy',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\__init__.py',
+   'PYMODULE'),
+  ('numpy.__config__',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\__config__.py',
+   'PYMODULE'),
+  ('numpy._array_api_info',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_array_api_info.py',
+   'PYMODULE'),
+  ('numpy._core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\__init__.py',
+   'PYMODULE'),
+  ('numpy._core._add_newdocs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_add_newdocs.py',
+   'PYMODULE'),
+  ('numpy._core._add_newdocs_scalars',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_add_newdocs_scalars.py',
+   'PYMODULE'),
+  ('numpy._core._asarray',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_asarray.py',
+   'PYMODULE'),
+  ('numpy._core._dtype',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_dtype.py',
+   'PYMODULE'),
+  ('numpy._core._dtype_ctypes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_dtype_ctypes.py',
+   'PYMODULE'),
+  ('numpy._core._exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_exceptions.py',
+   'PYMODULE'),
+  ('numpy._core._internal',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_internal.py',
+   'PYMODULE'),
+  ('numpy._core._methods',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_methods.py',
+   'PYMODULE'),
+  ('numpy._core._string_helpers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_string_helpers.py',
+   'PYMODULE'),
+  ('numpy._core._type_aliases',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_type_aliases.py',
+   'PYMODULE'),
+  ('numpy._core._ufunc_config',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\_ufunc_config.py',
+   'PYMODULE'),
+  ('numpy._core.arrayprint',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\arrayprint.py',
+   'PYMODULE'),
+  ('numpy._core.defchararray',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\defchararray.py',
+   'PYMODULE'),
+  ('numpy._core.einsumfunc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\einsumfunc.py',
+   'PYMODULE'),
+  ('numpy._core.fromnumeric',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\fromnumeric.py',
+   'PYMODULE'),
+  ('numpy._core.function_base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\function_base.py',
+   'PYMODULE'),
+  ('numpy._core.getlimits',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\getlimits.py',
+   'PYMODULE'),
+  ('numpy._core.memmap',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\memmap.py',
+   'PYMODULE'),
+  ('numpy._core.multiarray',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\multiarray.py',
+   'PYMODULE'),
+  ('numpy._core.numeric',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\numeric.py',
+   'PYMODULE'),
+  ('numpy._core.numerictypes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\numerictypes.py',
+   'PYMODULE'),
+  ('numpy._core.overrides',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\overrides.py',
+   'PYMODULE'),
+  ('numpy._core.printoptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\printoptions.py',
+   'PYMODULE'),
+  ('numpy._core.records',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\records.py',
+   'PYMODULE'),
+  ('numpy._core.shape_base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\shape_base.py',
+   'PYMODULE'),
+  ('numpy._core.strings',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\strings.py',
+   'PYMODULE'),
+  ('numpy._core.umath',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_core\\umath.py',
+   'PYMODULE'),
+  ('numpy._distributor_init',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_distributor_init.py',
+   'PYMODULE'),
+  ('numpy._expired_attrs_2_0',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_expired_attrs_2_0.py',
+   'PYMODULE'),
+  ('numpy._globals',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_globals.py',
+   'PYMODULE'),
+  ('numpy._pytesttester',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_pytesttester.py',
+   'PYMODULE'),
+  ('numpy._typing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\__init__.py',
+   'PYMODULE'),
+  ('numpy._typing._add_docstring',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_add_docstring.py',
+   'PYMODULE'),
+  ('numpy._typing._array_like',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_array_like.py',
+   'PYMODULE'),
+  ('numpy._typing._char_codes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_char_codes.py',
+   'PYMODULE'),
+  ('numpy._typing._dtype_like',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_dtype_like.py',
+   'PYMODULE'),
+  ('numpy._typing._nbit',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_nbit.py',
+   'PYMODULE'),
+  ('numpy._typing._nbit_base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_nbit_base.py',
+   'PYMODULE'),
+  ('numpy._typing._nested_sequence',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_nested_sequence.py',
+   'PYMODULE'),
+  ('numpy._typing._scalars',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_scalars.py',
+   'PYMODULE'),
+  ('numpy._typing._shape',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_shape.py',
+   'PYMODULE'),
+  ('numpy._typing._ufunc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_typing\\_ufunc.py',
+   'PYMODULE'),
+  ('numpy._utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_utils\\__init__.py',
+   'PYMODULE'),
+  ('numpy._utils._convertions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_utils\\_convertions.py',
+   'PYMODULE'),
+  ('numpy._utils._inspect',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\_utils\\_inspect.py',
+   'PYMODULE'),
+  ('numpy.char',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\char\\__init__.py',
+   'PYMODULE'),
+  ('numpy.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\core\\__init__.py',
+   'PYMODULE'),
+  ('numpy.core._utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\core\\_utils.py',
+   'PYMODULE'),
+  ('numpy.ctypeslib',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\ctypeslib\\__init__.py',
+   'PYMODULE'),
+  ('numpy.ctypeslib._ctypeslib',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\ctypeslib\\_ctypeslib.py',
+   'PYMODULE'),
+  ('numpy.dtypes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\dtypes.py',
+   'PYMODULE'),
+  ('numpy.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\exceptions.py',
+   'PYMODULE'),
+  ('numpy.f2py',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\__init__.py',
+   'PYMODULE'),
+  ('numpy.f2py.__version__',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\__version__.py',
+   'PYMODULE'),
+  ('numpy.f2py._backends',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\_backends\\__init__.py',
+   'PYMODULE'),
+  ('numpy.f2py._backends._backend',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\_backends\\_backend.py',
+   'PYMODULE'),
+  ('numpy.f2py._backends._distutils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\_backends\\_distutils.py',
+   'PYMODULE'),
+  ('numpy.f2py._backends._meson',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\_backends\\_meson.py',
+   'PYMODULE'),
+  ('numpy.f2py._isocbind',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\_isocbind.py',
+   'PYMODULE'),
+  ('numpy.f2py.auxfuncs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\auxfuncs.py',
+   'PYMODULE'),
+  ('numpy.f2py.capi_maps',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\capi_maps.py',
+   'PYMODULE'),
+  ('numpy.f2py.cb_rules',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\cb_rules.py',
+   'PYMODULE'),
+  ('numpy.f2py.cfuncs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\cfuncs.py',
+   'PYMODULE'),
+  ('numpy.f2py.common_rules',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\common_rules.py',
+   'PYMODULE'),
+  ('numpy.f2py.crackfortran',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\crackfortran.py',
+   'PYMODULE'),
+  ('numpy.f2py.diagnose',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\diagnose.py',
+   'PYMODULE'),
+  ('numpy.f2py.f2py2e',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\f2py2e.py',
+   'PYMODULE'),
+  ('numpy.f2py.f90mod_rules',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\f90mod_rules.py',
+   'PYMODULE'),
+  ('numpy.f2py.func2subr',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\func2subr.py',
+   'PYMODULE'),
+  ('numpy.f2py.rules',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\rules.py',
+   'PYMODULE'),
+  ('numpy.f2py.symbolic',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\symbolic.py',
+   'PYMODULE'),
+  ('numpy.f2py.use_rules',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\f2py\\use_rules.py',
+   'PYMODULE'),
+  ('numpy.fft',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\fft\\__init__.py',
+   'PYMODULE'),
+  ('numpy.fft._helper',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\fft\\_helper.py',
+   'PYMODULE'),
+  ('numpy.fft._pocketfft',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\fft\\_pocketfft.py',
+   'PYMODULE'),
+  ('numpy.lib',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\__init__.py',
+   'PYMODULE'),
+  ('numpy.lib._array_utils_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_array_utils_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._arraypad_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_arraypad_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._arraysetops_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_arraysetops_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._arrayterator_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_arrayterator_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._datasource',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_datasource.py',
+   'PYMODULE'),
+  ('numpy.lib._format_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_format_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._function_base_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_function_base_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._histograms_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_histograms_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._index_tricks_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_index_tricks_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._iotools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_iotools.py',
+   'PYMODULE'),
+  ('numpy.lib._nanfunctions_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_nanfunctions_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._npyio_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_npyio_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._polynomial_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_polynomial_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._scimath_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_scimath_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._shape_base_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_shape_base_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._stride_tricks_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_stride_tricks_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._twodim_base_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_twodim_base_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._type_check_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_type_check_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._ufunclike_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_ufunclike_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._utils_impl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_utils_impl.py',
+   'PYMODULE'),
+  ('numpy.lib._version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\_version.py',
+   'PYMODULE'),
+  ('numpy.lib.array_utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\array_utils.py',
+   'PYMODULE'),
+  ('numpy.lib.format',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\format.py',
+   'PYMODULE'),
+  ('numpy.lib.introspect',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\introspect.py',
+   'PYMODULE'),
+  ('numpy.lib.mixins',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\mixins.py',
+   'PYMODULE'),
+  ('numpy.lib.npyio',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\npyio.py',
+   'PYMODULE'),
+  ('numpy.lib.recfunctions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\recfunctions.py',
+   'PYMODULE'),
+  ('numpy.lib.scimath',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\scimath.py',
+   'PYMODULE'),
+  ('numpy.lib.stride_tricks',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\lib\\stride_tricks.py',
+   'PYMODULE'),
+  ('numpy.linalg',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\linalg\\__init__.py',
+   'PYMODULE'),
+  ('numpy.linalg._linalg',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\linalg\\_linalg.py',
+   'PYMODULE'),
+  ('numpy.ma',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\ma\\__init__.py',
+   'PYMODULE'),
+  ('numpy.ma.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\ma\\core.py',
+   'PYMODULE'),
+  ('numpy.ma.extras',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\ma\\extras.py',
+   'PYMODULE'),
+  ('numpy.ma.mrecords',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\ma\\mrecords.py',
+   'PYMODULE'),
+  ('numpy.matlib',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\matlib.py',
+   'PYMODULE'),
+  ('numpy.matrixlib',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\matrixlib\\__init__.py',
+   'PYMODULE'),
+  ('numpy.matrixlib.defmatrix',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\matrixlib\\defmatrix.py',
+   'PYMODULE'),
+  ('numpy.polynomial',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\__init__.py',
+   'PYMODULE'),
+  ('numpy.polynomial._polybase',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\_polybase.py',
+   'PYMODULE'),
+  ('numpy.polynomial.chebyshev',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\chebyshev.py',
+   'PYMODULE'),
+  ('numpy.polynomial.hermite',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\hermite.py',
+   'PYMODULE'),
+  ('numpy.polynomial.hermite_e',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\hermite_e.py',
+   'PYMODULE'),
+  ('numpy.polynomial.laguerre',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\laguerre.py',
+   'PYMODULE'),
+  ('numpy.polynomial.legendre',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\legendre.py',
+   'PYMODULE'),
+  ('numpy.polynomial.polynomial',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\polynomial.py',
+   'PYMODULE'),
+  ('numpy.polynomial.polyutils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\polynomial\\polyutils.py',
+   'PYMODULE'),
+  ('numpy.random',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\random\\__init__.py',
+   'PYMODULE'),
+  ('numpy.random._pickle',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\random\\_pickle.py',
+   'PYMODULE'),
+  ('numpy.rec',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\rec\\__init__.py',
+   'PYMODULE'),
+  ('numpy.strings',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\strings\\__init__.py',
+   'PYMODULE'),
+  ('numpy.testing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\testing\\__init__.py',
+   'PYMODULE'),
+  ('numpy.testing._private',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\testing\\_private\\__init__.py',
+   'PYMODULE'),
+  ('numpy.testing._private.extbuild',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\testing\\_private\\extbuild.py',
+   'PYMODULE'),
+  ('numpy.testing._private.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\testing\\_private\\utils.py',
+   'PYMODULE'),
+  ('numpy.testing.overrides',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\testing\\overrides.py',
+   'PYMODULE'),
+  ('numpy.typing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\typing\\__init__.py',
+   'PYMODULE'),
+  ('numpy.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\numpy\\version.py',
+   'PYMODULE'),
+  ('opcode',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\opcode.py',
+   'PYMODULE'),
+  ('packaging',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('packaging._elffile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\_elffile.py',
+   'PYMODULE'),
+  ('packaging._manylinux',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\_manylinux.py',
+   'PYMODULE'),
+  ('packaging._musllinux',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\_musllinux.py',
+   'PYMODULE'),
+  ('packaging._parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('packaging._structures',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('packaging._tokenizer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\_tokenizer.py',
+   'PYMODULE'),
+  ('packaging.licenses',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\licenses\\__init__.py',
+   'PYMODULE'),
+  ('packaging.licenses._spdx',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\licenses\\_spdx.py',
+   'PYMODULE'),
+  ('packaging.markers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\markers.py',
+   'PYMODULE'),
+  ('packaging.requirements',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('packaging.specifiers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('packaging.tags',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\tags.py',
+   'PYMODULE'),
+  ('packaging.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\utils.py',
+   'PYMODULE'),
+  ('packaging.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\packaging\\version.py',
+   'PYMODULE'),
+  ('pandas',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\__init__.py',
+   'PYMODULE'),
+  ('pandas._config',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_config\\__init__.py',
+   'PYMODULE'),
+  ('pandas._config.config',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_config\\config.py',
+   'PYMODULE'),
+  ('pandas._config.dates',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_config\\dates.py',
+   'PYMODULE'),
+  ('pandas._config.display',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_config\\display.py',
+   'PYMODULE'),
+  ('pandas._config.localization',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_config\\localization.py',
+   'PYMODULE'),
+  ('pandas._libs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_libs\\__init__.py',
+   'PYMODULE'),
+  ('pandas._libs.tslibs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_libs\\tslibs\\__init__.py',
+   'PYMODULE'),
+  ('pandas._libs.window',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_libs\\window\\__init__.py',
+   'PYMODULE'),
+  ('pandas._testing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_testing\\__init__.py',
+   'PYMODULE'),
+  ('pandas._testing._io',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_testing\\_io.py',
+   'PYMODULE'),
+  ('pandas._testing._warnings',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_testing\\_warnings.py',
+   'PYMODULE'),
+  ('pandas._testing.asserters',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_testing\\asserters.py',
+   'PYMODULE'),
+  ('pandas._testing.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_testing\\compat.py',
+   'PYMODULE'),
+  ('pandas._testing.contexts',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_testing\\contexts.py',
+   'PYMODULE'),
+  ('pandas._typing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_typing.py',
+   'PYMODULE'),
+  ('pandas._version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_version.py',
+   'PYMODULE'),
+  ('pandas._version_meson',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\_version_meson.py',
+   'PYMODULE'),
+  ('pandas.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\api\\__init__.py',
+   'PYMODULE'),
+  ('pandas.api.extensions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\api\\extensions\\__init__.py',
+   'PYMODULE'),
+  ('pandas.api.indexers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\api\\indexers\\__init__.py',
+   'PYMODULE'),
+  ('pandas.api.interchange',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\api\\interchange\\__init__.py',
+   'PYMODULE'),
+  ('pandas.api.types',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\api\\types\\__init__.py',
+   'PYMODULE'),
+  ('pandas.api.typing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\api\\typing\\__init__.py',
+   'PYMODULE'),
+  ('pandas.arrays',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\arrays\\__init__.py',
+   'PYMODULE'),
+  ('pandas.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\__init__.py',
+   'PYMODULE'),
+  ('pandas.compat._constants',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\_constants.py',
+   'PYMODULE'),
+  ('pandas.compat._optional',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\_optional.py',
+   'PYMODULE'),
+  ('pandas.compat.compressors',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\compressors.py',
+   'PYMODULE'),
+  ('pandas.compat.numpy',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\numpy\\__init__.py',
+   'PYMODULE'),
+  ('pandas.compat.numpy.function',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\numpy\\function.py',
+   'PYMODULE'),
+  ('pandas.compat.pickle_compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\pickle_compat.py',
+   'PYMODULE'),
+  ('pandas.compat.pyarrow',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\compat\\pyarrow.py',
+   'PYMODULE'),
+  ('pandas.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core._numba',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core._numba.executor',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\executor.py',
+   'PYMODULE'),
+  ('pandas.core._numba.extensions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\extensions.py',
+   'PYMODULE'),
+  ('pandas.core._numba.kernels',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\kernels\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core._numba.kernels.mean_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\kernels\\mean_.py',
+   'PYMODULE'),
+  ('pandas.core._numba.kernels.min_max_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\kernels\\min_max_.py',
+   'PYMODULE'),
+  ('pandas.core._numba.kernels.shared',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\kernels\\shared.py',
+   'PYMODULE'),
+  ('pandas.core._numba.kernels.sum_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\kernels\\sum_.py',
+   'PYMODULE'),
+  ('pandas.core._numba.kernels.var_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\_numba\\kernels\\var_.py',
+   'PYMODULE'),
+  ('pandas.core.accessor',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\accessor.py',
+   'PYMODULE'),
+  ('pandas.core.algorithms',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\algorithms.py',
+   'PYMODULE'),
+  ('pandas.core.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\api.py',
+   'PYMODULE'),
+  ('pandas.core.apply',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\apply.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.datetimelike_accumulations',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\datetimelike_accumulations.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.masked_accumulations',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\masked_accumulations.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.masked_reductions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\masked_reductions.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.putmask',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\putmask.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.quantile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\quantile.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.replace',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\replace.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.take',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\take.py',
+   'PYMODULE'),
+  ('pandas.core.array_algos.transforms',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\array_algos\\transforms.py',
+   'PYMODULE'),
+  ('pandas.core.arraylike',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arraylike.py',
+   'PYMODULE'),
+  ('pandas.core.arrays',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.arrays._arrow_string_mixins',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\_arrow_string_mixins.py',
+   'PYMODULE'),
+  ('pandas.core.arrays._mixins',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\_mixins.py',
+   'PYMODULE'),
+  ('pandas.core.arrays._ranges',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\_ranges.py',
+   'PYMODULE'),
+  ('pandas.core.arrays._utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\_utils.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.arrow',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\arrow\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.arrow._arrow_utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\arrow\\_arrow_utils.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.arrow.accessors',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\arrow\\accessors.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.arrow.array',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\arrow\\array.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.arrow.extension_types',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\arrow\\extension_types.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\base.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.boolean',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\boolean.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.categorical',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\categorical.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.datetimelike',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\datetimelike.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.datetimes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\datetimes.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.floating',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\floating.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.integer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\integer.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.interval',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\interval.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.masked',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\masked.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.numeric',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\numeric.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.numpy_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\numpy_.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.period',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\period.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.sparse',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\sparse\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.sparse.accessor',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\sparse\\accessor.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.sparse.array',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\sparse\\array.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.sparse.scipy_sparse',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\sparse\\scipy_sparse.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.string_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\string_.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.string_arrow',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\string_arrow.py',
+   'PYMODULE'),
+  ('pandas.core.arrays.timedeltas',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\arrays\\timedeltas.py',
+   'PYMODULE'),
+  ('pandas.core.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\base.py',
+   'PYMODULE'),
+  ('pandas.core.common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\common.py',
+   'PYMODULE'),
+  ('pandas.core.computation',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.computation.align',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\align.py',
+   'PYMODULE'),
+  ('pandas.core.computation.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\api.py',
+   'PYMODULE'),
+  ('pandas.core.computation.check',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\check.py',
+   'PYMODULE'),
+  ('pandas.core.computation.common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\common.py',
+   'PYMODULE'),
+  ('pandas.core.computation.engines',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\engines.py',
+   'PYMODULE'),
+  ('pandas.core.computation.eval',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\eval.py',
+   'PYMODULE'),
+  ('pandas.core.computation.expr',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\expr.py',
+   'PYMODULE'),
+  ('pandas.core.computation.expressions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\expressions.py',
+   'PYMODULE'),
+  ('pandas.core.computation.ops',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\ops.py',
+   'PYMODULE'),
+  ('pandas.core.computation.parsing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\parsing.py',
+   'PYMODULE'),
+  ('pandas.core.computation.pytables',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\pytables.py',
+   'PYMODULE'),
+  ('pandas.core.computation.scope',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\computation\\scope.py',
+   'PYMODULE'),
+  ('pandas.core.config_init',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\config_init.py',
+   'PYMODULE'),
+  ('pandas.core.construction',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\construction.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\api.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.astype',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\astype.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\base.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.cast',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\cast.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\common.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.concat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\concat.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.dtypes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\dtypes.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.generic',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\generic.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.inference',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\inference.py',
+   'PYMODULE'),
+  ('pandas.core.dtypes.missing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\dtypes\\missing.py',
+   'PYMODULE'),
+  ('pandas.core.flags',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\flags.py',
+   'PYMODULE'),
+  ('pandas.core.frame',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\frame.py',
+   'PYMODULE'),
+  ('pandas.core.generic',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\generic.py',
+   'PYMODULE'),
+  ('pandas.core.groupby',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\base.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.categorical',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\categorical.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.generic',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\generic.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.groupby',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\groupby.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.grouper',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\grouper.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.indexing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\indexing.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.numba_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\numba_.py',
+   'PYMODULE'),
+  ('pandas.core.groupby.ops',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\groupby\\ops.py',
+   'PYMODULE'),
+  ('pandas.core.indexers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexers\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.indexers.objects',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexers\\objects.py',
+   'PYMODULE'),
+  ('pandas.core.indexers.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexers\\utils.py',
+   'PYMODULE'),
+  ('pandas.core.indexes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.accessors',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\accessors.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\api.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\base.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.category',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\category.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.datetimelike',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\datetimelike.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.datetimes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\datetimes.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.extension',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\extension.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.frozen',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\frozen.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.interval',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\interval.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.multi',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\multi.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.period',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\period.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.range',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\range.py',
+   'PYMODULE'),
+  ('pandas.core.indexes.timedeltas',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\timedeltas.py',
+   'PYMODULE'),
+  ('pandas.core.indexing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\indexing.py',
+   'PYMODULE'),
+  ('pandas.core.interchange',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\interchange\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.interchange.buffer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\interchange\\buffer.py',
+   'PYMODULE'),
+  ('pandas.core.interchange.column',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\interchange\\column.py',
+   'PYMODULE'),
+  ('pandas.core.interchange.dataframe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\interchange\\dataframe.py',
+   'PYMODULE'),
+  ('pandas.core.interchange.dataframe_protocol',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\interchange\\dataframe_protocol.py',
+   'PYMODULE'),
+  ('pandas.core.interchange.from_dataframe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\interchange\\from_dataframe.py',
+   'PYMODULE'),
+  ('pandas.core.interchange.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\interchange\\utils.py',
+   'PYMODULE'),
+  ('pandas.core.internals',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.internals.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\api.py',
+   'PYMODULE'),
+  ('pandas.core.internals.array_manager',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\array_manager.py',
+   'PYMODULE'),
+  ('pandas.core.internals.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\base.py',
+   'PYMODULE'),
+  ('pandas.core.internals.blocks',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\blocks.py',
+   'PYMODULE'),
+  ('pandas.core.internals.concat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\concat.py',
+   'PYMODULE'),
+  ('pandas.core.internals.construction',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\construction.py',
+   'PYMODULE'),
+  ('pandas.core.internals.managers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py',
+   'PYMODULE'),
+  ('pandas.core.internals.ops',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\internals\\ops.py',
+   'PYMODULE'),
+  ('pandas.core.methods',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\methods\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.methods.describe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\methods\\describe.py',
+   'PYMODULE'),
+  ('pandas.core.methods.selectn',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\methods\\selectn.py',
+   'PYMODULE'),
+  ('pandas.core.methods.to_dict',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\methods\\to_dict.py',
+   'PYMODULE'),
+  ('pandas.core.missing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\missing.py',
+   'PYMODULE'),
+  ('pandas.core.nanops',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\nanops.py',
+   'PYMODULE'),
+  ('pandas.core.ops',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.ops.array_ops',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\array_ops.py',
+   'PYMODULE'),
+  ('pandas.core.ops.common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\common.py',
+   'PYMODULE'),
+  ('pandas.core.ops.dispatch',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\dispatch.py',
+   'PYMODULE'),
+  ('pandas.core.ops.docstrings',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\docstrings.py',
+   'PYMODULE'),
+  ('pandas.core.ops.invalid',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\invalid.py',
+   'PYMODULE'),
+  ('pandas.core.ops.mask_ops',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\mask_ops.py',
+   'PYMODULE'),
+  ('pandas.core.ops.missing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\ops\\missing.py',
+   'PYMODULE'),
+  ('pandas.core.resample',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\resample.py',
+   'PYMODULE'),
+  ('pandas.core.reshape',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\api.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.concat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\concat.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.encoding',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\encoding.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.melt',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\melt.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.merge',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\merge.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.pivot',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\pivot.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.reshape',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\reshape.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.tile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\tile.py',
+   'PYMODULE'),
+  ('pandas.core.reshape.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\reshape\\util.py',
+   'PYMODULE'),
+  ('pandas.core.roperator',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\roperator.py',
+   'PYMODULE'),
+  ('pandas.core.sample',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\sample.py',
+   'PYMODULE'),
+  ('pandas.core.series',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\series.py',
+   'PYMODULE'),
+  ('pandas.core.shared_docs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\shared_docs.py',
+   'PYMODULE'),
+  ('pandas.core.sorting',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\sorting.py',
+   'PYMODULE'),
+  ('pandas.core.strings',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\strings\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.strings.accessor',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\strings\\accessor.py',
+   'PYMODULE'),
+  ('pandas.core.strings.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\strings\\base.py',
+   'PYMODULE'),
+  ('pandas.core.strings.object_array',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\strings\\object_array.py',
+   'PYMODULE'),
+  ('pandas.core.tools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\tools\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.tools.datetimes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\tools\\datetimes.py',
+   'PYMODULE'),
+  ('pandas.core.tools.numeric',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\tools\\numeric.py',
+   'PYMODULE'),
+  ('pandas.core.tools.timedeltas',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\tools\\timedeltas.py',
+   'PYMODULE'),
+  ('pandas.core.tools.times',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\tools\\times.py',
+   'PYMODULE'),
+  ('pandas.core.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\util\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.util.hashing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\util\\hashing.py',
+   'PYMODULE'),
+  ('pandas.core.util.numba_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\util\\numba_.py',
+   'PYMODULE'),
+  ('pandas.core.window',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\__init__.py',
+   'PYMODULE'),
+  ('pandas.core.window.common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\common.py',
+   'PYMODULE'),
+  ('pandas.core.window.doc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\doc.py',
+   'PYMODULE'),
+  ('pandas.core.window.ewm',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\ewm.py',
+   'PYMODULE'),
+  ('pandas.core.window.expanding',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\expanding.py',
+   'PYMODULE'),
+  ('pandas.core.window.numba_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\numba_.py',
+   'PYMODULE'),
+  ('pandas.core.window.online',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\online.py',
+   'PYMODULE'),
+  ('pandas.core.window.rolling',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\core\\window\\rolling.py',
+   'PYMODULE'),
+  ('pandas.errors',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\errors\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io._util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\_util.py',
+   'PYMODULE'),
+  ('pandas.io.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\api.py',
+   'PYMODULE'),
+  ('pandas.io.clipboard',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\clipboard\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io.clipboards',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\clipboards.py',
+   'PYMODULE'),
+  ('pandas.io.common',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\common.py',
+   'PYMODULE'),
+  ('pandas.io.excel',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io.excel._base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_base.py',
+   'PYMODULE'),
+  ('pandas.io.excel._calamine',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_calamine.py',
+   'PYMODULE'),
+  ('pandas.io.excel._odfreader',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_odfreader.py',
+   'PYMODULE'),
+  ('pandas.io.excel._odswriter',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_odswriter.py',
+   'PYMODULE'),
+  ('pandas.io.excel._openpyxl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_openpyxl.py',
+   'PYMODULE'),
+  ('pandas.io.excel._pyxlsb',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_pyxlsb.py',
+   'PYMODULE'),
+  ('pandas.io.excel._util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_util.py',
+   'PYMODULE'),
+  ('pandas.io.excel._xlrd',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_xlrd.py',
+   'PYMODULE'),
+  ('pandas.io.excel._xlsxwriter',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\excel\\_xlsxwriter.py',
+   'PYMODULE'),
+  ('pandas.io.feather_format',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\feather_format.py',
+   'PYMODULE'),
+  ('pandas.io.formats',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io.formats._color_data',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\_color_data.py',
+   'PYMODULE'),
+  ('pandas.io.formats.console',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\console.py',
+   'PYMODULE'),
+  ('pandas.io.formats.css',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\css.py',
+   'PYMODULE'),
+  ('pandas.io.formats.csvs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\csvs.py',
+   'PYMODULE'),
+  ('pandas.io.formats.excel',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\excel.py',
+   'PYMODULE'),
+  ('pandas.io.formats.format',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\format.py',
+   'PYMODULE'),
+  ('pandas.io.formats.html',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\html.py',
+   'PYMODULE'),
+  ('pandas.io.formats.info',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\info.py',
+   'PYMODULE'),
+  ('pandas.io.formats.printing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\printing.py',
+   'PYMODULE'),
+  ('pandas.io.formats.string',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\string.py',
+   'PYMODULE'),
+  ('pandas.io.formats.style',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\style.py',
+   'PYMODULE'),
+  ('pandas.io.formats.style_render',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\style_render.py',
+   'PYMODULE'),
+  ('pandas.io.formats.xml',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\formats\\xml.py',
+   'PYMODULE'),
+  ('pandas.io.gbq',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\gbq.py',
+   'PYMODULE'),
+  ('pandas.io.html',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\html.py',
+   'PYMODULE'),
+  ('pandas.io.json',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\json\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io.json._json',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\json\\_json.py',
+   'PYMODULE'),
+  ('pandas.io.json._normalize',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\json\\_normalize.py',
+   'PYMODULE'),
+  ('pandas.io.json._table_schema',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\json\\_table_schema.py',
+   'PYMODULE'),
+  ('pandas.io.orc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\orc.py',
+   'PYMODULE'),
+  ('pandas.io.parquet',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\parquet.py',
+   'PYMODULE'),
+  ('pandas.io.parsers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\parsers\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io.parsers.arrow_parser_wrapper',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\parsers\\arrow_parser_wrapper.py',
+   'PYMODULE'),
+  ('pandas.io.parsers.base_parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\parsers\\base_parser.py',
+   'PYMODULE'),
+  ('pandas.io.parsers.c_parser_wrapper',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\parsers\\c_parser_wrapper.py',
+   'PYMODULE'),
+  ('pandas.io.parsers.python_parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\parsers\\python_parser.py',
+   'PYMODULE'),
+  ('pandas.io.parsers.readers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\parsers\\readers.py',
+   'PYMODULE'),
+  ('pandas.io.pickle',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\pickle.py',
+   'PYMODULE'),
+  ('pandas.io.pytables',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\pytables.py',
+   'PYMODULE'),
+  ('pandas.io.sas',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\sas\\__init__.py',
+   'PYMODULE'),
+  ('pandas.io.sas.sas7bdat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\sas\\sas7bdat.py',
+   'PYMODULE'),
+  ('pandas.io.sas.sas_constants',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\sas\\sas_constants.py',
+   'PYMODULE'),
+  ('pandas.io.sas.sas_xport',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\sas\\sas_xport.py',
+   'PYMODULE'),
+  ('pandas.io.sas.sasreader',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\sas\\sasreader.py',
+   'PYMODULE'),
+  ('pandas.io.spss',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\spss.py',
+   'PYMODULE'),
+  ('pandas.io.sql',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\sql.py',
+   'PYMODULE'),
+  ('pandas.io.stata',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\stata.py',
+   'PYMODULE'),
+  ('pandas.io.xml',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\io\\xml.py',
+   'PYMODULE'),
+  ('pandas.plotting',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\plotting\\__init__.py',
+   'PYMODULE'),
+  ('pandas.plotting._core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\plotting\\_core.py',
+   'PYMODULE'),
+  ('pandas.plotting._misc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\plotting\\_misc.py',
+   'PYMODULE'),
+  ('pandas.testing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\testing.py',
+   'PYMODULE'),
+  ('pandas.tseries',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\tseries\\__init__.py',
+   'PYMODULE'),
+  ('pandas.tseries.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\tseries\\api.py',
+   'PYMODULE'),
+  ('pandas.tseries.frequencies',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\tseries\\frequencies.py',
+   'PYMODULE'),
+  ('pandas.tseries.holiday',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\tseries\\holiday.py',
+   'PYMODULE'),
+  ('pandas.tseries.offsets',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\tseries\\offsets.py',
+   'PYMODULE'),
+  ('pandas.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\util\\__init__.py',
+   'PYMODULE'),
+  ('pandas.util._decorators',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\util\\_decorators.py',
+   'PYMODULE'),
+  ('pandas.util._exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\util\\_exceptions.py',
+   'PYMODULE'),
+  ('pandas.util._print_versions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\util\\_print_versions.py',
+   'PYMODULE'),
+  ('pandas.util._tester',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\util\\_tester.py',
+   'PYMODULE'),
+  ('pandas.util._validators',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\util\\_validators.py',
+   'PYMODULE'),
+  ('pandas.util.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pandas\\util\\version\\__init__.py',
+   'PYMODULE'),
+  ('pathlib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pathlib.py',
+   'PYMODULE'),
+  ('pdb',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pdb.py',
+   'PYMODULE'),
+  ('pickle',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pickle.py',
+   'PYMODULE'),
+  ('pickletools',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pickletools.py',
+   'PYMODULE'),
+  ('pkgutil',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pkgutil.py',
+   'PYMODULE'),
+  ('platform',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\platform.py',
+   'PYMODULE'),
+  ('pprint',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pprint.py',
+   'PYMODULE'),
+  ('py_compile',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\py_compile.py',
+   'PYMODULE'),
+  ('pyarrow',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\__init__.py',
+   'PYMODULE'),
+  ('pyarrow._compute_docstrings',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\_compute_docstrings.py',
+   'PYMODULE'),
+  ('pyarrow._generated_version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\_generated_version.py',
+   'PYMODULE'),
+  ('pyarrow.acero',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\acero.py',
+   'PYMODULE'),
+  ('pyarrow.benchmark',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\benchmark.py',
+   'PYMODULE'),
+  ('pyarrow.cffi',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\cffi.py',
+   'PYMODULE'),
+  ('pyarrow.compute',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\compute.py',
+   'PYMODULE'),
+  ('pyarrow.conftest',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\conftest.py',
+   'PYMODULE'),
+  ('pyarrow.csv',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\csv.py',
+   'PYMODULE'),
+  ('pyarrow.cuda',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\cuda.py',
+   'PYMODULE'),
+  ('pyarrow.dataset',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\dataset.py',
+   'PYMODULE'),
+  ('pyarrow.feather',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\feather.py',
+   'PYMODULE'),
+  ('pyarrow.flight',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\flight.py',
+   'PYMODULE'),
+  ('pyarrow.fs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\fs.py',
+   'PYMODULE'),
+  ('pyarrow.interchange',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\interchange\\__init__.py',
+   'PYMODULE'),
+  ('pyarrow.interchange.buffer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\interchange\\buffer.py',
+   'PYMODULE'),
+  ('pyarrow.interchange.column',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\interchange\\column.py',
+   'PYMODULE'),
+  ('pyarrow.interchange.dataframe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\interchange\\dataframe.py',
+   'PYMODULE'),
+  ('pyarrow.interchange.from_dataframe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\interchange\\from_dataframe.py',
+   'PYMODULE'),
+  ('pyarrow.ipc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\ipc.py',
+   'PYMODULE'),
+  ('pyarrow.json',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\json.py',
+   'PYMODULE'),
+  ('pyarrow.jvm',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\jvm.py',
+   'PYMODULE'),
+  ('pyarrow.orc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\orc.py',
+   'PYMODULE'),
+  ('pyarrow.pandas_compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\pandas_compat.py',
+   'PYMODULE'),
+  ('pyarrow.parquet',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\parquet\\__init__.py',
+   'PYMODULE'),
+  ('pyarrow.parquet.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\parquet\\core.py',
+   'PYMODULE'),
+  ('pyarrow.parquet.encryption',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\parquet\\encryption.py',
+   'PYMODULE'),
+  ('pyarrow.substrait',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\substrait.py',
+   'PYMODULE'),
+  ('pyarrow.tests',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\tests\\__init__.py',
+   'PYMODULE'),
+  ('pyarrow.tests.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\tests\\util.py',
+   'PYMODULE'),
+  ('pyarrow.types',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\types.py',
+   'PYMODULE'),
+  ('pyarrow.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\util.py',
+   'PYMODULE'),
+  ('pyarrow.vendored',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\vendored\\__init__.py',
+   'PYMODULE'),
+  ('pyarrow.vendored.docscrape',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\vendored\\docscrape.py',
+   'PYMODULE'),
+  ('pyarrow.vendored.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pyarrow\\vendored\\version.py',
+   'PYMODULE'),
+  ('pydoc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc.py',
+   'PYMODULE'),
+  ('pydoc_data',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc_data\\__init__.py',
+   'PYMODULE'),
+  ('pydoc_data.topics',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc_data\\topics.py',
+   'PYMODULE'),
+  ('pytz',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pytz\\__init__.py',
+   'PYMODULE'),
+  ('pytz.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pytz\\exceptions.py',
+   'PYMODULE'),
+  ('pytz.lazy',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pytz\\lazy.py',
+   'PYMODULE'),
+  ('pytz.tzfile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pytz\\tzfile.py',
+   'PYMODULE'),
+  ('pytz.tzinfo',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\pytz\\tzinfo.py',
+   'PYMODULE'),
+  ('queue',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\queue.py',
+   'PYMODULE'),
+  ('quopri',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\quopri.py',
+   'PYMODULE'),
+  ('random',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\random.py',
+   'PYMODULE'),
+  ('requests',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\__init__.py',
+   'PYMODULE'),
+  ('requests.__version__',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\__version__.py',
+   'PYMODULE'),
+  ('requests._internal_utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\_internal_utils.py',
+   'PYMODULE'),
+  ('requests.adapters',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\adapters.py',
+   'PYMODULE'),
+  ('requests.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\api.py',
+   'PYMODULE'),
+  ('requests.auth',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\auth.py',
+   'PYMODULE'),
+  ('requests.certs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\certs.py',
+   'PYMODULE'),
+  ('requests.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\compat.py',
+   'PYMODULE'),
+  ('requests.cookies',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\cookies.py',
+   'PYMODULE'),
+  ('requests.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\exceptions.py',
+   'PYMODULE'),
+  ('requests.hooks',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\hooks.py',
+   'PYMODULE'),
+  ('requests.models',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\models.py',
+   'PYMODULE'),
+  ('requests.packages',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\packages.py',
+   'PYMODULE'),
+  ('requests.sessions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\sessions.py',
+   'PYMODULE'),
+  ('requests.status_codes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\status_codes.py',
+   'PYMODULE'),
+  ('requests.structures',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\structures.py',
+   'PYMODULE'),
+  ('requests.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\requests\\utils.py',
+   'PYMODULE'),
+  ('rlcompleter',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\rlcompleter.py',
+   'PYMODULE'),
+  ('runpy',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\runpy.py',
+   'PYMODULE'),
+  ('secrets',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\secrets.py',
+   'PYMODULE'),
+  ('selectors',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\selectors.py',
+   'PYMODULE'),
+  ('setuptools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._core_metadata',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_core_metadata.py',
+   'PYMODULE'),
+  ('setuptools._discovery',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_discovery.py',
+   'PYMODULE'),
+  ('setuptools._distutils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._distutils._log',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\_log.py',
+   'PYMODULE'),
+  ('setuptools._distutils._modified',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\_modified.py',
+   'PYMODULE'),
+  ('setuptools._distutils._msvccompiler',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\_msvccompiler.py',
+   'PYMODULE'),
+  ('setuptools._distutils.archive_util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\archive_util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.ccompiler',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\ccompiler.py',
+   'PYMODULE'),
+  ('setuptools._distutils.cmd',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\cmd.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.bdist',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\bdist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.build',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\build.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.build_ext',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\build_ext.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.sdist',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\sdist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compat.numpy',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\numpy.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compat.py39',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\py39.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compilers', '-', 'PYMODULE'),
+  ('setuptools._distutils.compilers.C', '-', 'PYMODULE'),
+  ('setuptools._distutils.compilers.C.base',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\base.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compilers.C.errors',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\errors.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compilers.C.msvc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\msvc.py',
+   'PYMODULE'),
+  ('setuptools._distutils.core',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\core.py',
+   'PYMODULE'),
+  ('setuptools._distutils.debug',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\debug.py',
+   'PYMODULE'),
+  ('setuptools._distutils.dir_util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\dir_util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.dist',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\dist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.errors',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\errors.py',
+   'PYMODULE'),
+  ('setuptools._distutils.extension',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\extension.py',
+   'PYMODULE'),
+  ('setuptools._distutils.fancy_getopt',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\fancy_getopt.py',
+   'PYMODULE'),
+  ('setuptools._distutils.file_util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\file_util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.filelist',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\filelist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.log',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\log.py',
+   'PYMODULE'),
+  ('setuptools._distutils.spawn',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\spawn.py',
+   'PYMODULE'),
+  ('setuptools._distutils.sysconfig',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\sysconfig.py',
+   'PYMODULE'),
+  ('setuptools._distutils.text_file',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\text_file.py',
+   'PYMODULE'),
+  ('setuptools._distutils.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\version.py',
+   'PYMODULE'),
+  ('setuptools._distutils.versionpredicate',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_distutils\\versionpredicate.py',
+   'PYMODULE'),
+  ('setuptools._entry_points',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_entry_points.py',
+   'PYMODULE'),
+  ('setuptools._imp',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_imp.py',
+   'PYMODULE'),
+  ('setuptools._importlib',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_importlib.py',
+   'PYMODULE'),
+  ('setuptools._itertools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_itertools.py',
+   'PYMODULE'),
+  ('setuptools._normalization',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_normalization.py',
+   'PYMODULE'),
+  ('setuptools._path',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_path.py',
+   'PYMODULE'),
+  ('setuptools._reqs',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_reqs.py',
+   'PYMODULE'),
+  ('setuptools._shutil',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_shutil.py',
+   'PYMODULE'),
+  ('setuptools._static',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_static.py',
+   'PYMODULE'),
+  ('setuptools._vendor', '-', 'PYMODULE'),
+  ('setuptools._vendor.backports',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.backports.tarfile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.backports.tarfile.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.backports.tarfile.compat.py38',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\py38.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._adapters',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_adapters.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._collections',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_collections.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_compat.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._functools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_functools.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._itertools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_itertools.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._meta',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_meta.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._text',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_text.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata.compat.py311',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py311.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata.compat.py39',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py39.py',
+   'PYMODULE'),
+  ('setuptools._vendor.jaraco', '-', 'PYMODULE'),
+  ('setuptools._vendor.jaraco.context',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\context.py',
+   'PYMODULE'),
+  ('setuptools._vendor.jaraco.functools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\functools\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.jaraco.text',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.more_itertools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.more_itertools.more',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\more.py',
+   'PYMODULE'),
+  ('setuptools._vendor.more_itertools.recipes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\recipes.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._elffile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_elffile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._manylinux',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_manylinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._musllinux',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_musllinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._structures',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._tokenizer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_tokenizer.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.markers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\markers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.requirements',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.specifiers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.tags',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\tags.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\utils.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\version.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli._parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_parser.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli._re',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_re.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli._types',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_types.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.convert',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\convert.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.pack',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\pack.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.tags',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\tags.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.unpack',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\unpack.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.macosx_libfile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\macosx_libfile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.metadata',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\metadata.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\util.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._elffile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_elffile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._manylinux',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_manylinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._musllinux',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_musllinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._parser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._structures',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._tokenizer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_tokenizer.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.markers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\markers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.requirements',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.specifiers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.tags',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\tags.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\utils.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\version.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.wheelfile',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\wheelfile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp.compat.py310',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\py310.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp.glob',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\glob.py',
+   'PYMODULE'),
+  ('setuptools.archive_util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\archive_util.py',
+   'PYMODULE'),
+  ('setuptools.command',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.command._requirestxt',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\_requirestxt.py',
+   'PYMODULE'),
+  ('setuptools.command.bdist_egg',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\bdist_egg.py',
+   'PYMODULE'),
+  ('setuptools.command.bdist_wheel',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\bdist_wheel.py',
+   'PYMODULE'),
+  ('setuptools.command.build',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\build.py',
+   'PYMODULE'),
+  ('setuptools.command.egg_info',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\egg_info.py',
+   'PYMODULE'),
+  ('setuptools.command.sdist',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\sdist.py',
+   'PYMODULE'),
+  ('setuptools.command.setopt',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\command\\setopt.py',
+   'PYMODULE'),
+  ('setuptools.compat',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.compat.py310',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\compat\\py310.py',
+   'PYMODULE'),
+  ('setuptools.compat.py311',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\compat\\py311.py',
+   'PYMODULE'),
+  ('setuptools.compat.py39',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\compat\\py39.py',
+   'PYMODULE'),
+  ('setuptools.config',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.config._apply_pyprojecttoml',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\_apply_pyprojecttoml.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.error_reporting',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\error_reporting.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.extra_validations',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\extra_validations.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.fastjsonschema_exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_exceptions.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.fastjsonschema_validations',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_validations.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.formats',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\formats.py',
+   'PYMODULE'),
+  ('setuptools.config.expand',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\expand.py',
+   'PYMODULE'),
+  ('setuptools.config.pyprojecttoml',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\pyprojecttoml.py',
+   'PYMODULE'),
+  ('setuptools.config.setupcfg',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\config\\setupcfg.py',
+   'PYMODULE'),
+  ('setuptools.depends',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\depends.py',
+   'PYMODULE'),
+  ('setuptools.discovery',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\discovery.py',
+   'PYMODULE'),
+  ('setuptools.dist',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\dist.py',
+   'PYMODULE'),
+  ('setuptools.errors',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\errors.py',
+   'PYMODULE'),
+  ('setuptools.extension',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\extension.py',
+   'PYMODULE'),
+  ('setuptools.glob',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\glob.py',
+   'PYMODULE'),
+  ('setuptools.installer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\installer.py',
+   'PYMODULE'),
+  ('setuptools.logging',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\logging.py',
+   'PYMODULE'),
+  ('setuptools.monkey',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\monkey.py',
+   'PYMODULE'),
+  ('setuptools.msvc',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\msvc.py',
+   'PYMODULE'),
+  ('setuptools.unicode_utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\unicode_utils.py',
+   'PYMODULE'),
+  ('setuptools.version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\version.py',
+   'PYMODULE'),
+  ('setuptools.warnings',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\warnings.py',
+   'PYMODULE'),
+  ('setuptools.wheel',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\wheel.py',
+   'PYMODULE'),
+  ('setuptools.windows_support',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\setuptools\\windows_support.py',
+   'PYMODULE'),
+  ('shlex',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\shlex.py',
+   'PYMODULE'),
+  ('shutil',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\shutil.py',
+   'PYMODULE'),
+  ('signal',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\signal.py',
+   'PYMODULE'),
+  ('site',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site.py',
+   'PYMODULE'),
+  ('six',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\six.py',
+   'PYMODULE'),
+  ('socket',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\socket.py',
+   'PYMODULE'),
+  ('socketserver',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\socketserver.py',
+   'PYMODULE'),
+  ('sqlite3',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\__init__.py',
+   'PYMODULE'),
+  ('sqlite3.__main__',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\__main__.py',
+   'PYMODULE'),
+  ('sqlite3.dbapi2',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\dbapi2.py',
+   'PYMODULE'),
+  ('sqlite3.dump',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\dump.py',
+   'PYMODULE'),
+  ('ssl',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ssl.py',
+   'PYMODULE'),
+  ('statistics',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\statistics.py',
+   'PYMODULE'),
+  ('string',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\string.py',
+   'PYMODULE'),
+  ('stringprep',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\stringprep.py',
+   'PYMODULE'),
+  ('subprocess',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\subprocess.py',
+   'PYMODULE'),
+  ('sysconfig',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sysconfig.py',
+   'PYMODULE'),
+  ('tarfile',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tarfile.py',
+   'PYMODULE'),
+  ('tempfile',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tempfile.py',
+   'PYMODULE'),
+  ('textwrap',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\textwrap.py',
+   'PYMODULE'),
+  ('threading',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\threading.py',
+   'PYMODULE'),
+  ('token',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\token.py',
+   'PYMODULE'),
+  ('tokenize',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tokenize.py',
+   'PYMODULE'),
+  ('tomllib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tomllib\\__init__.py',
+   'PYMODULE'),
+  ('tomllib._parser',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tomllib\\_parser.py',
+   'PYMODULE'),
+  ('tomllib._re',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tomllib\\_re.py',
+   'PYMODULE'),
+  ('tomllib._types',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tomllib\\_types.py',
+   'PYMODULE'),
+  ('tracemalloc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tracemalloc.py',
+   'PYMODULE'),
+  ('tty',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tty.py',
+   'PYMODULE'),
+  ('typing',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\typing.py',
+   'PYMODULE'),
+  ('typing_extensions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\typing_extensions.py',
+   'PYMODULE'),
+  ('unittest',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\__init__.py',
+   'PYMODULE'),
+  ('unittest._log',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\_log.py',
+   'PYMODULE'),
+  ('unittest.async_case',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\async_case.py',
+   'PYMODULE'),
+  ('unittest.case',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\case.py',
+   'PYMODULE'),
+  ('unittest.loader',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\loader.py',
+   'PYMODULE'),
+  ('unittest.main',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\main.py',
+   'PYMODULE'),
+  ('unittest.mock',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\mock.py',
+   'PYMODULE'),
+  ('unittest.result',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\result.py',
+   'PYMODULE'),
+  ('unittest.runner',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\runner.py',
+   'PYMODULE'),
+  ('unittest.signals',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\signals.py',
+   'PYMODULE'),
+  ('unittest.suite',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\suite.py',
+   'PYMODULE'),
+  ('unittest.util',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\util.py',
+   'PYMODULE'),
+  ('urllib',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\__init__.py',
+   'PYMODULE'),
+  ('urllib.error',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\error.py',
+   'PYMODULE'),
+  ('urllib.parse',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\parse.py',
+   'PYMODULE'),
+  ('urllib.request',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\request.py',
+   'PYMODULE'),
+  ('urllib.response',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\response.py',
+   'PYMODULE'),
+  ('urllib3',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\__init__.py',
+   'PYMODULE'),
+  ('urllib3._base_connection',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\_base_connection.py',
+   'PYMODULE'),
+  ('urllib3._collections',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\_collections.py',
+   'PYMODULE'),
+  ('urllib3._request_methods',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\_request_methods.py',
+   'PYMODULE'),
+  ('urllib3._version',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\_version.py',
+   'PYMODULE'),
+  ('urllib3.connection',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\connection.py',
+   'PYMODULE'),
+  ('urllib3.connectionpool',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\connectionpool.py',
+   'PYMODULE'),
+  ('urllib3.contrib',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\__init__.py',
+   'PYMODULE'),
+  ('urllib3.contrib.emscripten',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\__init__.py',
+   'PYMODULE'),
+  ('urllib3.contrib.emscripten.connection',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\connection.py',
+   'PYMODULE'),
+  ('urllib3.contrib.emscripten.fetch',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\fetch.py',
+   'PYMODULE'),
+  ('urllib3.contrib.emscripten.request',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\request.py',
+   'PYMODULE'),
+  ('urllib3.contrib.emscripten.response',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\response.py',
+   'PYMODULE'),
+  ('urllib3.contrib.pyopenssl',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\pyopenssl.py',
+   'PYMODULE'),
+  ('urllib3.contrib.socks',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\contrib\\socks.py',
+   'PYMODULE'),
+  ('urllib3.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\exceptions.py',
+   'PYMODULE'),
+  ('urllib3.fields',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\fields.py',
+   'PYMODULE'),
+  ('urllib3.filepost',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\filepost.py',
+   'PYMODULE'),
+  ('urllib3.http2',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\http2\\__init__.py',
+   'PYMODULE'),
+  ('urllib3.http2.connection',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\http2\\connection.py',
+   'PYMODULE'),
+  ('urllib3.http2.probe',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\http2\\probe.py',
+   'PYMODULE'),
+  ('urllib3.poolmanager',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\poolmanager.py',
+   'PYMODULE'),
+  ('urllib3.response',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\response.py',
+   'PYMODULE'),
+  ('urllib3.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\__init__.py',
+   'PYMODULE'),
+  ('urllib3.util.connection',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\connection.py',
+   'PYMODULE'),
+  ('urllib3.util.proxy',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\proxy.py',
+   'PYMODULE'),
+  ('urllib3.util.request',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\request.py',
+   'PYMODULE'),
+  ('urllib3.util.response',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\response.py',
+   'PYMODULE'),
+  ('urllib3.util.retry',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\retry.py',
+   'PYMODULE'),
+  ('urllib3.util.ssl_',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\ssl_.py',
+   'PYMODULE'),
+  ('urllib3.util.ssl_match_hostname',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\ssl_match_hostname.py',
+   'PYMODULE'),
+  ('urllib3.util.ssltransport',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\ssltransport.py',
+   'PYMODULE'),
+  ('urllib3.util.timeout',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\timeout.py',
+   'PYMODULE'),
+  ('urllib3.util.url',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\url.py',
+   'PYMODULE'),
+  ('urllib3.util.util',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\util.py',
+   'PYMODULE'),
+  ('urllib3.util.wait',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\urllib3\\util\\wait.py',
+   'PYMODULE'),
+  ('uuid',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\uuid.py',
+   'PYMODULE'),
+  ('watchdog',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\__init__.py',
+   'PYMODULE'),
+  ('watchdog.events',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\events.py',
+   'PYMODULE'),
+  ('watchdog.observers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\__init__.py',
+   'PYMODULE'),
+  ('watchdog.observers.api',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\api.py',
+   'PYMODULE'),
+  ('watchdog.observers.fsevents',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\fsevents.py',
+   'PYMODULE'),
+  ('watchdog.observers.inotify',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\inotify.py',
+   'PYMODULE'),
+  ('watchdog.observers.inotify_buffer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\inotify_buffer.py',
+   'PYMODULE'),
+  ('watchdog.observers.inotify_c',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\inotify_c.py',
+   'PYMODULE'),
+  ('watchdog.observers.kqueue',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\kqueue.py',
+   'PYMODULE'),
+  ('watchdog.observers.polling',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\polling.py',
+   'PYMODULE'),
+  ('watchdog.observers.read_directory_changes',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\read_directory_changes.py',
+   'PYMODULE'),
+  ('watchdog.observers.winapi',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\observers\\winapi.py',
+   'PYMODULE'),
+  ('watchdog.tricks',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\tricks\\__init__.py',
+   'PYMODULE'),
+  ('watchdog.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\__init__.py',
+   'PYMODULE'),
+  ('watchdog.utils.bricks',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\bricks.py',
+   'PYMODULE'),
+  ('watchdog.utils.delayed_queue',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\delayed_queue.py',
+   'PYMODULE'),
+  ('watchdog.utils.dirsnapshot',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\dirsnapshot.py',
+   'PYMODULE'),
+  ('watchdog.utils.echo',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\echo.py',
+   'PYMODULE'),
+  ('watchdog.utils.event_debouncer',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\event_debouncer.py',
+   'PYMODULE'),
+  ('watchdog.utils.patterns',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\patterns.py',
+   'PYMODULE'),
+  ('watchdog.utils.platform',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\platform.py',
+   'PYMODULE'),
+  ('watchdog.utils.process_watcher',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\watchdog\\utils\\process_watcher.py',
+   'PYMODULE'),
+  ('webbrowser',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\webbrowser.py',
+   'PYMODULE'),
+  ('werkzeug',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\__init__.py',
+   'PYMODULE'),
+  ('werkzeug._internal',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\_internal.py',
+   'PYMODULE'),
+  ('werkzeug._reloader',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\_reloader.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\__init__.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.accept',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\accept.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.auth',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\auth.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.cache_control',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\cache_control.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.csp',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\csp.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.etag',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\etag.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.file_storage',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\file_storage.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.headers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\headers.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.mixins',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\mixins.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.range',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\range.py',
+   'PYMODULE'),
+  ('werkzeug.datastructures.structures',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\datastructures\\structures.py',
+   'PYMODULE'),
+  ('werkzeug.debug',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\debug\\__init__.py',
+   'PYMODULE'),
+  ('werkzeug.debug.console',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\debug\\console.py',
+   'PYMODULE'),
+  ('werkzeug.debug.repr',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\debug\\repr.py',
+   'PYMODULE'),
+  ('werkzeug.debug.tbtools',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\debug\\tbtools.py',
+   'PYMODULE'),
+  ('werkzeug.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\exceptions.py',
+   'PYMODULE'),
+  ('werkzeug.formparser',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\formparser.py',
+   'PYMODULE'),
+  ('werkzeug.http',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\http.py',
+   'PYMODULE'),
+  ('werkzeug.local',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\local.py',
+   'PYMODULE'),
+  ('werkzeug.middleware',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\middleware\\__init__.py',
+   'PYMODULE'),
+  ('werkzeug.middleware.shared_data',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\middleware\\shared_data.py',
+   'PYMODULE'),
+  ('werkzeug.routing',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\routing\\__init__.py',
+   'PYMODULE'),
+  ('werkzeug.routing.converters',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\routing\\converters.py',
+   'PYMODULE'),
+  ('werkzeug.routing.exceptions',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\routing\\exceptions.py',
+   'PYMODULE'),
+  ('werkzeug.routing.map',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\routing\\map.py',
+   'PYMODULE'),
+  ('werkzeug.routing.matcher',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\routing\\matcher.py',
+   'PYMODULE'),
+  ('werkzeug.routing.rules',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\routing\\rules.py',
+   'PYMODULE'),
+  ('werkzeug.sansio',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\sansio\\__init__.py',
+   'PYMODULE'),
+  ('werkzeug.sansio.http',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\sansio\\http.py',
+   'PYMODULE'),
+  ('werkzeug.sansio.multipart',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\sansio\\multipart.py',
+   'PYMODULE'),
+  ('werkzeug.sansio.request',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\sansio\\request.py',
+   'PYMODULE'),
+  ('werkzeug.sansio.response',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\sansio\\response.py',
+   'PYMODULE'),
+  ('werkzeug.sansio.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\sansio\\utils.py',
+   'PYMODULE'),
+  ('werkzeug.security',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\security.py',
+   'PYMODULE'),
+  ('werkzeug.serving',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\serving.py',
+   'PYMODULE'),
+  ('werkzeug.test',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\test.py',
+   'PYMODULE'),
+  ('werkzeug.urls',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\urls.py',
+   'PYMODULE'),
+  ('werkzeug.user_agent',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\user_agent.py',
+   'PYMODULE'),
+  ('werkzeug.utils',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\utils.py',
+   'PYMODULE'),
+  ('werkzeug.wrappers',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\wrappers\\__init__.py',
+   'PYMODULE'),
+  ('werkzeug.wrappers.request',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\wrappers\\request.py',
+   'PYMODULE'),
+  ('werkzeug.wrappers.response',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\wrappers\\response.py',
+   'PYMODULE'),
+  ('werkzeug.wsgi',
+   'C:\\Users\\acaci\\OneDrive\\Documentos\\BDF CONFIA '
+   '2\\venv\\Lib\\site-packages\\werkzeug\\wsgi.py',
+   'PYMODULE'),
+  ('xml',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\__init__.py',
+   'PYMODULE'),
+  ('xml.dom',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\__init__.py',
+   'PYMODULE'),
+  ('xml.dom.NodeFilter',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\NodeFilter.py',
+   'PYMODULE'),
+  ('xml.dom.domreg',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\domreg.py',
+   'PYMODULE'),
+  ('xml.dom.expatbuilder',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\expatbuilder.py',
+   'PYMODULE'),
+  ('xml.dom.minicompat',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\minicompat.py',
+   'PYMODULE'),
+  ('xml.dom.minidom',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\minidom.py',
+   'PYMODULE'),
+  ('xml.dom.pulldom',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\pulldom.py',
+   'PYMODULE'),
+  ('xml.dom.xmlbuilder',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\dom\\xmlbuilder.py',
+   'PYMODULE'),
+  ('xml.etree',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\__init__.py',
+   'PYMODULE'),
+  ('xml.etree.ElementInclude',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\ElementInclude.py',
+   'PYMODULE'),
+  ('xml.etree.ElementPath',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\ElementPath.py',
+   'PYMODULE'),
+  ('xml.etree.ElementTree',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\ElementTree.py',
+   'PYMODULE'),
+  ('xml.etree.cElementTree',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\cElementTree.py',
+   'PYMODULE'),
+  ('xml.parsers',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\parsers\\__init__.py',
+   'PYMODULE'),
+  ('xml.parsers.expat',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\parsers\\expat.py',
+   'PYMODULE'),
+  ('xml.sax',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\__init__.py',
+   'PYMODULE'),
+  ('xml.sax._exceptions',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\_exceptions.py',
+   'PYMODULE'),
+  ('xml.sax.expatreader',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\expatreader.py',
+   'PYMODULE'),
+  ('xml.sax.handler',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\handler.py',
+   'PYMODULE'),
+  ('xml.sax.saxutils',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\saxutils.py',
+   'PYMODULE'),
+  ('xml.sax.xmlreader',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\xmlreader.py',
+   'PYMODULE'),
+  ('xmlrpc',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xmlrpc\\__init__.py',
+   'PYMODULE'),
+  ('xmlrpc.client',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xmlrpc\\client.py',
+   'PYMODULE'),
+  ('zipfile',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\__init__.py',
+   'PYMODULE'),
+  ('zipfile._path',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\_path\\__init__.py',
+   'PYMODULE'),
+  ('zipfile._path.glob',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\_path\\glob.py',
+   'PYMODULE'),
+  ('zipimport',
+   'C:\\Users\\acaci\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipimport.py',
+   'PYMODULE')])

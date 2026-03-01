@@ -1,0 +1,406 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    /* Tema verde elegante y diferenciado para CxC */
+    :root {
+        --cxc-primary: #27ae60;       /* Verde principal - totales y títulos */
+        --cxc-success: #2ecc71;       /* Verde claro - no vencido */
+        --cxc-warning: #f1c40f;       /* Amarillo - vencido pronto */
+        --cxc-danger: #e74c3c;        /* Rojo - muy vencido */
+        --cxc-light: #e8f5e9;         /* Fondo suave verde */
+        --cxc-accent: #16a085;        /* Verde oscuro para detalles */
+    }
+
+    .dashboard-wrapper {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .filter-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: flex-end;
+    }
+
+    .filter-col {
+        flex: 1;
+        min-width: 160px;
+    }
+
+    .filter-col label {
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 6px;
+        font-weight: 500;
+        display: block;
+    }
+
+    .filter-col input,
+    .filter-col select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.92rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .filter-col input:focus,
+    .filter-col select:focus {
+        border-color: var(--cxc-primary);
+        box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.15);
+        outline: none;
+    }
+
+    .total-kpi {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--cxc-primary);
+        line-height: 1;
+    }
+
+    .tab-navigation {
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .tab-btn {
+        padding: 11px 26px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        background: #f3f4f6;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+        background: var(--cxc-primary);
+        color: white;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .card-kpi {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        height: 100%;
+    }
+
+    .chart-title {
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 15px;
+        border-left: 5px solid var(--cxc-primary);
+        padding-left: 10px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+    }
+
+    .grupo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+    }
+
+    .grupo-item:hover {
+        background: var(--cxc-light);
+    }
+
+    .grupo-nombre {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .grupo-monto {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--cxc-primary);
+    }
+
+    .table-responsive {
+        max-height: 65vh;
+        overflow-y: auto;
+        border-radius: 8px;
+    }
+
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 10;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table td {
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+
+    .text-vencido {
+        color: var(--cxc-danger);
+        font-weight: 600;
+    }
+
+    .badge-doc {
+        background-color: #e3f2fd;
+        color: #1e40af;
+        font-weight: 500;
+    }
+</style>
+
+<div class="dashboard-wrapper">
+    <!-- Filtros + Total -->
+    <div class="filter-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cuentas por Cobrar</h4>
+            <div class="total-kpi" id="total_cxc">0,00</div>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-col">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="cargarCxC()">
+            </div>
+            <div class="filter-col">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="cargarCxC()">
+            </div>
+            <div class="filter-col">
+                <label>Moneda</label>
+                <select id="moneda" onchange="cargarCxC()">
+                    <option value="Bs">Bolívares (Bs)</option>
+                    <option value="USD">Dólares (USD)</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Vendedor</label>
+                <select id="filtro_vendedor" onchange="cargarCxC()">
+                    <option value="">Todos los vendedores</option>
+                </select>
+            </div>
+            <div class="filter-col" style="min-width: 280px;">
+                <label>Buscar</label>
+                <input type="text" id="bus_cxc" class="form-control" 
+                       placeholder="Cliente, documento, grupo..." onkeyup="filtrarTabla()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="tab_resumen">Resumen General</button>
+        <button class="tab-btn" data-tab="tab_detalle">Detalle Facturas Pendientes</button>
+    </div>
+
+    <!-- Pestaña 1: Resumen General -->
+    <div id="tab_resumen" class="tab-pane active">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card-kpi">
+                    <div class="chart-title">Envejecimiento de Deuda</div>
+                    <div class="chart-container"><canvas id="chartEnvejecimiento"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card-kpi">
+                    <div class="chart-title">Deuda por Grupo / Institución</div>
+                    <div id="resumen_grupos" style="max-height: 380px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña 2: Detalle de Facturas -->
+    <div id="tab_detalle" class="tab-pane">
+        <div class="card-kpi">
+            <div class="chart-title">Facturas Pendientes (filtradas)</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tabla_maestra">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Grupo / Institución</th>
+                            <th>Cliente / Razón Social</th>
+                            <th>Vendedor</th>
+                            <th>Documento</th>
+                            <th>Fecha</th>
+                            <th class="text-center">Días Vencidos</th>
+                            <th class="text-end pe-3">Saldo Pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_cxc"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chartEnvej = null;
+    let dataCache = null;
+    let vendedoresCargados = false;
+
+    // Manejo de pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(this.dataset.tab).classList.add('active');
+        });
+    });
+
+    async function cargarCxC() {
+        try {
+            const params = {
+                moneda: document.getElementById("moneda").value,
+                fecha_inicio: document.getElementById("fecha_inicio").value,
+                fecha_fin: document.getElementById("fecha_fin").value,
+                vendedor: document.getElementById("filtro_vendedor").value
+            };
+
+            const r = await fetch("/api/cartera_cxc", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(params)
+            });
+            dataCache = await r.json();
+
+            const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Total general
+            document.getElementById("total_cxc").textContent = f(dataCache.total);
+
+            // Poblar filtro de vendedores (solo la primera vez)
+            if (!vendedoresCargados && dataCache.vendedores) {
+                const selVend = document.getElementById("filtro_vendedor");
+                dataCache.vendedores.forEach(v => {
+                    if (v?.trim()) {
+                        const opt = document.createElement("option");
+                        opt.value = v;
+                        opt.textContent = v;
+                        selVend.appendChild(opt);
+                    }
+                });
+                vendedoresCargados = true;
+            }
+
+            // Renderizar contenido
+            renderResumen(dataCache);
+
+        } catch (e) {
+            console.error("Error CxC:", e);
+        }
+    }
+
+    function renderResumen(d) {
+        const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+
+        // Resumen por grupo
+        const divGrupos = document.getElementById("resumen_grupos");
+        divGrupos.innerHTML = (d.resumen_grupos || []).map(g => `
+            <div class="grupo-item">
+                <span class="grupo-nombre">${g.GRUPO}</span>
+                <span class="grupo-monto">${f(g.MONTO)}</span>
+            </div>
+        `).join("");
+
+        // Gráfico Envejecimiento
+        if (chartEnvej) chartEnvej.destroy();
+        const ctx = document.getElementById('chartEnvejecimiento').getContext('2d');
+        chartEnvej = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: d.envejecimiento.map(x => x.label),
+        datasets: [{
+            label: 'Monto Pendiente',
+            data: d.envejecimiento.map(x => x.value),
+            backgroundColor: [
+                '#2ecc71',    // No Vencido     → verde claro
+                '#f1c40f',    // 1-7 días       → amarillo claro
+                '#f39c12',    // 8-14 días      → naranja suave
+                '#e67e22',    // 15-21 días     → naranja medio
+                '#d35400',    // 22-30 días     → naranja oscuro
+                '#c0392b'     // +30 días       → rojo fuerte
+            ],
+            borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Tabla detalle (se filtra localmente)
+        const tbody = document.getElementById("tabla_cxc");
+        tbody.innerHTML = (d.tabla || []).map(row => `
+            <tr>
+                <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO}</small></td>
+                <td class="desc-full">${row.CLIENTE}</td>
+                <td><small>${row.VENDEDOR}</small></td>
+                <td><span class="badge badge-doc">${row.DOCUMENTO}</span></td>
+                <td>${row.FECHA}</td>
+                <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS}</td>
+                <td class="text-end fw-bold pe-3">${f(row.SALDO)}</td>
+            </tr>
+        `).join("");
+    }
+
+    function filtrarTabla() {
+        const bus = document.getElementById("bus_cxc").value.toLowerCase();
+        const filas = document.querySelectorAll("#tabla_cxc tr");
+        filas.forEach(f => {
+            f.style.display = f.innerText.toLowerCase().includes(bus) ? "" : "none";
+        });
+    }
+
+    // Carga inicial
+    document.addEventListener("DOMContentLoaded", () => {
+        const hoy = new Date();
+        document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
+        const mesAnterior = new Date(hoy.setMonth(hoy.getMonth() - 1));
+        document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
+        cargarCxC();
+    });
+</script>
+
+{% endblock %}

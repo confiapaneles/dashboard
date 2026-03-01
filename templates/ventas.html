@@ -1,0 +1,537 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
+    
+    .filter-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: flex-end;
+    }
+
+    .filter-col {
+        flex: 1;
+        min-width: 160px;
+    }
+
+    .filter-col label {
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 6px;
+        font-weight: 500;
+        display: block;
+    }
+
+    .filter-col input, .filter-col select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.92rem;
+    }
+
+    .filter-col input:focus, .filter-col select:focus {
+        border-color: var(--accent, #3498db);
+        box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+    }
+
+    .total-kpi {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #27ae60;
+        white-space: nowrap;
+    }
+
+    .tab-navigation {
+        margin: 0 0 25px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tab-btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        background: #e5e7eb;
+        color: #4b5563;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+        background: var(--accent, #3498db);
+        color: white;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .card-chart {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .chart-title {
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 16px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 420px;
+    }
+
+    .info-tag {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 5px solid #27ae60;
+        margin: 8px 0;
+    }
+
+    .no-data {
+        color: #6b7280;
+        font-style: italic;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    /* Nuevos estilos para KPIs adicionales */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .kpi-item {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+    }
+
+    .kpi-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+
+    .kpi-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .kpi-monto {
+        font-size: 1.35rem;
+        color: #27ae60;
+    }
+
+    .kpi-small {
+        font-size: 1.1rem;
+        color: #334155;
+    }
+</style>
+
+<div class="dashboard-wrapper">
+    <!-- Filtros -->
+    <div class="filter-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Panel de Ventas</h4>
+            <div class="total-kpi" id="txt_total_general">0,00</div>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-col">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="cargarDatos()">
+            </div>
+            <div class="filter-col">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="cargarDatos()">
+            </div>
+            <div class="filter-col">
+                <label>Cliente</label>
+                <input type="text" id="busqueda_cliente" placeholder="Buscar cliente..." onchange="cargarDatos()">
+            </div>
+            <div class="filter-col">
+                <label>Moneda</label>
+                <select id="moneda" onchange="cargarDatos()">
+                    <option value="Bs">Bolívares (Bs)</option>
+                    <option value="USD">Dólares (USD)</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Top N</label>
+                <select id="top_n" onchange="cargarDatos()">
+                    <option value="10">Top 10</option>
+                    <option value="20">Top 20</option>
+                    <option value="50">Top 50</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Vendedor</label>
+                <select id="filtro_vendedor" onchange="cargarDatos()">
+                    <option value="TODOS">Todos los vendedores</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación de pestañas -->
+    <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="p_gen">Resumen General</button>
+        <button class="tab-btn" data-tab="p_zona">Zonas</button>
+        <button class="tab-btn" data-tab="p_cli">Clientes</button>
+        <button class="tab-btn" data-tab="p_prod">Productos</button>
+        <button class="tab-btn" data-tab="p_vend">Vendedores</button>
+    </div>
+
+    <!-- Contenido de cada pestaña -->
+    <div id="p_gen" class="tab-pane active">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card-chart">
+                    <div class="chart-title">Condición de Venta (Contado vs Crédito)</div>
+                    <div class="chart-container"><canvas id="chartTotales"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-chart text-center d-flex flex-column justify-content-center">
+                    <div class="chart-title">Clientes Únicos</div>
+                    <div style="font-size: 4.5rem; font-weight: 800; color: var(--accent, #3498db);" id="val_conteo_cli">0</div>
+                    <div class="text-muted mt-2">atendidos en el período</div>
+
+                    <!-- Nuevos KPIs adicionales -->
+                    <div class="kpi-grid mt-4">
+                        <div class="kpi-item">
+                            <div class="kpi-label">Total Facturas</div>
+                            <div class="kpi-value" id="val_total_fact">0</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Contado</div>
+                            <div class="kpi-value kpi-small" id="val_fact_cont_cant">0</div>
+                            <div class="kpi-monto" id="val_fact_cont_monto">0,00</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">Crédito</div>
+                            <div class="kpi-value kpi-small" id="val_fact_cred_cant">0</div>
+                            <div class="kpi-monto" id="val_fact_cred_monto">0,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="p_zona" class="tab-pane">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card-chart">
+                    <div class="chart-title">Ventas por Zona Geográfica</div>
+                    <div class="chart-container"><canvas id="chartZonas"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-chart">
+                    <div class="chart-title">Distribución de Ingresos</div>
+                    <div id="lista_detalles_zona" style="max-height: 420px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="p_cli" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title text-center">Ranking de Clientes por Monto</div>
+            <div class="chart-container" style="height: 520px;"><canvas id="chartClientes"></canvas></div>
+        </div>
+    </div>
+
+    <div id="p_prod" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title text-center">Productos Líderes en Ventas</div>
+            <div class="chart-container" style="height: 580px;"><canvas id="chartProductos"></canvas></div>
+        </div>
+    </div>
+
+    <div id="p_vend" class="tab-pane">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card-chart">
+                    <div class="chart-title">Ranking de Vendedores</div>
+                    <div class="chart-container"><canvas id="chartVendedores"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-chart">
+                    <div class="chart-title" id="titulo_prod_vend">Productos más vendidos</div>
+                    <div class="chart-container"><canvas id="chartProdVendedor"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let chartsInst = {};
+    let vendedoresCargados = false;
+
+    // Cargar lista de vendedores al inicio
+    async function cargarListaVendedores() {
+        try {
+            const resp = await fetch("/api/vendedores", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (!resp.ok) throw new Error("Error al cargar vendedores");
+
+            const data = await resp.json();
+
+            if (data.status === "success" && data.vendedores?.length) {
+                const sel = document.getElementById("filtro_vendedor");
+                sel.innerHTML = '<option value="TODOS">Todos los vendedores</option>';
+
+                data.vendedores.forEach(v => {
+                    const opt = document.createElement("option");
+                    opt.value = v;
+                    opt.textContent = v;
+                    sel.appendChild(opt);
+                });
+
+                vendedoresCargados = true;
+            }
+        } catch (err) {
+            console.error("Error cargando lista de vendedores:", err);
+        }
+    }
+
+    // Manejo de pestañas (sin recarga automática al cambiar pestaña)
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+        });
+    });
+
+    function generarColores(cant) {
+        const paleta = [
+            '#3498db', '#2980b9', '#1f75cb', '#27ae60', '#2ecc71',
+            '#16a085', '#0e6655', '#1abc9c', '#f39c12', '#e67e22',
+            '#e74c3c', '#c0392b', '#9b59b6', '#8e44ad', '#34495e'
+        ];
+        return Array.from({length: cant || 5}, (_, i) => paleta[i % paleta.length]);
+    }
+
+    async function cargarDatos() {
+        const params = {
+            moneda: document.getElementById("moneda").value,
+            top_n: document.getElementById("top_n").value,
+            fecha_inicio: document.getElementById("fecha_inicio").value,
+            fecha_fin: document.getElementById("fecha_fin").value,
+            cliente: document.getElementById("busqueda_cliente").value.trim(),
+            vendedor: document.getElementById("filtro_vendedor").value || "TODOS"
+        };
+
+        try {
+            const resp = await fetch("/api/ventas", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(params)
+            });
+
+            if (!resp.ok) throw new Error("Error en la respuesta del servidor");
+
+            const d = await resp.json();
+
+            if (d.status === "error") {
+                console.error("Error del backend:", d.message);
+                return;
+            }
+
+            // Total general
+            document.getElementById("txt_total_general").textContent = 
+                (d.total_gral || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 
+                ' ' + params.moneda;
+
+            // Conteo clientes
+            document.getElementById("val_conteo_cli").textContent = d.general?.conteo_cli || 0;
+
+            // Nuevos valores de facturas
+            document.getElementById("val_total_fact").textContent = d.general?.total_facturas || 0;
+            document.getElementById("val_fact_cont_cant").textContent = d.general?.fact_cont_cant || 0;
+            document.getElementById("val_fact_cont_monto").textContent = 
+                (d.general?.fact_cont_monto || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' ' + params.moneda;
+            document.getElementById("val_fact_cred_cant").textContent = d.general?.fact_cred_cant || 0;
+            document.getElementById("val_fact_cred_monto").textContent = 
+                (d.general?.fact_cred_monto || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' ' + params.moneda;
+
+            // Gráficos generales
+            renderChart("chartTotales", "pie", "Ventas", 
+                Object.keys(d.resumen_tipo || {}), Object.values(d.resumen_tipo || {}), 'x', generarColores(2));
+
+            renderChart("chartZonas", "bar", "Monto", 
+                (d.zonas || []).map(x => x.label), (d.zonas || []).map(x => x.value), 'x', generarColores(d.zonas?.length || 0));
+
+            document.getElementById("lista_detalles_zona").innerHTML = 
+                (d.zonas || []).length > 0 
+                ? (d.zonas || []).map(z => 
+                    `<div class="info-tag">● <b>${z.label}</b> <span style="float:right">${(z.value||0).toLocaleString('es-VE')}</span></div>`
+                  ).join("")
+                : '<div class="no-data">No hay datos de zonas</div>';
+
+            renderChart("chartClientes", "bar", "Monto", 
+                (d.clientes || []).map(x => x.label), (d.clientes || []).map(x => x.value), 'y', generarColores(d.clientes?.length || 0));
+
+            renderChart("chartProductos", "bar", "Monto", 
+                (d.productos || []).map(x => x.label), (d.productos || []).map(x => x.value), 'y', generarColores(d.productos?.length || 0));
+
+            // ── Sección Vendedores ───────────────────────────────────────
+            if (d.vendedores?.length) {
+                renderChart("chartVendedores", "bar", "Ventas", 
+                    d.vendedores.map(x => x.label), 
+                    d.vendedores.map(x => x.value), 
+                    'y', generarColores(d.vendedores.length));
+
+                const vendedorSel = params.vendedor;
+                let titulo = "";
+                let productos = [];
+
+                if (vendedorSel !== "TODOS") {
+                    titulo = `Productos más vendidos: ${vendedorSel}`;
+                    if (d.detalles_vendedor?.[vendedorSel]) {
+                        productos = d.detalles_vendedor[vendedorSel] || [];
+                    }
+                } else {
+                    titulo = "Productos más vendidos (todos los vendedores)";
+                    productos = d.productos || [];
+                }
+
+                document.getElementById("titulo_prod_vend").textContent = titulo;
+
+                if (productos.length > 0) {
+                    renderChart("chartProdVendedor", "bar", "Monto", 
+                        productos.map(x => x.label), 
+                        productos.map(x => x.value), 
+                        'y', generarColores(productos.length));
+                } else {
+                    const canvas = document.getElementById("chartProdVendedor");
+                    if (canvas && chartsInst["chartProdVendedor"]) {
+                        chartsInst["chartProdVendedor"].destroy();
+                        chartsInst["chartProdVendedor"] = null;
+                    }
+                    document.getElementById("titulo_prod_vend").textContent = 
+                        vendedorSel === "TODOS" 
+                            ? "No hay productos vendidos en el período" 
+                            : `No hay productos para ${vendedorSel}`;
+                }
+            } else {
+                document.getElementById("titulo_prod_vend").textContent = "No hay datos de vendedores";
+            }
+
+        } catch (err) {
+            console.error("Error al cargar datos:", err);
+        }
+    }
+
+    function renderChart(id, type, label, labels, values, indexAxis = 'x', colores) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return;
+
+        if (chartsInst[id]) {
+            chartsInst[id].destroy();
+        }
+
+        const ctx = canvas.getContext('2d');
+
+        let config = {
+            type,
+            data: {
+                labels,
+                datasets: [{
+                    label,
+                    data: values,
+                    backgroundColor: colores,
+                    borderWidth: 0,
+                    borderRadius: type === 'bar' ? 6 : 0,
+                    barThickness: (id.includes('Productos') || id.includes('Vendedores') || id.includes('Clientes')) ? 28 : 'flex'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis,
+                plugins: {
+                    legend: { display: type === 'pie', position: 'bottom' },
+                    tooltip: { enabled: true }
+                },
+                scales: indexAxis === 'y' ? {
+                    y: {
+                        ticks: {
+                            autoSkip: false,
+                            font: { size: 11 },
+                            callback: function(_, idx) {
+                                let str = (labels[idx] || '').trim();
+                                return str.length > 38 ? str.substring(0,35)+'…' : str;
+                            }
+                        },
+                        grid: { display: false }
+                    },
+                    x: { grid: { color: '#f0f0f0' } }
+                } : {
+                    x: { grid: { color: '#f0f0f0' } },
+                    y: { beginAtZero: true }
+                },
+                layout: indexAxis === 'y' ? { padding: { left: 20, right: 20 } } : {}
+            }
+        };
+
+        chartsInst[id] = new Chart(ctx, config);
+    }
+
+    // Inicialización
+    document.addEventListener("DOMContentLoaded", async () => {
+        const hoy = new Date();
+        document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
+        
+        const mesAnterior = new Date(hoy);
+        mesAnterior.setMonth(hoy.getMonth() - 1);
+        document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
+
+        await cargarListaVendedores();
+        await cargarDatos();
+    });
+</script>
+
+{% endblock %}

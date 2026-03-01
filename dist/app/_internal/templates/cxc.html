@@ -1,0 +1,198 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    /* Sobrescribir CSS Global para amplitud total */
+    .container { 
+        padding: 10px !important; 
+        max-width: 95% !important; 
+        margin: auto;
+    }
+
+    .dashboard-container { 
+        width: 100%; 
+        font-family: 'Segoe UI', Tahoma, sans-serif; 
+        background-color: #f4f7f6;
+    }
+
+    /* Cabecera compacta */
+    .filter-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        background: white; 
+        padding: 12px 20px; 
+        border-radius: 12px; 
+        margin-bottom: 10px !important; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .panel-cxc { border-left: 5px solid #27ae60; padding-left: 10px; font-weight: 700; color: #2c3e50; }
+    .text-cxc { color: #27ae60; font-weight: 800; }
+
+    /* Grid de distribución */
+    .grid-cxc-top { 
+        display: grid; 
+        grid-template-columns: 60% 40%; 
+        gap: 15px; 
+        margin-bottom: 15px;
+    }
+
+    .card-kpi { 
+        background: white; 
+        border-radius: 15px; 
+        padding: 20px; 
+        box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Estilo para el Resumen por Grupo */
+    .grupo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+    }
+    .grupo-item:hover { background: #f9f9f9; }
+    .grupo-nombre { font-size: 13px; font-weight: 600; color: #444; }
+    .grupo-monto { font-size: 14px; font-weight: 700; color: #27ae60; }
+
+    /* Tabla Detallada */
+    .table-responsive { 
+        height: 50vh; 
+        overflow-y: auto; 
+    }
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 10;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+    .table td { vertical-align: middle; font-size: 13px; padding: 10px 8px; }
+    
+    .desc-full { max-width: 300px; white-space: normal; word-wrap: break-word; }
+</style>
+
+<div class="dashboard-container">
+    <div class="filter-header">
+        <h4 class="panel-cxc mb-0">CUENTAS POR COBRAR (Cartera)</h4>
+        <div class="text-end">
+            <small class="text-muted d-block">Deuda Total Pendiente</small>
+            <span id="total_cxc" class="fs-3 text-cxc">0,00</span>
+        </div>
+    </div>
+
+    <div class="grid-cxc-top">
+        <div class="card-kpi" style="height: 400px;">
+            <h5 class="mb-3">Envejecimiento de Deuda</h5>
+            <div style="flex-grow: 1;"><canvas id="chartEnvejecimiento"></canvas></div>
+        </div>
+
+        <div class="card-kpi" style="height: 400px;">
+            <h5 class="mb-3">Deuda por Institución / Grupo</h5>
+            <div id="resumen_grupos" style="overflow-y: auto; flex-grow: 1;">
+                </div>
+        </div>
+    </div>
+
+    <div class="card-kpi">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Detalle de Facturas Pendientes</h5>
+            <input type="text" id="bus_cxc" class="form-control form-control-sm" style="width: 300px;" 
+                   placeholder="Buscar cliente, documento o vendedor..." onkeyup="filtrarTabla()">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="tabla_maestra">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Grupo / Institución</th>
+                        <th>Cliente / Razón Social</th>
+                        <th>Vendedor</th>
+                        <th>Documento</th>
+                        <th>Fecha</th>
+                        <th class="text-center">Días</th>
+                        <th class="text-end pe-3">Saldo Pendiente</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla_cxc"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chartInst = null;
+
+    async function cargarCxC() {
+        try {
+            const r = await fetch("/api/cartera_cxc", { method: "POST" });
+            const d = await r.json();
+            const f = (v) => v.toLocaleString('es-VE', {minimumFractionDigits: 2});
+
+            // 1. Total General
+            document.getElementById("total_cxc").innerText = f(d.total) + " Bs.";
+
+            // 2. Llenar Resumen por Grupo
+            const divGrupos = document.getElementById("resumen_grupos");
+            if (d.resumen_grupos) {
+                divGrupos.innerHTML = d.resumen_grupos.map(g => `
+                    <div class="grupo-item">
+                        <span class="grupo-nombre">${g.GRUPO}</span>
+                        <span class="grupo-monto">${f(g.MONTO)}</span>
+                    </div>
+                `).join("");
+            }
+
+            // 3. Gráfico de Envejecimiento
+            const ctx = document.getElementById('chartEnvejecimiento').getContext('2d');
+            if (chartInst) chartInst.destroy();
+            chartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: d.envejecimiento.map(x => x.label),
+                    datasets: [{
+                        label: 'Monto Pendiente',
+                        data: d.envejecimiento.map(x => x.value),
+                        backgroundColor: ['#2ecc71', '#f1c40f', '#e67e22', '#e74c3c', '#c0392b'],
+                        borderRadius: 8
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 4. Tabla Detallada
+            const tbody = document.getElementById("tabla_cxc");
+            tbody.innerHTML = d.tabla.map(row => `
+                <tr>
+                    <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO}</small></td>
+                    <td class="desc-full">${row.CLIENTE}</td>
+                    <td><small>${row.VENDEDOR}</small></td>
+                    <td><span class="badge bg-light text-dark border">${row.DOCUMENTO}</span></td>
+                    <td>${row.FECHA}</td>
+                    <td class="text-center ${row.DIAS > 0 ? 'text-danger fw-bold' : 'text-success'}">${row.DIAS}</td>
+                    <td class="text-end fw-bold pe-3">${f(row.SALDO)}</td>
+                </tr>
+            `).join("");
+
+        } catch (e) { console.error("Error CxC:", e); }
+    }
+
+    function filtrarTabla() {
+        const bus = document.getElementById("bus_cxc").value.toLowerCase();
+        const filas = document.querySelectorAll("#tabla_cxc tr");
+        filas.forEach(f => {
+            f.style.display = f.innerText.toLowerCase().includes(bus) ? "" : "none";
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarCxC);
+</script>
+{% endblock %}

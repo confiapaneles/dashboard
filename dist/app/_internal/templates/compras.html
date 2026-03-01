@@ -1,0 +1,201 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .panel-title { border-left: 5px solid #e67e22; padding-left: 10px; font-weight: 700; margin-bottom: 20px; }
+    .card { border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 20px; }
+    .tab-link.active { background: #e67e22 !important; color: white !important; border-color: #e67e22 !important; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+</style>
+
+<div class="dashboard-container">
+    <div class="bg-white p-3 rounded shadow-sm mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex gap-2">
+            <input type="date" id="f_inicio" class="form-control form-control-sm" onchange="cargarCompras()">
+            <input type="date" id="f_fin" class="form-control form-control-sm" onchange="cargarCompras()">
+            <select id="moneda_comp" class="form-select form-select-sm" style="width:100px;" onchange="cargarCompras()">
+                <option value="Bs">Bs</option>
+                <option value="USD">USD</option>
+            </select>
+        </div>
+        <div class="d-flex gap-2">
+            <input type="text" id="bus_prov" list="l_prov" class="form-control form-control-sm" placeholder="Proveedor..." onchange="cargarCompras()">
+            <input type="text" id="bus_prod" list="l_prod" class="form-control form-control-sm" placeholder="Producto..." onchange="cargarCompras()">
+            <datalist id="l_prov"></datalist>
+            <datalist id="l_prod"></datalist>
+        </div>
+        <div class="text-end">
+            <small class="text-muted d-block">Total Compras (Contado + Crédito)</small>
+            <span id="txt_total" class="fs-4 fw-bold" style="color:#e67e22 !important;">0,00</span>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills mb-3 gap-2">
+        <li class="nav-item">
+            <button class="tab-link active btn btn-light" onclick="showTab(event, 'tab_res')">Resumen General</button>
+        </li>
+        <li class="nav-item">
+            <button class="tab-link btn btn-light" onclick="showTab(event, 'tab_prov')">Top Proveedores</button>
+        </li>
+        <li class="nav-item">
+            <button class="tab-link btn btn-light" onclick="showTab(event, 'tab_prod')">Top Productos</button>
+        </li>
+    </ul>
+
+    <div id="tab_res" class="tab-content active">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="panel-title">Distribución por Tipo</h5>
+                    <div style="height:350px;"><canvas id="chartTipo"></canvas></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="panel-title">Compras por Marca</h5>
+                    <div style="height:350px;"><canvas id="chartMarca"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab_prov" class="tab-content">
+        <div class="card">
+            <h5 class="panel-title">Ranking de Proveedores</h5>
+            <div style="height:600px;"><canvas id="chartProv"></canvas></div>
+        </div>
+    </div>
+
+    <div id="tab_prod" class="tab-content">
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="panel-title mb-0">Ranking de Productos</h5>
+                <select id="criterio_prod" class="form-select form-select-sm" style="width:180px;" onchange="cargarCompras()">
+                    <option value="monto">Ver por Monto</option>
+                    <option value="unid">Ver por Unidades</option>
+                </select>
+            </div>
+            <div style="height:700px;"><canvas id="chartProd"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let inst = {};
+
+    function showTab(e, id) {
+        // Ocultar todos los contenidos
+        document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+        // Quitar clase active de todos los botones
+        document.querySelectorAll('.tab-link').forEach(x => x.classList.remove('active'));
+        
+        // Mostrar el seleccionado
+        document.getElementById(id).classList.add('active');
+        e.currentTarget.classList.add('active');
+        
+        // Redibujar gráficos para evitar errores de tamaño en pestañas ocultas
+        cargarCompras();
+    }
+
+    async function cargarCompras() {
+        const monedaSel = document.getElementById("moneda_comp").value;
+        const p = {
+            fecha_inicio: document.getElementById("f_inicio").value,
+            fecha_fin: document.getElementById("f_fin").value,
+            proveedor: document.getElementById("bus_prov").value,
+            producto: document.getElementById("bus_prod").value,
+            moneda: monedaSel,
+            top_n: 15,
+            prod_criterio: document.getElementById("criterio_prod")?.value || 'monto'
+        };
+
+        try {
+            const r = await fetch("/api/compras", { 
+                method: "POST", 
+                headers: {"Content-Type": "application/json"}, 
+                body: JSON.stringify(p) 
+            });
+            const d = await r.json();
+
+            // Cálculo del Total Real (Contado + Crédito)
+            const totalSuma = (d.totales.Contado || 0) + (d.totales.Credito || 0);
+            document.getElementById("txt_total").innerText = `${totalSuma.toLocaleString()} ${monedaSel}`;
+            
+            // Datalists
+            document.getElementById("l_prov").innerHTML = d.sugerencias_prov.map(s => `<option value="${s}">`).join("");
+            document.getElementById("l_prod").innerHTML = d.sugerencias_prod.map(s => `<option value="${s}">`).join("");
+
+            // 1. Gráfico Tipo Compra
+            renderComp("chartTipo", "bar", ["Contado", "Crédito"], [d.totales.Contado || 0, d.totales.Credito || 0], '#e67e22', 'x');
+
+            // 2. Gráfico Marcas
+            renderComp("chartMarca", "pie", d.marcas.map(x => x.MARCA), d.marcas.map(x => x.V), null, 'x');
+
+            // 3. Gráfico Proveedores (Horizontal para leer nombres)
+            renderComp("chartProv", "bar", d.proveedores.map(x => x.PROVEEDOR), d.proveedores.map(x => x.V), '#f39c12', 'y');
+
+            // 4. Gráfico Productos (Corregido: no se mostraba)
+            const dataProd = p.prod_criterio === 'monto' ? d.productos_monto : d.productos_unid;
+            renderComp("chartProd", "bar", dataProd.map(x => x.PRODUCTO), dataProd.map(x => x.V), '#d35400', 'y');
+
+        } catch (e) { 
+            console.error("Error cargando compras:", e); 
+        }
+    }
+
+    function renderComp(id, type, labels, values, color, axis) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    if (inst[id]) inst[id].destroy();
+
+    inst[id] = new Chart(ctx, {
+        type: type,
+        data: { 
+            labels: labels, 
+            datasets: [{ 
+                label: 'Total',
+                data: values, 
+                backgroundColor: color || ['#e67e22','#d35400','#f39c12','#f1c40f','#e74c3c'],
+                borderRadius: 5,
+                barPercentage: 0.5, // Reducimos el tamaño de la barra para aprovechar espacio
+            }] 
+        },
+        options: { 
+            indexAxis: axis, 
+            responsive: true, 
+            maintainAspectRatio: false,
+            layout: {
+                padding: { left: axis === 'y' ? 30 : 0 } // Margen dinámico si es horizontal
+            },
+            plugins: {
+                legend: { display: type === 'pie' }
+            },
+            scales: type !== 'pie' ? {
+                y: { 
+                    ticks: { 
+                        font: { size: 11 }, 
+                        autoSkip: false,
+                        // Ajuste para nombres de productos y proveedores
+                        callback: function(value) {
+                            const label = this.getLabelForValue(value);
+                            if (axis === 'y') {
+                                return label.length > 35 ? label.substr(0, 32) + '...' : label;
+                            }
+                            return label;
+                        }
+                    },
+                    grid: { display: axis === 'x' }
+                },
+                x: { 
+                    beginAtZero: true,
+                    grid: { display: axis === 'y' }
+                }
+            } : {}
+        }
+    });
+}
+    document.addEventListener("DOMContentLoaded", cargarCompras);
+</script>
+{% endblock %}

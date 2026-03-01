@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Sistema DBF Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            color: white;
+            text-align: center;
+        }
+        .login-card h2 { font-weight: 800; margin-bottom: 30px; letter-spacing: 1px; }
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+        }
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: #3498db;
+            box-shadow: none;
+        }
+        .btn-login {
+            background: #3498db;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: #2980b9; transform: translateY(-2px); }
+        .error-msg { color: #ff7675; font-size: 14px; margin-top: 15px; }
+        .small-note { font-size: 0.8rem; opacity: 0.7; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div style="font-size: 50px; margin-bottom: 10px;">📊</div>
+    <h2>SISTEMA EXPLORADOR</h2>
+    
+    <form method="POST">
+        <div class="mb-3 text-start">
+            <label class="form-label small">Empresa</label>
+            <input type="text" name="empresa" class="form-control" placeholder="MI EMPRESA" required autocomplete="off">
+            <div class="small-note">Escribe exactamente el nombre de la carpeta de tu empresa</div>
+        </div>
+        <div class="mb-3 text-start">
+            <label class="form-label small">Correo Electrónico</label>
+            <input type="email" name="correo" class="form-control" placeholder="nombre@empresa.com" required>
+        </div>
+        <div class="mb-4 text-start">
+            <label class="form-label small">Contraseña</label>
+            <input type="password" name="clave" class="form-control" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-login">INGRESAR</button>
+        
+        {% if error %}
+            <div class="error-msg">⚠️ {{ error }}</div>
+        {% endif %}
+    </form>
+    
+    <div style="margin-top: 30px; font-size: 11px; opacity: 0.5;">
+        &copy; 2026 - Acceso Restringido
+    </div>
+</div>
+
+</body>
+</html>

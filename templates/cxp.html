@@ -1,0 +1,405 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    /* Tema rojo/naranja para CxP - deudas a pagar */
+    :root {
+        --cxp-primary: #c0392b;       /* Rojo principal - total deuda */
+        --cxp-danger: #e74c3c;        /* Rojo intenso - vencido */
+        --cxp-warning: #f39c12;       /* Naranja - vencimiento cercano */
+        --cxp-light: #ffebee;         /* Fondo suave rojo */
+    }
+
+    .dashboard-wrapper {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .filter-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: flex-end;
+    }
+
+    .filter-col {
+        flex: 1;
+        min-width: 160px;
+    }
+
+    .filter-col label {
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 6px;
+        font-weight: 500;
+        display: block;
+    }
+
+    .filter-col input,
+    .filter-col select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.92rem;
+    }
+
+    .filter-col input:focus,
+    .filter-col select:focus {
+        border-color: var(--cxp-primary);
+        box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.15);
+    }
+
+    .total-kpi {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--cxp-primary);
+        line-height: 1;
+    }
+
+    .tab-navigation {
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .tab-btn {
+        padding: 11px 26px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        background: #f3f4f6;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+        background: var(--cxp-primary);
+        color: white;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .card-kpi {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        height: 100%;
+    }
+
+    .chart-title {
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 15px;
+        border-left: 5px solid var(--cxp-primary);
+        padding-left: 10px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+    }
+
+    .grupo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+    }
+
+    .grupo-item:hover {
+        background: var(--cxp-light);
+    }
+
+    .grupo-nombre {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .grupo-monto {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--cxp-primary);
+    }
+
+    .table-responsive {
+        max-height: 65vh;
+        overflow-y: auto;
+        border-radius: 8px;
+    }
+
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 10;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table td {
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+
+    .text-vencido {
+        color: var(--cxp-danger);
+        font-weight: 600;
+    }
+
+    .badge-doc {
+        background-color: #ffebee;
+        color: var(--cxp-primary);
+        font-weight: 500;
+    }
+
+    /* Ajuste para que el buscador ocupe más espacio */
+    #bus_cxp {
+        min-width: 320px;
+    }
+</style>
+
+<div class="dashboard-wrapper">
+    <!-- Filtros + Total -->
+    <div class="filter-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cuentas por Pagar</h4>
+            <div class="total-kpi" id="total_cxp">0,00</div>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-col">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="cargarCxP()">
+            </div>
+            <div class="filter-col">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="cargarCxP()">
+            </div>
+            <div class="filter-col">
+                <label>Moneda</label>
+                <select id="moneda" onchange="cargarCxP()">
+                    <option value="Bs">Bolívares (Bs)</option>
+                    <option value="USD">Dólares (USD)</option>
+                </select>
+            </div>
+            <div class="filter-col" style="flex-grow: 2; min-width: 350px;">
+                <label>Buscar</label>
+                <input type="text" id="bus_cxp" class="form-control" 
+                       placeholder="Proveedor, documento, grupo, responsable..." onkeyup="filtrarTabla()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="tab_resumen">Resumen General</button>
+        <button class="tab-btn" data-tab="tab_detalle">Detalle Cuentas por Pagar</button>
+    </div>
+
+    <!-- Resumen General -->
+    <div id="tab_resumen" class="tab-pane active">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card-kpi">
+                    <div class="chart-title">Vencimiento de Pagos</div>
+                    <div class="chart-container"><canvas id="chartEnvejecimientoCxp"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card-kpi">
+                    <div class="chart-title">Deuda por Proveedor / Grupo</div>
+                    <div id="resumen_grupos" style="max-height: 380px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalle -->
+    <div id="tab_detalle" class="tab-pane">
+        <div class="card-kpi">
+            <div class="chart-title">Cuentas por Pagar (filtradas por búsqueda)</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tabla_maestra">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Grupo</th>
+                            <th>Proveedor</th>
+                            <th>Responsable</th>
+                            <th>Documento</th>
+                            <th>Fecha</th>
+                            <th class="text-center">Días Venc.</th>
+                            <th class="text-end pe-3">Saldo Pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_cxp"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chartEnvejCxp = null;
+    let dataCache = null;
+
+    // Manejo pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(this.dataset.tab).classList.add('active');
+        });
+    });
+
+    async function cargarCxP() {
+        try {
+            const params = {
+                moneda: document.getElementById("moneda").value,
+                fecha_inicio: document.getElementById("fecha_inicio").value,
+                fecha_fin: document.getElementById("fecha_fin").value,
+                // Eliminamos proveedor y vendedor porque ya no se usan
+                busqueda: document.getElementById("bus_cxp").value.trim()
+            };
+
+            const r = await fetch("/api/cartera_cxp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(params)
+            });
+            dataCache = await r.json();
+
+            if (dataCache.error) {
+                console.error("Error servidor:", dataCache.error);
+                return;
+            }
+
+            const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Total
+            document.getElementById("total_cxp").textContent = f(dataCache.total) + ` ${params.moneda}`;
+
+            renderResumen(dataCache);
+
+        } catch (e) {
+            console.error("Error CxP:", e);
+        }
+    }
+
+    function renderResumen(d) {
+        const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+
+        // Resumen grupos
+        document.getElementById("resumen_grupos").innerHTML = (d.resumen_grupos || []).map(g => `
+            <div class="grupo-item">
+                <span class="grupo-nombre">${g.GRUPO}</span>
+                <span class="grupo-monto">${f(g.MONTO)}</span>
+            </div>
+        `).join("");
+
+        // Gráfico envejecimiento
+        if (chartEnvejCxp) chartEnvejCxp.destroy();
+        const ctx = document.getElementById('chartEnvejecimientoCxp').getContext('2d');
+        chartEnvejCxp = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: d.envejecimiento.map(x => x.label),
+                datasets: [{
+                    label: 'Deuda por Pagar',
+                    data: d.envejecimiento.map(x => x.value),
+                    backgroundColor: ['#2ecc71', '#f1c40f', '#f39c12', '#e67e22', '#c0392b'],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Tabla
+        actualizarTabla(d.tabla || []);
+    }
+
+    function actualizarTabla(tablaData) {
+        const bus = document.getElementById("bus_cxp").value.toLowerCase().trim();
+        const tbody = document.getElementById("tabla_cxp");
+        tbody.innerHTML = '';
+
+        const filasFiltradas = tablaData.filter(row => {
+            const texto = [
+                row.GRUPO || '',
+                row.PROVEEDOR || '',
+                row.VENDEDOR || '',
+                row.DOCUMENTO || '',
+                row.FECHA || ''
+            ].join(' ').toLowerCase();
+            return texto.includes(bus);
+        });
+
+        filasFiltradas.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO || '-'}</small></td>
+                <td>${row.PROVEEDOR || 'S/P'}</td>
+                <td><small>${row.VENDEDOR || 'S/R'}</small></td>
+                <td><span class="badge badge-doc">${row.DOCUMENTO || '-'}</span></td>
+                <td>${row.FECHA || '-'}</td>
+                <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS || 0}</td>
+                <td class="text-end fw-bold pe-3">
+                    ${row.SALDO.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filtrarTabla() {
+        if (!dataCache || !dataCache.tabla) return;
+        actualizarTabla(dataCache.tabla);
+    }
+
+    // Carga inicial + fechas por defecto
+    document.addEventListener("DOMContentLoaded", () => {
+        const hoy = new Date();
+        document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
+        
+        const mesAnterior = new Date(hoy);
+        mesAnterior.setMonth(hoy.getMonth() - 1);
+        document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
+
+        cargarCxP();
+    });
+</script>
+
+{% endblock %}

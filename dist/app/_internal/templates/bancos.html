@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    /* Sobrescribir CSS Global para amplitud total */
+    .container { 
+        padding: 10px !important; 
+        max-width: 95% !important; 
+        margin: auto;
+    }
+
+    .dashboard-container { 
+        width: 100%; 
+        font-family: 'Segoe UI', Tahoma, sans-serif; 
+        background-color: #f4f7f6;
+    }
+
+    /* Cabecera compacta estilo Cobranzas/Compras */
+    .filter-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        background: white; 
+        padding: 12px 20px; 
+        border-radius: 12px; 
+        margin-bottom: 10px !important; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .panel-title { 
+        border-left: 5px solid #27ae60; 
+        padding-left: 10px; 
+        font-weight: 700; 
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+
+    /* KPIs Superiores */
+    .kpi-row { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 15px; 
+        margin-bottom: 15px; 
+    }
+    .kpi-box { 
+        background: white; 
+        padding: 15px; 
+        border-radius: 12px; 
+        text-align: center; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+    }
+    .kpi-lab { font-size: 11px; color: #7f8c8d; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 5px; }
+    .kpi-val { font-size: 22px; font-weight: 800; }
+    .val-total { color: #27ae60; }
+    .val-ing { color: #2ecc71; }
+    .val-egr { color: #e74c3c; }
+
+    /* Estructura de Tabla y Gráfico */
+    .grid-bancos { 
+        display: grid; 
+        grid-template-columns: 70% 30%; 
+        gap: 15px; 
+    }
+
+    .card-banco { 
+        background: white; 
+        border-radius: 15px; 
+        box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Tabla optimizada para descripciones completas */
+    .table-responsive { 
+        height: 60vh; /* Altura fija para evitar scroll en toda la página */
+        overflow-y: auto; 
+    }
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 10;
+        font-size: 12px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .table td { vertical-align: middle; font-size: 13px; padding: 12px 8px; }
+    
+    .desc-cell { 
+        max-width: 400px; /* Un ancho mayor para que la descripción se vea bien */
+        word-wrap: break-word; 
+        white-space: normal; 
+        line-height: 1.2;
+    }
+
+    .badge-mov { font-size: 0.65rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
+    .text-ingreso { color: #27ae60; font-weight: bold; }
+    .text-egreso { color: #e74c3c; font-weight: bold; }
+
+    .chart-container { flex-grow: 1; position: relative; padding: 10px; min-height: 300px; }
+</style>
+
+<div class="dashboard-container">
+    <div class="filter-header">
+        <div class="d-flex align-items-center gap-3">
+            <h4 class="mb-0">🏦 Tesorería</h4>
+            <div class="input-group" style="width: 400px;">
+                <input type="text" id="bus_banco" class="form-control form-control-sm" 
+                       placeholder="Buscar por descripción, banco o cuenta..." onkeyup="cargarBancos()">
+            </div>
+        </div>
+        <div class="text-end">
+            <span class="kpi-lab">Disponibilidad Total</span>
+            <span id="t_saldo" class="kpi-val val-total">0,00 Bs.</span>
+        </div>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi-box">
+            <span class="kpi-lab">Total Ingresos</span>
+            <span id="t_ing" class="kpi-val val-ing">0,00</span>
+        </div>
+        <div class="kpi-box">
+            <span class="kpi-lab">Total Egresos</span>
+            <span id="t_egr" class="kpi-val val-egr">0,00</span>
+        </div>
+        <div class="kpi-box">
+            <span class="kpi-lab">Saldo Operativo</span>
+            <span id="t_neto" class="kpi-val text-primary">0,00</span>
+        </div>
+    </div>
+
+    <div class="grid-bancos">
+        <div class="card-banco">
+            <div class="p-3 border-bottom">
+                <h5 class="panel-title">Libro Auxiliar de Banco</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3">Fecha</th>
+                            <th>Institución / Cuenta</th>
+                            <th>Concepto / Descripción</th>
+                            <th class="text-end">Debe (+)</th>
+                            <th class="text-end pe-3">Haber (-)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_bancos"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-banco">
+            <div class="p-3 border-bottom">
+                <h5 class="panel-title">Saldos por Banco</h5>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartBancos"></canvas>
+            </div>
+            <div id="lista_detallada" class="p-3 small" style="overflow-y: auto; max-height: 200px;">
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let instBancos = {};
+
+async function cargarBancos() {
+    try {
+        const r = await fetch("/api/bancos", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ busqueda: document.getElementById("bus_banco").value })
+        });
+        const d = await r.json();
+
+        const f = (v) => v.toLocaleString('es-VE', {minimumFractionDigits: 2});
+        
+        // Actualizar Visuales
+        document.getElementById("t_saldo").innerText = f(d.totales.saldo_total) + " Bs.";
+        document.getElementById("t_ing").innerText = f(d.totales.ingresos);
+        document.getElementById("t_egr").innerText = f(d.totales.egresos);
+        document.getElementById("t_neto").innerText = f(d.totales.ingresos - d.totales.egresos);
+
+        // Llenar Tabla con Descripción Completa
+        document.getElementById("tabla_bancos").innerHTML = d.tabla.map(m => `
+            <tr>
+                <td class="ps-3 text-muted" style="width: 100px;">${m.FECHA}</td>
+                <td style="width: 200px;">
+                    <div class="fw-bold text-dark">${m.BANCO}</div>
+                    <div class="text-muted small">${m.CUENTA}</div>
+                </td>
+                <td class="desc-cell">
+                    <span class="badge bg-light text-dark border badge-mov mb-1">${m.TIPO}</span>
+                    <div class="text-wrap">${m.DESCRIPCION}</div>
+                </td>
+                <td class="text-end text-ingreso">${m.DEBE > 0 ? f(m.DEBE) : '-'}</td>
+                <td class="text-end text-egreso pe-3">${m.HABER > 0 ? f(m.HABER) : '-'}</td>
+            </tr>
+        `).join("");
+
+        renderBancosChart("chartBancos", d.bancos_chart.map(x => x.BANCO), d.bancos_chart.map(x => x.V));
+
+    } catch (e) { console.error("Error Bancos:", e); }
+}
+
+function renderBancosChart(id, labels, values) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    if (instBancos[id]) instBancos[id].destroy();
+
+    instBancos[id] = new Chart(canvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#27ae60', '#2980b9', '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#2c3e50'],
+                borderWidth: 2,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            },
+            cutout: '65%'
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", cargarBancos);
+</script>
+{% endblock %}

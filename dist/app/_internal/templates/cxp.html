@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .panel-cxp { border-left: 5px solid #c0392b; padding-left: 10px; font-weight: 700; }
+    .text-cxp { color: #c0392b; font-weight: 800; }
+</style>
+
+<div class="dashboard-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+        <h4 class="panel-cxp mb-0">CUENTAS POR PAGAR (CxP)</h4>
+        <div class="text-end">
+            <small class="text-muted d-block">Total Deuda a Proveedores</small>
+            <span id="total_cxp" class="fs-3 text-cxp">0,00</span>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card p-4 shadow-sm">
+                <h5>Análisis de Vencimiento de Pagos</h5>
+                <div style="height: 300px;"><canvas id="chartEnvejecimientoCxp"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4 shadow-sm">
+        <h5>Listado de Cuentas por Pagar</h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Grupo</th><th>Proveedor</th><th>Responsable</th><th>Documento</th><th>Días Venc.</th><th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla_cxp"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function cargarCxP() {
+        const r = await fetch("/api/cartera_cxp", { method: "POST" });
+        const d = await r.json();
+
+        document.getElementById("total_cxp").innerText = d.total.toLocaleString();
+        
+        new Chart(document.getElementById('chartEnvejecimientoCxp'), {
+            type: 'bar',
+            data: {
+                labels: d.envejecimiento.map(x => x.label),
+                datasets: [{
+                    label: 'Deuda por Pagar',
+                    data: d.envejecimiento.map(x => x.value),
+                    backgroundColor: '#c0392b'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        document.getElementById("tabla_cxp").innerHTML = d.tabla.map(row => `
+            <tr>
+                <td><small>${row.GRUPO}</small></td>
+                <td><small>${row.PROVEEDOR}</small></td>
+                <td><small>${row.RESPONSABLE}</small></td>
+                <td>${row.DOCUMENTO}</td>
+                <td class="text-danger">${row.DIAS}</td>
+                <td class="fw-bold">${row.SALDO.toLocaleString()}</td>
+            </tr>
+        `).join("");
+    }
+    document.addEventListener("DOMContentLoaded", cargarCxP);
+</script>
+{% endblock %}

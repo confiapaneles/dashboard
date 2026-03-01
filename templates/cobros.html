@@ -1,0 +1,391 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    :root {
+        --cob-primary: #6d28d9;
+        --cob-accent1: #7c3aed;
+        --cob-accent2: #a78bfa;
+        --cob-success: #10b981;
+        --cob-warning: #f59e0b;
+        --cob-info: #3b82f6;
+        --cob-light: #f3e8ff;
+    }
+
+    .dashboard-wrapper {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .filter-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: flex-end;
+    }
+
+    .filter-col {
+        flex: 1;
+        min-width: 160px;
+    }
+
+    .filter-col label {
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 6px;
+        font-weight: 500;
+        display: block;
+    }
+
+    .filter-col input,
+    .filter-col select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.92rem;
+    }
+
+    .filter-col input:focus,
+    .filter-col select:focus {
+        border-color: var(--cob-primary);
+        box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+    }
+
+    .total-kpi {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--cob-primary);
+        line-height: 1;
+    }
+
+    .tab-navigation {
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .tab-btn {
+        padding: 11px 26px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        background: #f3f4f6;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+        background: var(--cob-primary);
+        color: white;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .card-chart {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        height: 100%;
+    }
+
+    .chart-title {
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 15px;
+        border-left: 5px solid var(--cob-primary);
+        padding-left: 10px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 380px;
+    }
+
+    .table-responsive {
+        max-height: 68vh;
+        overflow-y: auto;
+        border-radius: 8px;
+    }
+
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 10;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .badge-forma {
+        background-color: var(--cob-light);
+        color: var(--cob-primary);
+        font-weight: 500;
+    }
+</style>
+
+<div class="dashboard-wrapper">
+    <!-- Filtros + Total -->
+    <div class="filter-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cobros y Recibos</h4>
+            <div class="total-kpi" id="total_general">0,00</div>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-col">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="cargarCobros()">
+            </div>
+            <div class="filter-col">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="cargarCobros()">
+            </div>
+            <div class="filter-col">
+                <label>Moneda</label>
+                <select id="moneda" onchange="cargarCobros()">
+                    <option value="Bs">Bolívares (Bs)</option>
+                    <option value="USD">Dólares (USD)</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Forma de Pago</label>
+                        <select id="forma_pago" onchange="cargarCobros()">
+            <option value="TODAS">Todas</option>
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="TRANSFERENCIA">Transferencia</option>
+            <option value="POS / TARJETA">POS / Tarjeta</option>
+            <option value="CHEQUE">Cheque</option>
+            <option value="DEPOSITO">Depósito</option>
+            <option value="T.DEBITO">Tarjeta Débito</option>
+            <option value="T.CREDITO">Tarjeta Crédito</option>
+            <option value="DIVISAS">Divisas</option>
+            <option value="OTRO">Otro</option>
+                        </select>
+            </div>
+            <div class="filter-col">
+                <label>Cliente</label>
+                <input type="text" id="filtro_cliente" placeholder="Nombre o código..." onkeyup="cargarCobros()">
+            </div>
+            <div class="filter-col">
+                <label>Top N Clientes</label>
+                <select id="top_n" onchange="cargarCobros()">
+                    <option value="5">Top 5</option>
+                    <option value="10" selected>Top 10</option>
+                    <option value="20">Top 20</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="tab_resumen">Resumen General</button>
+        <button class="tab-btn" data-tab="tab_clientes">Top Clientes</button>
+        <button class="tab-btn" data-tab="tab_detalle">Detalle Recibos</button>
+    </div>
+
+    <!-- Resumen General -->
+    <div id="tab_resumen" class="tab-pane active">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card-chart">
+                    <div class="chart-title">Formas de Pago</div>
+                    <div class="chart-container"><canvas id="chartFormas"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-chart">
+                    <div class="chart-title">Cobradores</div>
+                    <div class="chart-container"><canvas id="chartCobradores"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-chart">
+                    <div class="chart-title">Cajas / Puntos</div>
+                    <div class="chart-container"><canvas id="chartCajas"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Clientes -->
+    <div id="tab_clientes" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title">Top Clientes por Monto Recaudado</div>
+            <div class="chart-container" style="height: 520px;"><canvas id="chartClientes"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Detalle Recibos (sin acciones) -->
+    <div id="tab_detalle" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title">Detalle de Recibos</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Recibo</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Forma Pago</th>
+                            <th>Caja</th>
+                            <th>Cobrador</th>
+                            <th class="text-end pe-3">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let currentData = [];
+
+// Manejo de pestañas
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab).classList.add('active');
+    });
+});
+
+async function cargarCobros() {
+    const params = {
+        fecha_inicio: document.getElementById('fecha_inicio').value,
+        fecha_fin: document.getElementById('fecha_fin').value,
+        moneda: document.getElementById('moneda').value,
+        forma_pago: document.getElementById('forma_pago').value,
+        cliente: document.getElementById('filtro_cliente').value.trim(),
+        top_n: parseInt(document.getElementById('top_n').value)
+    };
+
+    try {
+        const r = await fetch('/api/cobros', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        const data = await r.json();
+
+        document.getElementById('total_general').textContent = 
+            (data.total_general || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 });
+
+        renderAll(data);
+
+    } catch (e) {
+        console.error("Error cargando cobros:", e);
+    }
+}
+
+function renderAll(d) {
+    const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Gráficos (mantenidos igual)
+    renderChart('chartFormas', 'doughnut', d.formas_pago?.map(x => x.label) || [], d.formas_pago?.map(x => x.value) || [],
+        ['#9c27b0', '#a855f7', '#c084fc', '#d8b4fe', '#e9d5ff']);
+
+    renderChart('chartCobradores', 'bar', d.cobradores?.map(x => x.label) || [], d.cobradores?.map(x => x.value) || [],
+        ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0']);
+
+    renderChart('chartCajas', 'pie', d.cajas?.map(x => x.label) || [], d.cajas?.map(x => x.value) || [],
+        ['#f59e0b', '#fbbf24', '#fcd34d', '#fde68a']);
+
+    renderChart('chartClientes', 'bar', d.clientes?.map(x => x.label) || [], d.clientes?.map(x => x.value) || [],
+        ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'], true);
+
+    // Tabla de detalle - sin columna de acciones
+    const tbody = document.getElementById('tabla_body');
+    currentData = d.tabla || [];
+
+    tbody.innerHTML = currentData.map(r => `
+        <tr>
+            <td class="fw-bold">${r.RECIBO || '-'}</td>
+            <td>${r.FECHA || '-'}</td>
+            <td><small>${r.CLIENTE || '—'}</small></td>
+            <td><span class="badge badge-forma">${r.FORMA || '—'}</span></td>
+            <td><small>${r.CAJA || '—'}</small></td>
+            <td><small>${r.COBRADOR || '—'}</small></td>
+            <td class="text-end fw-bold" style="color: var(--cob-primary);">${fmt(r.MONTO)}</td>
+        </tr>
+    `).join("");
+}
+
+function renderChart(id, type, labels, values, colores, horizontal = false) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+
+    if (window.charts?.[id]) {
+        window.charts[id].destroy();
+    }
+
+    window.charts = window.charts || {};
+    window.charts[id] = new Chart(canvas.getContext('2d'), {
+        type,
+        data: {
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: colores,
+                borderWidth: 0,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: horizontal ? 'y' : 'x',
+            plugins: {
+                legend: { position: 'bottom', display: type !== 'bar' }
+            },
+            scales: horizontal ? {
+                y: { ticks: { autoSkip: false, font: { size: 11 } }, grid: { display: false } },
+                x: { grid: { color: '#f0f0f0' } }
+            } : {
+                x: { grid: { display: false } },
+                y: { grid: { color: '#f0f0f0' } }
+            }
+        }
+    });
+}
+
+// Carga inicial + fechas por defecto (último mes)
+document.addEventListener("DOMContentLoaded", () => {
+    const hoy = new Date();
+    document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
+    
+    const mesAnterior = new Date(hoy);
+    mesAnterior.setMonth(hoy.getMonth() - 1);
+    document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
+    
+    cargarCobros();
+});
+</script>
+
+{% endblock %}
