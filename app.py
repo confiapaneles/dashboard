@@ -14,7 +14,9 @@ app.secret_key = 'clave_secreta_muy_segura_confia_2026'
 
 
 # ─── CONFIGURACIÓN DE RUTAS ────────────────────────────────────────────────
-DBF_DIR = r"C:\Users\acaci\OneDrive\Documentos\PANELES_CONFIA\dbf"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DBF_DIR = os.path.join(BASE_DIR, "dbf")
+
 
 def get_dbf_path(archivo):
     """
