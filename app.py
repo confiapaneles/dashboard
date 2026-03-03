@@ -14,8 +14,17 @@ app.secret_key = 'clave_secreta_muy_segura_confia_2026'
 
 
 # ─── CONFIGURACIÓN DE RUTAS ────────────────────────────────────────────────
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DBF_DIR = os.path.join(BASE_DIR, "dbf")
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# DBF_DIR = os.path.join(BASE_DIR, "dbf")
+
+# Ruta absoluta al disco persistente (Render lo monta aquí)
+PERSISTENT_ROOT = "/var/data"
+
+# Carpeta principal para todos tus DBF (puedes usar subcarpetas como ahora)
+DBF_DIR = os.path.join(PERSISTENT_ROOT, "dbf")
+
+# Asegúrate de que exista (ejecútalo al inicio de tu app, por ejemplo en app.py)
+os.makedirs(DBF_DIR, exist_ok=True)
 
 
 def get_dbf_path(archivo):
