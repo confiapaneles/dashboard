@@ -2,19 +2,14 @@
 {% block content %}
 
 <style>
-    /* Tema rojo/naranja para CxP - deudas a pagar */
     :root {
-        --cxp-primary: #c0392b;       /* Rojo principal - total deuda */
-        --cxp-danger: #e74c3c;        /* Rojo intenso - vencido */
-        --cxp-warning: #f39c12;       /* Naranja - vencimiento cercano */
-        --cxp-light: #ffebee;         /* Fondo suave rojo */
+        --cxp-primary: #c0392b;
+        --cxp-danger: #e74c3c;
+        --cxp-warning: #f39c12;
+        --cxp-light: #ffebee;
     }
 
-    .dashboard-wrapper {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
 
     .filter-card {
         background: white;
@@ -90,13 +85,8 @@
         color: white;
     }
 
-    .tab-pane {
-        display: none;
-    }
-
-    .tab-pane.active {
-        display: block;
-    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
 
     .card-kpi {
         background: white;
@@ -115,10 +105,7 @@
         padding-left: 10px;
     }
 
-    .chart-container {
-        position: relative;
-        height: 400px;
-    }
+    .chart-container { position: relative; height: 400px; }
 
     .grupo-item {
         display: flex;
@@ -129,9 +116,7 @@
         transition: background 0.2s;
     }
 
-    .grupo-item:hover {
-        background: var(--cxp-light);
-    }
+    .grupo-item:hover { background: var(--cxp-light); }
 
     .grupo-nombre {
         font-size: 0.95rem;
@@ -166,6 +151,16 @@
         vertical-align: middle;
     }
 
+    /* Fuerza columna Fecha a UNA sola línea SIEMPRE */
+    .table td.fecha-col {
+        white-space: nowrap !important;
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .text-vencido {
         color: var(--cxp-danger);
         font-weight: 600;
@@ -175,11 +170,6 @@
         background-color: #ffebee;
         color: var(--cxp-primary);
         font-weight: 500;
-    }
-
-    /* Ajuste para que el buscador ocupe más espacio */
-    #bus_cxp {
-        min-width: 320px;
     }
 </style>
 
@@ -193,24 +183,16 @@
 
         <div class="filter-row">
             <div class="filter-col">
-                <label>Desde</label>
-                <input type="date" id="fecha_inicio" onchange="cargarCxP()">
-            </div>
-            <div class="filter-col">
-                <label>Hasta</label>
-                <input type="date" id="fecha_fin" onchange="cargarCxP()">
-            </div>
-            <div class="filter-col">
                 <label>Moneda</label>
-                <select id="moneda" onchange="cargarCxP()">
+                <select id="moneda" class="form-select" onchange="cargarCxP()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
             <div class="filter-col" style="flex-grow: 2; min-width: 350px;">
-                <label>Buscar</label>
+                <label>Buscar (Proveedor, documento, grupo, responsable...)</label>
                 <input type="text" id="bus_cxp" class="form-control" 
-                       placeholder="Proveedor, documento, grupo, responsable..." onkeyup="filtrarTabla()">
+                       placeholder="Escribe para filtrar..." oninput="filtrarYRecalcular()">
             </div>
         </div>
     </div>
@@ -251,7 +233,7 @@
                             <th>Proveedor</th>
                             <th>Responsable</th>
                             <th>Documento</th>
-                            <th>Fecha</th>
+                            <th class="fecha-col">Fecha</th>
                             <th class="text-center">Días Venc.</th>
                             <th class="text-end pe-3">Saldo Pendiente</th>
                         </tr>
@@ -263,56 +245,82 @@
     </div>
 </div>
 
+<!-- Overlay de carga -->
+<div id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner-border text-danger" role="status"></div>
+        <div class="mt-3 fw-bold text-danger fs-5">Cargando cartera CxP, por favor espere...</div>
+    </div>
+</div>
+
 <script>
     let chartEnvejCxp = null;
     let dataCache = null;
 
-    // Manejo pestañas
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    function showLoading() { loadingOverlay.style.display = 'flex'; }
+    function hideLoading() { loadingOverlay.style.display = 'none'; }
+
+    // Manejo de pestañas con renderizado dinámico
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            
             this.classList.add('active');
-            document.getElementById(this.dataset.tab).classList.add('active');
+            const tabId = this.dataset.tab;
+            const tabPane = document.getElementById(tabId);
+            tabPane.classList.add('active');
+
+            // Renderizar contenido según pestaña activa
+            if (tabId === 'tab_resumen' && dataCache) {
+                renderResumen(dataCache);
+            } else if (tabId === 'tab_detalle' && dataCache?.tabla) {
+                renderTabla(dataCache.tabla);
+            }
         });
     });
 
     async function cargarCxP() {
-        try {
-            const params = {
-                moneda: document.getElementById("moneda").value,
-                fecha_inicio: document.getElementById("fecha_inicio").value,
-                fecha_fin: document.getElementById("fecha_fin").value,
-                // Eliminamos proveedor y vendedor porque ya no se usan
-                busqueda: document.getElementById("bus_cxp").value.trim()
-            };
+        showLoading();
 
+        const params = {
+            moneda: document.getElementById("moneda").value
+        };
+
+        try {
             const r = await fetch("/api/cartera_cxp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(params)
             });
+
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
             dataCache = await r.json();
 
-            if (dataCache.error) {
-                console.error("Error servidor:", dataCache.error);
-                return;
+            const f = (v) => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Total inicial
+            document.getElementById("total_cxp").textContent = f(dataCache.total);
+
+            // Renderizar pestaña activa
+            const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+            if (activeTab === 'tab_resumen') {
+                renderResumen(dataCache);
+            } else if (activeTab === 'tab_detalle') {
+                renderTabla(dataCache.tabla || []);
             }
 
-            const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-            // Total
-            document.getElementById("total_cxp").textContent = f(dataCache.total) + ` ${params.moneda}`;
-
-            renderResumen(dataCache);
-
         } catch (e) {
-            console.error("Error CxP:", e);
+            console.error("Error cargando CxP:", e);
+        } finally {
+            hideLoading();
         }
     }
 
     function renderResumen(d) {
-        const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+        const f = (v) => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 });
 
         // Resumen grupos
         document.getElementById("resumen_grupos").innerHTML = (d.resumen_grupos || []).map(g => `
@@ -322,8 +330,9 @@
             </div>
         `).join("");
 
-        // Gráfico envejecimiento
+        // Destruir y recrear gráfico
         if (chartEnvejCxp) chartEnvejCxp.destroy();
+
         const ctx = document.getElementById('chartEnvejecimientoCxp').getContext('2d');
         chartEnvejCxp = new Chart(ctx, {
             type: 'bar',
@@ -332,7 +341,7 @@
                 datasets: [{
                     label: 'Deuda por Pagar',
                     data: d.envejecimiento.map(x => x.value),
-                    backgroundColor: ['#2ecc71', '#f1c40f', '#f39c12', '#e67e22', '#c0392b'],
+                    backgroundColor: ['#2ecc71', '#f1c40f', '#f39c12', '#e67e22', '#d35400', '#c0392b'],
                     borderRadius: 8
                 }]
             },
@@ -346,58 +355,46 @@
                 }
             }
         });
-
-        // Tabla
-        actualizarTabla(d.tabla || []);
     }
 
-    function actualizarTabla(tablaData) {
-        const bus = document.getElementById("bus_cxp").value.toLowerCase().trim();
+    function renderTabla(rows) {
+        const f = (v) => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 });
+
         const tbody = document.getElementById("tabla_cxp");
-        tbody.innerHTML = '';
-
-        const filasFiltradas = tablaData.filter(row => {
-            const texto = [
-                row.GRUPO || '',
-                row.PROVEEDOR || '',
-                row.VENDEDOR || '',
-                row.DOCUMENTO || '',
-                row.FECHA || ''
-            ].join(' ').toLowerCase();
-            return texto.includes(bus);
-        });
-
-        filasFiltradas.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
+        tbody.innerHTML = (rows || []).map(row => `
+            <tr>
                 <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO || '-'}</small></td>
-                <td>${row.PROVEEDOR || 'S/P'}</td>
-                <td><small>${row.VENDEDOR || 'S/R'}</small></td>
+                <td>${row.PROVEEDOR || '-'}</td>
+                <td><small>${row.VENDEDOR || '-'}</small></td>
                 <td><span class="badge badge-doc">${row.DOCUMENTO || '-'}</span></td>
-                <td>${row.FECHA || '-'}</td>
+                <td class="fecha-col">${row.FECHA || '-'}</td>
                 <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS || 0}</td>
-                <td class="text-end fw-bold pe-3">
-                    ${row.SALDO.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+                <td class="text-end fw-bold pe-3">${f(row.SALDO)}</td>
+            </tr>
+        `).join("");
+
+        // Recalcular total visible
+        const totalVisible = rows.reduce((sum, r) => sum + (r.SALDO || 0), 0);
+        document.getElementById("total_cxp").textContent = 
+            totalVisible.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function filtrarTabla() {
-        if (!dataCache || !dataCache.tabla) return;
-        actualizarTabla(dataCache.tabla);
+    function filtrarYRecalcular() {
+        if (!dataCache?.tabla) return;
+
+        const bus = document.getElementById("bus_cxp").value.toLowerCase().trim();
+
+        const filtrados = bus
+            ? dataCache.tabla.filter(row =>
+                [row.GRUPO, row.PROVEEDOR, row.DOCUMENTO, row.VENDEDOR, row.FECHA || '']
+                    .some(val => String(val).toLowerCase().includes(bus)))
+            : dataCache.tabla;
+
+        renderTabla(filtrados);
     }
 
-    // Carga inicial + fechas por defecto
+    // Carga inicial
     document.addEventListener("DOMContentLoaded", () => {
-        const hoy = new Date();
-        document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
-        
-        const mesAnterior = new Date(hoy);
-        mesAnterior.setMonth(hoy.getMonth() - 1);
-        document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
-
         cargarCxP();
     });
 </script>

@@ -2,14 +2,13 @@
 {% block content %}
 
 <style>
-    /* Tema verde elegante y diferenciado para CxC */
     :root {
-        --cxc-primary: #27ae60;       /* Verde principal - totales y títulos */
-        --cxc-success: #2ecc71;       /* Verde claro - no vencido */
-        --cxc-warning: #f1c40f;       /* Amarillo - vencido pronto */
-        --cxc-danger: #e74c3c;        /* Rojo - muy vencido */
-        --cxc-light: #e8f5e9;         /* Fondo suave verde */
-        --cxc-accent: #16a085;        /* Verde oscuro para detalles */
+        --cxc-primary: #27ae60;
+        --cxc-success: #2ecc71;
+        --cxc-warning: #f1c40f;
+        --cxc-danger: #e74c3c;
+        --cxc-light: #e8f5e9;
+        --cxc-accent: #16a085;
     }
 
     .dashboard-wrapper {
@@ -170,6 +169,13 @@
         vertical-align: middle;
     }
 
+    .table td.fecha-col {
+        white-space: nowrap;
+        width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .text-vencido {
         color: var(--cxc-danger);
         font-weight: 600;
@@ -192,38 +198,30 @@
 
         <div class="filter-row">
             <div class="filter-col">
-                <label>Desde</label>
-                <input type="date" id="fecha_inicio" onchange="cargarCxC()">
-            </div>
-            <div class="filter-col">
-                <label>Hasta</label>
-                <input type="date" id="fecha_fin" onchange="cargarCxC()">
-            </div>
-            <div class="filter-col">
                 <label>Moneda</label>
-                <select id="moneda" onchange="cargarCxC()">
+                <select id="moneda" class="form-select" onchange="cargarCxC()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
             <div class="filter-col">
                 <label>Vendedor</label>
-                <select id="filtro_vendedor" onchange="cargarCxC()">
-                    <option value="">Todos los vendedores</option>
+                <select id="filtro_vendedor" class="form-select" onchange="cargarCxC()">
+                    <option value="TODOS">Todos los vendedores</option>
                 </select>
             </div>
             <div class="filter-col" style="min-width: 280px;">
-                <label>Buscar</label>
+                <label>Buscar (Cliente, documento, grupo...)</label>
                 <input type="text" id="bus_cxc" class="form-control" 
-                       placeholder="Cliente, documento, grupo..." onkeyup="filtrarTabla()">
+                       placeholder="Escribe para filtrar..." oninput="filtrarYRecalcular()">
             </div>
         </div>
     </div>
 
     <!-- Pestañas -->
     <div class="tab-navigation">
-        <button class="tab-btn active" data-tab="tab_resumen">Resumen General</button>
-        <button class="tab-btn" data-tab="tab_detalle">Detalle Facturas Pendientes</button>
+        <button class="tab-btn active" data-tab="resumen">Resumen General</button>
+        <button class="tab-btn" data-tab="detalle">Detalle Facturas Pendientes</button>
     </div>
 
     <!-- Pestaña 1: Resumen General -->
@@ -256,7 +254,7 @@
                             <th>Cliente / Razón Social</th>
                             <th>Vendedor</th>
                             <th>Documento</th>
-                            <th>Fecha</th>
+                            <th class="fecha-col">Fecha</th>
                             <th class="text-center">Días Vencidos</th>
                             <th class="text-end pe-3">Saldo Pendiente</th>
                         </tr>
@@ -273,13 +271,23 @@
     let dataCache = null;
     let vendedoresCargados = false;
 
-    // Manejo de pestañas
+    // Manejo de pestañas con renderizado dinámico
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            
             this.classList.add('active');
-            document.getElementById(this.dataset.tab).classList.add('active');
+            const tabId = this.dataset.tab;
+            const tabPane = document.getElementById('tab_' + tabId);
+            tabPane.classList.add('active');
+
+            // Renderizar contenido según pestaña activa
+            if (tabId === 'resumen' && dataCache) {
+                renderResumen(dataCache);
+            } else if (tabId === 'detalle' && dataCache?.tabla) {
+                renderTabla(dataCache.tabla);
+            }
         });
     });
 
@@ -287,8 +295,6 @@
         try {
             const params = {
                 moneda: document.getElementById("moneda").value,
-                fecha_inicio: document.getElementById("fecha_inicio").value,
-                fecha_fin: document.getElementById("fecha_fin").value,
                 vendedor: document.getElementById("filtro_vendedor").value
             };
 
@@ -301,62 +307,66 @@
 
             const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            // Total general
             document.getElementById("total_cxc").textContent = f(dataCache.total);
 
-            // Poblar filtro de vendedores (solo la primera vez)
-            if (!vendedoresCargados && dataCache.vendedores) {
+            // Poblar vendedores solo una vez
+            if (!vendedoresCargados && dataCache.vendedores?.length) {
                 const selVend = document.getElementById("filtro_vendedor");
                 dataCache.vendedores.forEach(v => {
-                    if (v?.trim()) {
+                    if (v?.trim() && v !== 'TODOS') {
                         const opt = document.createElement("option");
-                        opt.value = v;
-                        opt.textContent = v;
+                        opt.value = v.trim();
+                        opt.textContent = v.trim();
                         selVend.appendChild(opt);
                     }
                 });
                 vendedoresCargados = true;
             }
 
-            // Renderizar contenido
-            renderResumen(dataCache);
+            // Renderizar la pestaña activa actual
+            const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+            if (activeTab === 'resumen') {
+                renderResumen(dataCache);
+            } else if (activeTab === 'detalle') {
+                renderTabla(dataCache.tabla || []);
+            }
 
         } catch (e) {
-            console.error("Error CxC:", e);
+            console.error("Error cargando CxC:", e);
         }
     }
 
     function renderResumen(d) {
         const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2 });
 
-        // Resumen por grupo
+        // Resumen grupos
         const divGrupos = document.getElementById("resumen_grupos");
         divGrupos.innerHTML = (d.resumen_grupos || []).map(g => `
             <div class="grupo-item">
-                <span class="grupo-nombre">${g.GRUPO}</span>
+                <span class="grupo-nombre">${g.GRUPO || 'Sin grupo'}</span>
                 <span class="grupo-monto">${f(g.MONTO)}</span>
             </div>
         `).join("");
 
-        // Gráfico Envejecimiento
-        if (chartEnvej) chartEnvej.destroy();
+        // Destruir gráfico anterior si existe
+        if (chartEnvej) {
+            chartEnvej.destroy();
+            chartEnvej = null;
+        }
+
+        // Crear nuevo gráfico
         const ctx = document.getElementById('chartEnvejecimiento').getContext('2d');
         chartEnvej = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: d.envejecimiento.map(x => x.label),
-        datasets: [{
-            label: 'Monto Pendiente',
-            data: d.envejecimiento.map(x => x.value),
-            backgroundColor: [
-                '#2ecc71',    // No Vencido     → verde claro
-                '#f1c40f',    // 1-7 días       → amarillo claro
-                '#f39c12',    // 8-14 días      → naranja suave
-                '#e67e22',    // 15-21 días     → naranja medio
-                '#d35400',    // 22-30 días     → naranja oscuro
-                '#c0392b'     // +30 días       → rojo fuerte
-            ],
-            borderRadius: 8
+            type: 'bar',
+            data: {
+                labels: d.envejecimiento.map(x => x.label),
+                datasets: [{
+                    label: 'Monto Pendiente',
+                    data: d.envejecimiento.map(x => x.value),
+                    backgroundColor: [
+                        '#2ecc71', '#f1c40f', '#f39c12', '#e67e22', '#d35400', '#c0392b'
+                    ],
+                    borderRadius: 8
                 }]
             },
             options: {
@@ -369,36 +379,46 @@
                 }
             }
         });
+    }
 
-        // Tabla detalle (se filtra localmente)
+    function renderTabla(rows) {
+        const f = (v) => v.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+
         const tbody = document.getElementById("tabla_cxc");
-        tbody.innerHTML = (d.tabla || []).map(row => `
+        tbody.innerHTML = (rows || []).map(row => `
             <tr>
-                <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO}</small></td>
-                <td class="desc-full">${row.CLIENTE}</td>
-                <td><small>${row.VENDEDOR}</small></td>
-                <td><span class="badge badge-doc">${row.DOCUMENTO}</span></td>
-                <td>${row.FECHA}</td>
-                <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS}</td>
+                <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO || '-'}</small></td>
+                <td class="desc-full">${row.CLIENTE || '-'}</td>
+                <td><small>${row.VENDEDOR || '-'}</small></td>
+                <td><span class="badge badge-doc">${row.DOCUMENTO || '-'}</span></td>
+                <td class="fecha-col">${row.FECHA || '-'}</td>
+                <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS || 0}</td>
                 <td class="text-end fw-bold pe-3">${f(row.SALDO)}</td>
             </tr>
         `).join("");
+
+        // Recalcular total visible
+        const totalVisible = rows.reduce((sum, r) => sum + (r.SALDO || 0), 0);
+        document.getElementById("total_cxc").textContent = 
+            totalVisible.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function filtrarTabla() {
-        const bus = document.getElementById("bus_cxc").value.toLowerCase();
-        const filas = document.querySelectorAll("#tabla_cxc tr");
-        filas.forEach(f => {
-            f.style.display = f.innerText.toLowerCase().includes(bus) ? "" : "none";
-        });
+    function filtrarYRecalcular() {
+        if (!dataCache?.tabla) return;
+
+        const bus = document.getElementById("bus_cxc").value.toLowerCase().trim();
+
+        const filtrados = bus
+            ? dataCache.tabla.filter(row =>
+                [row.GRUPO, row.CLIENTE, row.DOCUMENTO, row.VENDEDOR]
+                    .some(val => String(val || '').toLowerCase().includes(bus)))
+            : dataCache.tabla;
+
+        renderTabla(filtrados);
     }
 
     // Carga inicial
     document.addEventListener("DOMContentLoaded", () => {
-        const hoy = new Date();
-        document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
-        const mesAnterior = new Date(hoy.setMonth(hoy.getMonth() - 1));
-        document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
         cargarCxC();
     });
 </script>

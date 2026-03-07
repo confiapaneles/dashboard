@@ -78,18 +78,14 @@ def obtener_configuracion():
 
     return {"empresa": "CONFIA", "almacenes": [], "precios": []}
 
-
 def obtener_nombre_empresa_global():
-    """Helper rápido para el nombre de la empresa en el Login"""
     conf = obtener_configuracion()
     return conf.get('empresa', 'CONFIA')
-
 
 # ─── CONFIGURACIÓN DE AUTENTICACIÓN ────────────────────────────────────────
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
 
 class User(UserMixin):
     def __init__(self, email, empresa, acceso):
@@ -98,20 +94,13 @@ class User(UserMixin):
         self.acceso = acceso
 
     def tiene_permiso(self, posicion):
-        """
-        Mapeo: 1:Ventas, 2:Compras, 3:Cobranzas(CxC), 5:CxP, 6:Inventario, 7:Bancos
-        """
         try:
             return str(self.acceso)[posicion - 1] != '0'
         except (IndexError, TypeError):
             return False
 
-
 @login_manager.user_loader
 def load_user(email):
-    # Para recargar usuario, necesitamos saber su empresa de la sesión o algo, pero como id es email, y email único global?
-    # Asumimos emails únicos across companies, pero para buscar, necesitamos buscar en todas? Complicado.
-    # Mejor, guardar empresa en session al login, y usarla aquí.
     empresa = session.get('empresa')
     if not empresa:
         return None
@@ -130,13 +119,11 @@ def load_user(email):
             pass
     return None
 
-
 # ─── FUNCIONES DE APOYO ────────────────────────────────────────────────────
 def parse_fecha(fecha_obj):
     if hasattr(fecha_obj, 'strftime'):
         return fecha_obj.strftime('%Y-%m-%d')
     return str(fecha_obj)
-
 
 def safe_float(value):
     try:
@@ -144,22 +131,19 @@ def safe_float(value):
     except (ValueError, TypeError):
         return 0.0
 
-
 # ─── RUTAS DE NAVEGACIÓN ───────────────────────────────────────────────────
 @app.route('/')
 @login_required
 def index():
     return redirect(url_for('ventas_page'))
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
-    nombre_logo = "SISTEMA EXPLORADOR"  # Default, ya que antes de seleccionar empresa
+    nombre_logo = "SISTEMA EXPLORADOR"
 
-    # Listar empresas (subcarpetas en DBF_DIR)
     empresas = [d for d in os.listdir(DBF_DIR) if os.path.isdir(os.path.join(DBF_DIR, d))]
-    empresas.sort()  # Ordenar alfabéticamente
+    empresas.sort()
 
     selected_empresa = None
 
@@ -177,7 +161,7 @@ def login():
                     for u in DBF(path_users, encoding='latin-1'):
                         if (str(u['CORREO']).strip() == correo_input and
                                 str(u['CLAVE']).strip() == clave_input):
-                            empresa_usuario = selected_empresa  # Usamos la seleccionada
+                            empresa_usuario = selected_empresa
 
                             user_obj = User(
                                 email=correo_input,
@@ -185,7 +169,7 @@ def login():
                                 acceso=str(u['ACCESO'])
                             )
                             login_user(user_obj)
-                            session['empresa'] = empresa_usuario  # Guardar en sesión para load_user
+                            session['empresa'] = empresa_usuario
                             return redirect(url_for('ventas_page'))
                     error = "Credenciales incorrectas"
                 except Exception as e:
@@ -195,14 +179,12 @@ def login():
 
     return render_template('login.html', error=error, nombre_logo=nombre_logo, empresas=empresas, selected_empresa=selected_empresa)
 
-
 @app.route('/logout')
 @login_required
 def logout():
     session.pop('empresa', None)
     logout_user()
     return redirect(url_for('login'))
-
 
 # ─── RUTAS DE PÁGINAS ──────────────────────────────────────────────────────
 @app.route('/ventas')
@@ -213,12 +195,9 @@ def ventas_page():
 @app.route('/ventas/cobros-facturas')
 @login_required
 def ventas_cobros_facturas_page():
-    # Puedes poner permiso de ventas (posición 1) o de cobranza (posición 3)
-    # Aquí uso ventas como pediste que esté "debajo de ventas"
     if not current_user.tiene_permiso(1):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('ventas_cobros_facturas.html', empresa=current_user.empresa)
-
 
 @app.route('/compras')
 @login_required
@@ -227,14 +206,12 @@ def compras_page():
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('compras.html', empresa=current_user.empresa)
 
-
 @app.route('/inventario')
 @login_required
 def inventario_page():
     if not current_user.tiene_permiso(6):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('inventario.html', empresa=current_user.empresa)
-
 
 @app.route('/cobros')
 @login_required
@@ -243,14 +220,12 @@ def cobros_page():
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('cobros.html', empresa=current_user.empresa)
 
-
 @app.route('/cxc')
 @login_required
 def cxc_page():
     if not current_user.tiene_permiso(3):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('cxc.html', empresa=current_user.empresa)
-
 
 @app.route('/cxp')
 @login_required
@@ -259,14 +234,12 @@ def cxp_page():
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('cxp.html', empresa=current_user.empresa)
 
-
 @app.route('/bancos')
 @login_required
 def bancos_page():
     if not current_user.tiene_permiso(7):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('bancos.html', empresa=current_user.empresa)
-
 
 # ─── ENDPOINTS DE API ──────────────────────────────────────────────────────
 
@@ -300,7 +273,7 @@ def get_cartera_cxc():
                     continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
-                tasa_dolar = 36.0  # ← CAMBIAR por valor real o leer de config
+                tasa_dolar = 36.0
                 saldo = saldo_raw if moneda == 'Bs' else round(saldo_raw / tasa_dolar, 2)
 
                 total_gral += saldo
@@ -338,7 +311,6 @@ def get_cartera_cxc():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @app.route('/api/ventas', methods=['POST'])
 @login_required
 def get_ventas():
@@ -349,9 +321,10 @@ def get_ventas():
     fecha_fin = params.get('fecha_fin', '')
     vendedor = params.get('vendedor', '').strip()
     busqueda_cliente = params.get('busqueda_cliente', '').strip().upper()
-    busqueda_zona = params.get('busqueda_zona', '').strip().upper()
     busqueda_producto = params.get('busqueda_producto', '').strip().upper()
-    
+    busqueda_caja = params.get('busqueda_caja', '').strip().upper()
+    status_filtro = params.get('status', 'TODOS')
+
     nombres_completos = {}
     try:
         path_inv = get_dbf_path('tablero_inventario.DBF')
@@ -361,7 +334,7 @@ def get_ventas():
     except Exception as e:
         print(f"Error cargando inventario: {e}")
 
-    # Inicialización de contadores y agregados
+    # Inicialización de contadores generales
     ventas_tipo = {"Contado": 0.0, "Crédito": 0.0}
     por_zona = defaultdict(float)
     por_cliente = defaultdict(float)
@@ -375,14 +348,26 @@ def get_ventas():
     all_productos = set()
     clientes_unicos = set()
 
-    # Nuevos contadores de facturas
-    total_facturas = 0
-    fact_cont_cant = 0
-    fact_cont_monto = 0.0
-    fact_cred_cant = 0
-    fact_cred_monto = 0.0
+    facturas_unicas = set()
+    facturas_contado_unicas = set()
+    facturas_credito_unicas = set()
 
+    fact_cont_monto = 0.0
+    fact_cred_monto = 0.0
     total_gral = 0.0
+
+    facturas_lista = []
+
+    # Para detalles por producto (coincidencias parciales + últimos 10)
+    detalle_producto = {
+        "cantidad_total": 0.0,
+        "monto_total": 0.0,
+        "facturas_unicas": set(),
+        "detalles": []
+    } if busqueda_producto else None
+
+    # Lista temporal para ordenar por fecha descendente los detalles
+    detalles_temp = []
 
     try:
         path_fac = get_dbf_path('tablero_facturas.DBF')
@@ -390,63 +375,105 @@ def get_ventas():
             for rec in DBF(path_fac, encoding='latin-1'):
                 fecha_reg = parse_fecha(rec.get('FECHA'))
                 
-                if fecha_inicio and fecha_reg < fecha_inicio: 
-                    continue
-                if fecha_fin and fecha_reg > fecha_fin: 
-                    continue
+                if fecha_inicio and fecha_reg < fecha_inicio: continue
+                if fecha_fin and fecha_reg > fecha_fin: continue
 
                 vend = str(rec.get('VENDEDOR') or rec.get('CODVEN') or 'SIN VENDEDOR').strip()
                 all_vendedores.add(vend)
-
                 if vendedor and vendedor != 'TODOS' and vendedor != vend:
                     continue
 
                 zona = str(rec.get('ZONA', 'SIN ZONA')).strip().upper()
                 all_zonas.add(zona)
-                if busqueda_zona and busqueda_zona not in zona: 
-                    continue
 
                 cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
                 all_clientes.add(cliente)
-                if busqueda_cliente and busqueda_cliente not in cliente: 
+                if busqueda_cliente and busqueda_cliente not in cliente:
                     continue
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
                 all_productos.add(producto)
-                if busqueda_producto and busqueda_producto not in producto: 
+
+                # Filtro parcial para producto (coincidencia en cualquier parte)
+                if busqueda_producto and busqueda_producto not in producto:
+                    continue
+
+                caja = str(rec.get('CAJA', '')).strip().upper()
+                if busqueda_caja and busqueda_caja not in caja:
                     continue
 
                 m_raw = safe_float(rec.get('MONTO'))
                 factor = safe_float(rec.get('FACTOR')) or 1.0
                 monto = m_raw if moneda == 'Bs' else (m_raw / factor)
                 
-                # Tipo de factura
                 tipo_fact = str(rec.get('TIPO', '')).strip()
+                tipo_texto = "Contado" if tipo_fact == '1' else "Crédito"
 
-                # Contar facturas (solo las que pasaron todos los filtros)
-                total_facturas += 1
+                if status_filtro != "TODOS" and tipo_texto != status_filtro:
+                    continue
 
-                if tipo_fact == '1':  # Contado
-                    fact_cont_cant += 1
-                    fact_cont_monto += monto
-                    ventas_tipo["Contado"] += monto
-                else:  # Crédito u otros
-                    fact_cred_cant += 1
-                    fact_cred_monto += monto
-                    ventas_tipo["Crédito"] += monto
+                nro_factura = str(rec.get('CODIGO', '')).strip()
+                if nro_factura:
+                    facturas_unicas.add(nro_factura)
+
+                    if tipo_fact == '1':
+                        facturas_contado_unicas.add(nro_factura)
+                        fact_cont_monto += monto
+                        ventas_tipo["Contado"] += monto
+                    else:
+                        facturas_credito_unicas.add(nro_factura)
+                        fact_cred_monto += monto
+                        ventas_tipo["Crédito"] += monto
 
                 total_gral += monto
                 por_zona[zona] += monto
                 por_cliente[cliente] += monto
                 por_producto[producto] += monto
-                
                 por_vendedor[vend] += monto
                 prods_por_vend[vend][producto] += monto
 
                 clientes_unicos.add(cliente)
 
-        # Función auxiliar para formatear tops
+                facturas_lista.append({
+                    "FECHA": fecha_reg,
+                    "CLIENTE": cliente,
+                    "VENDEDOR": vend,
+                    "ZONA": zona,
+                    "CAJA": caja,
+                    "DOCUMENTO": nro_factura,
+                    "TIPO": tipo_texto,
+                    "MONTO": round(monto, 2)
+                })
+
+                # Acumular para detalles por producto (si hay búsqueda)
+                if busqueda_producto:
+                    cant = safe_float(rec.get('CANTIDAD'))
+                    detalle_producto["cantidad_total"] += cant
+                    detalle_producto["monto_total"] += monto
+                    if nro_factura:
+                        detalle_producto["facturas_unicas"].add(nro_factura)
+
+                    # Guardamos temporalmente con fecha para ordenar después
+                    detalles_temp.append({
+                        "FECHA": fecha_reg,
+                        "FACTURA": nro_factura,
+                        "CAJA": caja,
+                        "CLIENTE": cliente,
+                        "VENDEDOR": vend,
+                        "CANTIDAD": round(cant, 2),
+                        "MONTO": round(monto, 2)
+                    })
+
+        # Si hay búsqueda de producto, ordenamos por fecha descendente y tomamos últimos 10
+        if busqueda_producto:
+            # Ordenar por fecha descendente (más reciente primero)
+            detalles_temp.sort(key=lambda x: x["FECHA"], reverse=True)
+            # Tomar solo los últimos 10
+            detalle_producto["detalles"] = detalles_temp[:10]
+            detalle_producto["facturas_unicas"] = len(detalle_producto["facturas_unicas"])
+
+        # Formateo de tops
         def format_top(dico):
             return sorted(
                 [{"label": k, "value": round(v, 2)} for k, v in dico.items()],
@@ -454,7 +481,6 @@ def get_ventas():
                 reverse=True
             )[:top_n]
 
-        # Preparar tops
         top_vendedores = format_top(por_vendedor)
         
         detalles_vendedor = {}
@@ -475,11 +501,11 @@ def get_ventas():
             "total_gral": round(total_gral, 2),
             "resumen_tipo": {k: round(v, 2) for k, v in ventas_tipo.items()},
             "general": {
-                "conteo_cli": len(clientes_unicos),
-                "total_facturas": total_facturas,
-                "fact_cont_cant": fact_cont_cant,
+                "conteo_clientes": len(clientes_unicos),
+                "total_facturas_unicas": len(facturas_unicas),
+                "facturas_contado_unicas": len(facturas_contado_unicas),
                 "fact_cont_monto": round(fact_cont_monto, 2),
-                "fact_cred_cant": fact_cred_cant,
+                "facturas_credito_unicas": len(facturas_credito_unicas),
                 "fact_cred_monto": round(fact_cred_monto, 2)
             },
             "zonas": format_top(por_zona),
@@ -490,7 +516,9 @@ def get_ventas():
             "lista_vendedores": sorted(list(all_vendedores)),
             "lista_zonas": sorted(list(all_zonas)),
             "lista_clientes": sorted(list(all_clientes)),
-            "lista_productos": sorted(list(all_productos))
+            "lista_productos": sorted(list(all_productos)),
+            "facturas": facturas_lista[:1000],
+            "detalle_producto": detalle_producto
         })
 
     except Exception as e:
@@ -500,10 +528,7 @@ def get_ventas():
             "status": "error",
             "message": str(e)
         }), 500
-
-from flask import jsonify, request
-from collections import defaultdict
-import os
+    
 # Asumiendo que tienes estas funciones ya definidas en tu proyecto:
 # from tu_modulo import DBF, parse_fecha, safe_float, get_dbf_path, login_required
 
@@ -745,9 +770,16 @@ def get_vendedores():
 @login_required
 def get_inventario():
     params = request.json or {}
-    moneda = params.get('moneda', 'Bs')
-    f_prod = (params.get('producto') or '').strip().upper()
-    valorizar_a = params.get('valorizar_a', 'costo')  # 'costo', 'precio1', 'precio2', 'precio3'
+    
+    f_prod          = (params.get('producto') or '').strip().upper()
+    valorizar_a     = params.get('valorizar_a', 'costo')
+    
+    # Filtros dinámicos por característica (carac1, carac2, etc.)
+    filtros_carac = {}
+    for i in '1234':
+        key = f'carac{i}'
+        if key in params:
+            filtros_carac[i] = (params[key] or '').strip().upper()
 
     data_tabla = []
     totales = {
@@ -756,9 +788,11 @@ def get_inventario():
         "valor_total": 0.0,
         "kilos": 0.0
     }
-    por_marca = defaultdict(float)
-
+    por_marca = defaultdict(float)  # Usaremos CARAC1 como ejemplo para gráfico, pero se puede hacer dinámico después
+    
     nombres_precios = {"1": "Precio 1", "2": "Precio 2", "3": "Precio 3"}
+    nombres_carac   = {}
+    has_carac       = {"1": False, "2": False, "3": False, "4": False}
     nombres_encontrados = False
 
     try:
@@ -773,8 +807,12 @@ def get_inventario():
                     nombre = str(rec.get(np_key, '')).strip()
                     if nombre and nombre.lower() not in ['', 'none', 'null', ' ']:
                         nombres_precios[i] = nombre
-                if any(v != f"Precio {k}" for k, v in nombres_precios.items()):
-                    nombres_encontrados = True
+                for i in '1234':
+                    nc_key = f'NOMBREC{i}'
+                    nombre = str(rec.get(nc_key, '')).strip()
+                    if nombre and nombre.lower() not in ['', 'none', 'null', ' ']:
+                        nombres_carac[i] = nombre
+                nombres_encontrados = True
 
             desc = str(rec.get('DESCRIPCIO', '')).strip()
             codigo = str(rec.get('CODIGO', '')).strip()
@@ -782,56 +820,87 @@ def get_inventario():
             if f_prod and f_prod not in desc.upper() and f_prod not in codigo:
                 continue
 
+            # Filtros dinámicos por característica
+            pasar = True
+            for idx, filtro_val in filtros_carac.items():
+                carac_val = str(rec.get(f'CARAC{idx}', '')).strip().upper()
+                if filtro_val and filtro_val not in carac_val:
+                    pasar = False
+                    break
+            if not pasar:
+                continue
+
+            # Detectar presencia de datos en características
+            for i in '1234':
+                val = str(rec.get(f'CARAC{i}', '')).strip()
+                if val:
+                    has_carac[i] = True
+
             existencia = safe_float(rec.get('EXISTENCIA'))
-            monto = safe_float(rec.get('MONTO'))           # costo real (puede estar en 0)
+            monto = safe_float(rec.get('MONTO'))
             kilos = safe_float(rec.get('KILOS'))
             precio1 = safe_float(rec.get('PRECIO1'))
             precio2 = safe_float(rec.get('PRECIO2'))
             precio3 = safe_float(rec.get('PRECIO3'))
-            marca = str(rec.get('CARAC1', 'Sin marca')).strip()
 
-            # Decidimos el valor unitario según la selección del usuario
             if valorizar_a == 'precio1':
                 valor_unit = precio1
             elif valorizar_a == 'precio2':
                 valor_unit = precio2
             elif valorizar_a == 'precio3':
                 valor_unit = precio3
-            else:  # 'costo' → usamos cálculo aunque MONTO esté en 0
+            else:
                 valor_unit = monto / existencia if existencia > 0 else 0.0
 
             valor_total_item = valor_unit * existencia
 
-            # Acumulados globales
             totales["articulos"] += 1
             totales["existencia"] += existencia
             totales["valor_total"] += valor_total_item
             totales["kilos"] += kilos
-            por_marca[marca] += valor_total_item
+            por_marca[str(rec.get('CARAC1', 'Sin marca')).strip()] += valor_total_item
 
-            # Costo unitario siempre calculado (para mostrarlo fijo)
             costo_unitario = monto / existencia if existencia > 0 else 0.0
 
             if len(data_tabla) < 1500:
-                data_tabla.append({
+                item = {
                     "CODIGO": codigo,
                     "DESCRIPCION": desc,
-                    "MARCA": marca,
                     "EXISTENCIA": existencia,
                     "COSTO_UNITARIO": round(costo_unitario, 4),
                     "PRECIO1": precio1,
                     "PRECIO2": precio2,
                     "PRECIO3": precio3,
-                    "COSTO_TOTAL": round(monto, 2),           # crudo, por si lo necesitas
-                    "VALOR_UNITARIO": round(valor_unit, 4),
-                    "VALOR_TOTAL": round(valor_total_item, 2),  # ← este es el que usará el frontend
+                    "VALOR_TOTAL": round(valor_total_item, 2),
                     "TOTAL_EMPAQUE": kilos,
-                })
+                }
+                # Agregar todas las características presentes
+                for i in '1234':
+                    val = str(rec.get(f'CARAC{i}', '')).strip()
+                    if val:
+                        item[f'CARAC{i}'] = val
+                data_tabla.append(item)
 
+        # Características activas (solo las que tienen datos)
+        caracteristicas_activas = {}
+        for i in '1234':
+            if has_carac[i]:
+                caracteristicas_activas[i] = nombres_carac.get(i, f"Clasificación {i}")
+
+        # Listas únicas para cada característica activa
+        filtros_dinamicos = {}
+        for idx, nombre in caracteristicas_activas.items():
+            valores = sorted(set(
+                str(item.get(f'CARAC{idx}', '')).strip()
+                for item in data_tabla
+                if str(item.get(f'CARAC{idx}', '')).strip()
+            ))
+            filtros_dinamicos[f'filtro_carac{idx}'] = valores
+
+        # Gráfico (por ahora usamos CARAC1 como ejemplo; se puede hacer configurable después)
         marcas_chart = sorted(
             [{"MARCA": k, "V": round(v, 2)} for k, v in por_marca.items()],
-            key=lambda x: x["V"],
-            reverse=True
+            key=lambda x: x["V"], reverse=True
         )[:10]
 
         return jsonify({
@@ -844,6 +913,8 @@ def get_inventario():
             "tabla": data_tabla,
             "marcas_chart": marcas_chart,
             "nombres_precios": nombres_precios,
+            "caracteristicas": caracteristicas_activas,       # {"1": "Marca", "2": "Grupo", ...}
+            "filtros_dinamicos": filtros_dinamicos,           # {"filtro_carac1": [...], "filtro_carac2": [...]}
             "valorizar_a": valorizar_a
         })
 
@@ -945,8 +1016,8 @@ def get_cobros():
     
     forma_pago_filtro = params.get('forma_pago', 'TODAS').strip().upper()
     cliente_filtro = params.get('cliente', '').strip().upper()
+    caja_filtro = (params.get('caja') or 'TODAS').strip().upper()   # ← NUEVO
 
-    # Normalización de formas de pago (clave: valor limpio que usaremos en todo)
     forma_normalizar = {
         'T.DEBITO': 'T.DEBITO',
         'TDEBITO': 'T.DEBITO',
@@ -970,6 +1041,7 @@ def get_cobros():
     por_caja = defaultdict(float)
     por_cliente = defaultdict(float)
     data_tabla = []
+    cajas_unicas = set()   # ← NUEVO
 
     try:
         path = get_dbf_path('tablero_cobros_cxc.DBF')
@@ -986,11 +1058,15 @@ def get_cobros():
             if cliente_filtro and cliente_filtro not in cliente:
                 continue
 
-            # Normalizar forma de pago
-            forma_raw = str(rec.get('FORMA_PAGO', 'S/I')).strip().upper()
-            forma = forma_normalizar.get(forma_raw, forma_raw)  # Si no está en el mapa, usa raw
+            caja = str(rec.get('CAJA', 'S/C')).strip().upper()
+            cajas_unicas.add(caja)   # ← recolectamos todas
 
-            # Filtro por forma (comparar con el valor normalizado)
+            if caja_filtro != 'TODAS' and caja != caja_filtro:
+                continue   # ← filtro por caja
+
+            forma_raw = str(rec.get('FORMA_PAGO', 'S/I')).strip().upper()
+            forma = forma_normalizar.get(forma_raw, forma_raw)
+
             if forma_pago_filtro != 'TODAS' and forma != forma_pago_filtro:
                 continue
 
@@ -999,10 +1075,9 @@ def get_cobros():
             monto = m_raw if moneda == 'Bs' else (m_raw / tasa)
 
             cobrador = str(rec.get('COBRADOR', 'S/C')).strip()
-            caja = str(rec.get('CAJA', 'S/C')).strip()
 
             totales["cobrado"] += monto
-            por_forma[forma] += monto           # Usamos la forma normalizada
+            por_forma[forma] += monto
             por_cobrador[cobrador] += monto
             por_caja[caja] += monto
             por_cliente[cliente] += monto
@@ -1014,7 +1089,7 @@ def get_cobros():
                     "CLIENTE": cliente,
                     "COBRADOR": cobrador,
                     "CAJA": caja,
-                    "FORMA": forma,                     # ← Normalizada para que coincida con gráfico
+                    "FORMA": forma,
                     "MONTO": round(monto, 2),
                     "TASA": tasa
                 })
@@ -1032,7 +1107,8 @@ def get_cobros():
             "cobradores": format_chart(por_cobrador),
             "cajas": format_chart(por_caja),
             "clientes": format_chart(por_cliente)[:top_n],
-            "tabla": data_tabla
+            "tabla": data_tabla,
+            "cajas_lista": sorted([c for c in cajas_unicas if c and c != 'S/C'])   # ← lo que necesitas
         })
 
     except Exception as e:
@@ -1106,6 +1182,76 @@ def get_compras():
             "sugerencias_prod": sorted(list(sugerencias_prod))
         })
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/cobranzas', methods=['POST'])
+@login_required
+def api_cobranzas():
+    params = request.get_json() or {}
+    fecha_inicio = params.get('fecha_inicio')
+    fecha_fin    = params.get('fecha_fin')
+    moneda       = params.get('moneda', 'Bs')
+    caja_filtro  = (params.get('caja') or 'TODAS').upper().strip()
+
+    total_general = 0.0
+    conteo = 0
+    por_forma = defaultdict(float)
+    por_dia = defaultdict(float)
+    cajas_unicas = set()
+    formas_orden = []
+
+    try:
+        path = get_dbf_path('tablero_cobros_cxc.DBF')  # ajusta el nombre si es diferente
+        if not os.path.exists(path):
+            return jsonify({"error": "Archivo de cobros no encontrado"}), 404
+
+        for rec in DBF(path, encoding='latin-1'):
+            fecha_str = parse_fecha(rec.get('FECHA'))
+            if fecha_inicio and fecha_str < fecha_inicio: continue
+            if fecha_fin and fecha_str > fecha_fin: continue
+
+            caja = str(rec.get('CAJA', 'S/C')).strip().upper()
+            cajas_unicas.add(caja)
+
+            if caja_filtro != 'TODAS' and caja != caja_filtro:
+                continue
+
+            monto_raw = safe_float(rec.get('MONTO'))
+            tasa = safe_float(rec.get('TASA_DOLAR') or 1.0)
+            monto = monto_raw if moneda == 'Bs' else round(monto_raw / tasa, 2)
+
+            # Se suma tal cual → negativos restan (contabilidad neta)
+            total_general += monto
+            conteo += 1
+            forma = str(rec.get('FORMA_PAGO', 'SIN FORMA')).strip().upper()
+            por_forma[forma] += monto
+            por_dia[fecha_str] += monto
+
+        ticket_promedio = round(total_general / conteo, 2) if conteo > 0 else 0.0
+
+        formas_orden = sorted(
+            [{"FORMA": k or "Sin forma", "V": round(v, 2), "P": round(v / total_general * 100, 1) if total_general != 0 else 0}
+             for k, v in por_forma.items()],
+            key=lambda x: abs(x["V"]), reverse=True
+        )
+
+        historico = sorted(
+            [{"F": f, "V": round(v, 2)} for f, v in por_dia.items()],
+            key=lambda x: x["F"]
+        )
+
+        return jsonify({
+            "total_general": round(total_general, 2),
+            "ticket_promedio": ticket_promedio,
+            "conteo": conteo,
+            "formas_pago": formas_orden,
+            "historico": historico,
+            "cajas": sorted(list(cajas_unicas))
+        })
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 

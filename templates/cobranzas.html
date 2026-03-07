@@ -18,6 +18,10 @@
             <select id="moneda_cob" class="form-select form-select-sm" onchange="cargarCobranzas()">
                 <option value="Bs">Bs</option><option value="USD">USD</option>
             </select>
+            <!-- NUEVO: Filtro por Caja -->
+        <select id="caja_cob" class="form-select form-select-sm" onchange="cargarCobranzas()">
+            <option value="TODAS">Todas las cajas</option>
+            <!-- Las opciones se llenarán dinámicamente desde JS -->
         </div>
         <div id="total_cobranza" class="fw-bold text-primary fs-3" style="color:#9b59b6 !important;">0,00</div>
     </div>

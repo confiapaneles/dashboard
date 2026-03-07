@@ -80,7 +80,7 @@
         margin-bottom: 16px;
     }
     .chart-container { position: relative; height: 420px; }
-    #tablaDetalle { width: 100%; font-size: 0.9rem; }
+    #tablaDetalle { width: 100%; font-size: 0.9rem; table-layout: auto; }
     #tablaDetalle th {
         background: #f8f9fa;
         position: sticky;
@@ -88,6 +88,48 @@
         z-index: 1;
     }
     #tablaDetalle td, #tablaDetalle th { padding: 8px 10px; vertical-align: middle; }
+
+    /* Ajustes específicos para columnas de la tabla detalle */
+    #tablaDetalle th.fecha-col,
+    #tablaDetalle td.fecha-col {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 110px;          /* ancho máximo para fecha en una línea */
+        min-width: 90px;
+    }
+
+    #tablaDetalle th.cliente-col,
+    #tablaDetalle td.cliente-col {
+        max-width: 220px;          /* reducido para cliente */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Overlay de carga */
+    #loadingOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(255,255,255,0.80);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+    .loading-content {
+        text-align: center;
+        background: white;
+        padding: 2.5rem 4rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        min-width: 320px;
+    }
+    .loading-content .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
 </style>
 
 <div class="dashboard-wrapper">
@@ -100,11 +142,11 @@
         <div class="filter-row">
             <div class="filter-col">
                 <label>Desde</label>
-                <input type="date" id="fecha_inicio" onchange="cargarDatos()">
+                <input type="date" id="fecha_inicio" onchange="debouncedCargarDatos()">
             </div>
             <div class="filter-col">
                 <label>Hasta</label>
-                <input type="date" id="fecha_fin" onchange="cargarDatos()">
+                <input type="date" id="fecha_fin" onchange="debouncedCargarDatos()">
             </div>
             <div class="filter-col">
                 <label>Moneda</label>
@@ -124,6 +166,10 @@
                 <select id="filtro_vendedor" onchange="cargarDatos()">
                     <option value="TODOS">Todos</option>
                 </select>
+            </div>
+            <div class="filter-col">
+                <label>Caja</label>
+                <input type="text" id="busqueda_caja" placeholder="Filtrar por caja..." oninput="filtrarTablaDetalle()">
             </div>
             <div class="filter-col">
                 <label>Top N</label>
@@ -166,8 +212,8 @@
                     <thead>
                         <tr>
                             <th>CÓDIGO</th>
-                            <th>FECHA</th>
-                            <th>CLIENTE</th>
+                            <th class="fecha-col">FECHA</th>
+                            <th class="cliente-col">CLIENTE</th>
                             <th>VENDEDOR</th>
                             <th>CAJA</th>
                             <th>FORMA</th>
@@ -181,10 +227,32 @@
     </div>
 </div>
 
+<!-- Overlay de carga -->
+<div id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-3 fw-bold text-primary fs-5">Cargando datos, por favor espere...</div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 let charts = {};
+
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+function showLoading() { loadingOverlay.style.display = 'flex'; }
+function hideLoading() { loadingOverlay.style.display = 'none'; }
+
+function debounce(func, wait = 600) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+const debouncedCargarDatos = debounce(cargarDatos);
 
 function generarColores(cantidad = 15) {
     const paleta = ['#3498db','#2ecc71','#e74c3c','#f1c40f','#9b59b6','#1abc9c','#e67e22','#34495e','#27ae60','#c0392b','#16a085','#d35400','#8e44ad','#2980b9','#f39c12'];
@@ -192,26 +260,16 @@ function generarColores(cantidad = 15) {
 }
 
 async function cargarDatos() {
-    const selForma    = document.getElementById('forma_pago');
-    const selVendedor = document.getElementById('filtro_vendedor');
-
-    const formaValue    = selForma.value?.trim()    || 'TODAS';
-    const vendedorValue = selVendedor.value?.trim() || 'TODOS';
+    showLoading();
 
     const params = {
         fecha_inicio: document.getElementById('fecha_inicio').value,
         fecha_fin:    document.getElementById('fecha_fin').value,
         moneda:       document.getElementById('moneda').value,
-        forma_pago:   formaValue.toUpperCase(),
-        vendedor:     vendedorValue.toUpperCase(),
+        forma_pago:   document.getElementById('forma_pago').value?.trim().toUpperCase() || 'TODAS',
+        vendedor:     document.getElementById('filtro_vendedor').value?.trim().toUpperCase() || 'TODOS',
         top_n:        document.getElementById('top_n').value
     };
-
-    console.log("=== DEPURACIÓN FILTROS ===");
-    console.log("Forma → value:", selForma.value, " | texto:", selForma.options[selForma.selectedIndex]?.text || 'sin selección');
-    console.log("Vendedor → value:", selVendedor.value, " | texto:", selVendedor.options[selVendedor.selectedIndex]?.text || 'sin selección');
-    console.log("Parámetros enviados:", params);
-    console.log("===========================");
 
     try {
         const res = await fetch('/api/cobros-facturas', {
@@ -223,124 +281,160 @@ async function cargarDatos() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
-        console.log("Respuesta backend:", data);
 
         if (data.error) {
             console.error("Error backend:", data.error);
+            hideLoading();
             return;
         }
 
+        const monedaStr = params.moneda;
+        const fmt = v => (v || 0).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2});
+
         document.getElementById('txt_total_general').textContent = 
-            (data.total_general || 0).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2}) + 
-            ' ' + params.moneda;
+            fmt(data.total_general || 0) + ' ' + monedaStr;
 
-        
-            // ──────────────── FORMA DE PAGO ────────────────
-            const formaSeleccionadaAntes = selForma.value;
-            // Limpiamos opciones (dejamos solo "Todas")
+        // Actualizar selects de forma y vendedor
+        const selForma = document.getElementById('forma_pago');
+        const selVendedor = document.getElementById('filtro_vendedor');
+
+        const formaSelAnterior = selForma.value;
         while (selForma.options.length > 1) selForma.remove(1);
-
 
         if (data.lista_formas?.length) {
             const formasVistas = new Set();
-            data.lista_formas.forEach(forma => {
-                const formaNorm = (forma || '').trim().toUpperCase();
-                if (!formaNorm || formaNorm === 'TODAS' || formasVistas.has(formaNorm)) return;
-                formasVistas.add(formaNorm);
-                const opt = document.createElement('option');
-                opt.value = formaNorm;
-                opt.textContent = forma.trim();
+            data.lista_formas.forEach(f => {
+                const fn = (f || '').trim().toUpperCase();
+                if (!fn || fn === 'TODAS' || formasVistas.has(fn)) return;
+                formasVistas.add(fn);
+                const opt = new Option(f.trim(), fn);
                 selForma.appendChild(opt);
             });
-          if (formaSeleccionadaAntes && formaSeleccionadaAntes !== 'TODAS') {
-        if ([...selForma.options].some(opt => opt.value === formaSeleccionadaAntes)) {
-            selForma.value = formaSeleccionadaAntes;
-        } else {
-            // Si ya no existe (por ejemplo por cambio de fechas), volvemos a TODAS
-            selForma.value = 'TODAS';
+            if (formaSelAnterior && formaSelAnterior !== 'TODAS' && [...selForma.options].some(o => o.value === formaSelAnterior)) {
+                selForma.value = formaSelAnterior;
+            } else {
+                selForma.value = 'TODAS';
+            }
         }
-    }
 
-    console.log("Formas en select:", Array.from(selForma.options).map(o => o.value));
-}
-        // ──────────────── VENDEDORES ────────────────
-        const vendedorSeleccionadoAntes = selVendedor.value;  // guardamos
+        const vendedorSelAnterior = selVendedor.value;
         while (selVendedor.options.length > 1) selVendedor.remove(1);
 
         if (data.lista_vendedores?.length) {
             const vendedoresVistos = new Set();
-            data.lista_vendedores.forEach(vend => {
-                const vendNorm = (vend || '').trim().toUpperCase();
-                if (!vendNorm || vendNorm === 'TODOS' || ['S/V','SIN VENDEDOR'].includes(vendNorm) || vendedoresVistos.has(vendNorm)) return;
-                vendedoresVistos.add(vendNorm);
-                const opt = document.createElement('option');
-                opt.value = vendNorm;
-                opt.textContent = vend.trim();
+            data.lista_vendedores.forEach(v => {
+                const vn = (v || '').trim().toUpperCase();
+                if (!vn || vn === 'TODOS' || ['S/V','SIN VENDEDOR'].includes(vn) || vendedoresVistos.has(vn)) return;
+                vendedoresVistos.add(vn);
+                const opt = new Option(v.trim(), vn);
                 selVendedor.appendChild(opt);
             });
-            if (vendedorSeleccionadoAntes && vendedorSeleccionadoAntes !== 'TODOS') {
-        if ([...selVendedor.options].some(opt => opt.value === vendedorSeleccionadoAntes)) {
-            selVendedor.value = vendedorSeleccionadoAntes;
-        } else {
-            selVendedor.value = 'TODOS';
+            if (vendedorSelAnterior && vendedorSelAnterior !== 'TODOS' && [...selVendedor.options].some(o => o.value === vendedorSelAnterior)) {
+                selVendedor.value = vendedorSelAnterior;
+            } else {
+                selVendedor.value = 'TODOS';
+            }
         }
-    }
-    console.log("Vendedores en select:", Array.from(selVendedor.options).map(o => o.value));
-}
 
         const colores = generarColores();
 
-        renderDonut('chartFormas', 'Formas de Pago', data.formas_pago?.map(x=>x.label)||[], data.formas_pago?.map(x=>x.value)||[], colores);
-        renderBar('chartVendedores', 'Cobros por Vendedor', data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
-        renderDonut('chartCajas', 'Cajas / Puntos', data.cajas?.map(x=>x.label)||[], data.cajas?.map(x=>x.value)||[], colores);
-        renderBar('chartTopVendedores', 'Ranking Vendedores', data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
+        renderChartWithPercent('chartFormas', 'doughnut', 'Formas de Pago', 
+            data.formas_pago?.map(x=>x.label)||[], data.formas_pago?.map(x=>x.value)||[], colores);
 
+        renderChartWithPercent('chartVendedores', 'bar', 'Cobros por Vendedor', 
+            data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
+
+        renderChartWithPercent('chartCajas', 'doughnut', 'Cajas / Puntos', 
+            data.cajas?.map(x=>x.label)||[], data.cajas?.map(x=>x.value)||[], colores);
+
+        renderChartWithPercent('chartTopVendedores', 'bar', 'Ranking Vendedores', 
+            data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
+
+        // Tabla detalle (con clase para filtrado local)
         const tbody = document.getElementById('tbodyDetalle');
         tbody.innerHTML = '';
         (data.tabla || []).forEach(row => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${row.CODIGO || '-'}</td>
-                <td>${row.FECHA || '-'}</td>
-                <td>${row.CLIENTE || 'S/C'}</td>
+                <td class="fecha-col">${row.FECHA || '-'}</td>
+                <td class="cliente-col">${row.CLIENTE || 'S/C'}</td>
                 <td>${row.VENDEDOR || 'S/V'}</td>
                 <td>${row.CAJA || 'S/C'}</td>
                 <td>${row.FORMAPAGO || 'S/I'}</td>
-                <td class="text-end">${(row.MONTO||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                <td class="text-end">${fmt(row.MONTO||0)} ${monedaStr}</td>
             `;
             tbody.appendChild(tr);
         });
 
+        // Aplicar filtro de caja si ya hay texto
+        filtrarTablaDetalle();
+
     } catch (err) {
-        console.error('Error al cargar:', err);
+        console.error('Error al cargar cobros-facturas:', err);
+    } finally {
+        hideLoading();
     }
 }
 
-function renderDonut(id, title, labels, values, colors) {
+function renderChartWithPercent(id, type, title, labels, values, colors, indexAxis = 'x') {
     const canvas = document.getElementById(id);
     if (!canvas) return;
+
     if (charts[id]) charts[id].destroy();
+
+    const total = values.reduce((sum, v) => sum + (v || 0), 0);
+
     charts[id] = new Chart(canvas.getContext('2d'), {
-        type: 'doughnut',
-        data: { labels, datasets: [{ data: values, backgroundColor: colors.slice(0, labels.length), borderWidth: 1 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {position:'bottom'}, title: {display:true, text:title, font:{size:16}} } }
+        type,
+        data: {
+            labels,
+            datasets: [{
+                label: title,
+                data: values,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: type === 'doughnut' ? 2 : 0,
+                borderRadius: type === 'bar' ? 5 : 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: title, font: { size: 16 } },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const porcentaje = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            const montoFmt = value.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2});
+                            const moneda = document.getElementById('moneda').value;
+                            return `${context.label}: ${montoFmt} ${moneda}  (${porcentaje}%)`;
+                        }
+                    }
+                }
+            },
+            scales: indexAxis === 'y' ? {
+                y: { ticks: { autoSkip: false, font: { size: 11 } } },
+                x: { beginAtZero: true }
+            } : {
+                x: { beginAtZero: true }
+            }
+        }
     });
 }
 
-function renderBar(id, title, labels, values, colors, indexAxis = 'x') {
-    const canvas = document.getElementById(id);
-    if (!canvas) return;
-    if (charts[id]) charts[id].destroy();
-    charts[id] = new Chart(canvas.getContext('2d'), {
-        type: 'bar',
-        data: { labels, datasets: [{ label: 'Monto', data: values, backgroundColor: colors.slice(0, labels.length), borderWidth: 0, borderRadius: 5 }] },
-        options: {
-            indexAxis,
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: {display:false}, title: {display:true, text:title, font:{size:16}} },
-            scales: { [indexAxis==='y'?'x':'y']: { beginAtZero: true } }
-        }
+// NUEVO: Filtrado local por Caja en la tabla detalle
+function filtrarTablaDetalle() {
+    const busqueda = document.getElementById('busqueda_caja').value.trim().toLowerCase();
+    const filas = document.querySelectorAll('#tbodyDetalle tr');
+
+    filas.forEach(fila => {
+        const cajaCell = fila.querySelector('td:nth-child(5)'); // columna CAJA (5ª columna)
+        const textoCaja = cajaCell ? cajaCell.textContent.toLowerCase() : '';
+        fila.style.display = textoCaja.includes(busqueda) ? '' : 'none';
     });
 }
 

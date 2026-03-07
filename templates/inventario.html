@@ -1,329 +1,486 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<style>
-    :root {
-        --inventario-accent: #2ecc71;
-    }
-    .panel-title { 
-        border-left: 5px solid var(--inventario-accent); 
-        padding-left: 10px; 
-        font-weight: 700; 
-    }
-    .table-responsive { max-height: 65vh; overflow-y: auto; }
-    .bg-soft-info { background-color: #e3f2fd; color: #0d47a1; }
-    .kpi-box { 
-        transition: all 0.3s ease; 
-        border: 1px solid #eee; 
-    }
-    .kpi-box:hover { 
-        border-color: var(--inventario-accent); 
-        background: #f8fff8; 
-    }
-    .text-costo { color: #c0392b; font-weight: 600; }
-    .text-pvp { color: #2e7d32; font-weight: 600; }
-    .text-valor { color: #1a5fb4; font-weight: 700; }
-    .text-empaque { color: #7f8c8d; font-weight: 500; }
+<!-- Tom Select -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
-    .inventario-tabs .nav-tabs {
-        border-bottom: 3px solid #27ae60;
-        background: #ffffff;
-        padding-bottom: 0;
-        margin-bottom: 0;
+<style>
+    :root { --inventario-accent: #2ecc71; }
+    body { background-color: #f5f7fa; }
+
+    .panel-title {
+        border-left: 5px solid var(--inventario-accent);
+        padding-left: 10px; font-weight: 700; color: #2c3e50;
     }
-    .inventario-tabs .nav-link {
-        color: #333 !important;
-        font-weight: 600;
-        font-size: 1rem;
-        padding: 0.85rem 1.8rem;
-        margin-right: 4px;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-bottom: none;
-        border-radius: 10px 10px 0 0;
+
+    .table-responsive {
+        max-height: 65vh; overflow-y: auto; overflow-x: scroll !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin; scrollbar-color: #adb5bd #e9ecef;
     }
-    .inventario-tabs .nav-link:hover {
-        background: #e8f5e8;
-        color: #27ae60 !important;
-        border-color: #27ae60;
-        border-bottom: none;
+    .table-responsive::-webkit-scrollbar { height: 10px; width: 10px; }
+    .table-responsive::-webkit-scrollbar-track { background: #e9ecef; border-radius: 10px; }
+    .table-responsive::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 10px; border: 2px solid #e9ecef; }
+    .table-responsive::-webkit-scrollbar-thumb:hover { background: #6c757d; }
+
+    .table { width: max-content !important; min-width: 100%; border-collapse: separate; border-spacing: 0; }
+    .table th, .table td { white-space: nowrap; vertical-align: middle; padding: 0.65rem 1rem; border: 1px solid #dee2e6; }
+    .table thead th { position: sticky; top: 0; z-index: 10; background: #f8f9fa; font-weight: 600; color: #495057; border-bottom: 2px solid #dee2e6; }
+    .table tbody tr:hover { background-color: #f1f3f5; }
+
+    .kpi-box {
+        transition: all 0.3s ease; border: 1px solid #e0e0e0; border-radius: 8px;
+        background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    .inventario-tabs .nav-link.active {
-        background: var(--inventario-accent);
-        color: white !important;
-        border: 1px solid #27ae60;
-        border-bottom: none;
-        box-shadow: 0 -3px 10px rgba(46, 204, 113, 0.25);
-        font-weight: 700;
+    .kpi-box:hover { border-color: var(--inventario-accent); box-shadow: 0 4px 12px rgba(46,204,113,0.2); transform: translateY(-2px); }
+
+    .text-costo  { color: #c0392b; font-weight: 600; }
+    .text-pvp    { color: #2e7d32; font-weight: 600; }
+    .text-valor  { color: #1a5fb4; font-weight: 700; }
+    .text-empaque{ color: #7f8c8d; font-weight: 500; }
+    .text-dynamic{ color: #6f42c1; font-weight: 500; }
+
+    .inventario-tabs .nav-tabs { border-bottom: 3px solid #27ae60; background: #fff; border-radius: 8px 8px 0 0; overflow: hidden; }
+    .inventario-tabs .nav-link { color: #333 !important; font-weight: 600; padding: 0.85rem 1.8rem; background: #f8f9fa; border: 1px solid #dee2e6; border-bottom: none; border-radius: 8px 8px 0 0; margin-right: 4px; }
+    .inventario-tabs .nav-link.active { background: var(--inventario-accent); color: white !important; border-color: var(--inventario-accent); font-weight: 700; }
+    .inventario-tabs .tab-content { background: white; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 8px 8px; padding: 1.5rem; min-height: 500px; }
+
+    .chart-container { height: 520px; max-width: 1100px; margin: 0 auto; }
+
+    #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+    .loading-content { text-align: center; background: white; padding: 2.5rem 4rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); min-width: 320px; }
+
+    /* Tom Select overrides */
+    .ts-wrapper.single .ts-control {
+        padding: 7px 12px; border: 1px solid #dee2e6; border-radius: 6px;
+        font-size: 0.92rem; background: white; cursor: text;
     }
-    .inventario-tabs .tab-content {
-        background: white;
-        border: 1px solid #dee2e6;
-        border-top: none;
-        border-radius: 0 0 10px 10px;
-        padding: 1.5rem;
-        min-height: 500px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
-    .chart-container { 
-        height: 520px; 
-        max-width: 1100px; 
-        margin: 0 auto; 
-    }
+    .ts-wrapper.single.focus .ts-control { border-color: #86b7fe; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
+    .ts-dropdown { border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #dee2e6; font-size: 0.9rem; }
+    .ts-dropdown .option { padding: 8px 14px; }
+    .ts-dropdown .option:hover, .ts-dropdown .option.active { background: #eff6ff; color: #1d4ed8; }
+    .ts-dropdown-content { max-height: 240px; }
+    .ts-wrapper { width: 100%; }
+
+    .filtro-carac-col label { font-size: 0.82rem; font-weight: 600; color: #495057; margin-bottom: 4px; display: block; }
 </style>
 
 <div class="container-fluid py-3">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-                        <h4 class="mb-0"><i class="bi bi-box-seam me-2"></i>Inventario</h4>
-                        
-                        <div class="d-flex gap-3 flex-wrap">
-                            <select id="valorizar_a" class="form-select w-auto" onchange="cargarInv()">
-                                <option value="costo">Costo</option>
-                                <!-- Las otras opciones se agregan dinámicamente -->
-                            </select>
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
 
-                            <div class="input-group" style="min-width: 280px;">
-                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                                <input type="text" id="inv_prod" class="form-control border-start-0" 
-                                       placeholder="Descripción o código..." onkeyup="cargarInv()">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <h4 class="mb-0 panel-title">
+                            <i class="bi bi-box-seam me-2"></i>{{ empresa }} | Panel de Inventario
+                        </h4>
+                    </div>
+
+                    <!-- Fila de filtros principales -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3 col-sm-6 col-12">
+                            <label class="form-label small fw-semibold">Valorizar por</label>
+                            <select id="valorizar_a">
+                                <option value="costo">Costo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5 col-sm-6 col-12">
+                            <label class="form-label small fw-semibold">Producto</label>
+                            <select id="inv_prod">
+                                <option value="">Todos los productos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-sm-12 col-12">
+                            <label class="form-label small fw-semibold">
+                                <i class="bi bi-search me-1"></i>Búsqueda General
+                                <span id="filtro_gral_count" style="display:none; font-size:0.75rem; color:#6c757d; margin-left:6px;"></span>
+                            </label>
+                            <div style="position:relative;">
+                                <input type="text" id="filtro_general"
+                                    placeholder="Filtra la tabla por cualquier campo..."
+                                    oninput="aplicarFiltroGeneral(this.value)"
+                                    style="width:100%; padding:7px 34px 7px 12px; border:1px solid #dee2e6; border-radius:6px; font-size:0.92rem; box-sizing:border-box;">
+                                <i class="bi bi-x-lg" id="btn_limpiar_gral"
+                                    onclick="limpiarFiltroGeneral()"
+                                    style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#adb5bd; font-size:0.85rem;"></i>
                             </div>
                         </div>
                     </div>
 
+                    <!-- FILTROS DINÁMICOS (clasificaciones) -->
+                    <div class="row g-3 mb-3" id="filtros-container" style="display:none;"></div>
+
+                    <!-- KPIs -->
                     <div class="row g-3 justify-content-end">
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-3 col-sm-6 col-12">
                             <div class="kpi-box text-center p-3">
-                                <small class="text-muted d-block">Stock Físico</small>
+                                <small class="text-muted d-block fw-medium">Stock Físico</small>
                                 <h5 id="t_exi" class="fw-bold text-dark mb-0">0</h5>
                             </div>
                         </div>
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-3 col-sm-6 col-12">
                             <div class="kpi-box text-center p-3">
-                                <small class="text-muted d-block">Artículos</small>
+                                <small class="text-muted d-block fw-medium">Artículos</small>
                                 <h5 id="t_art" class="fw-bold mb-0">0</h5>
                             </div>
                         </div>
-                        <div class="col-md-4 col-sm-6">
-                            <div class="kpi-box text-center p-3 border-primary">
-                                <small class="text-muted d-block">Valorización Total</small>
+                        <div class="col-md-4 col-sm-6 col-12">
+                            <div class="kpi-box text-center p-3 border border-primary">
+                                <small class="text-muted d-block fw-medium">Valorización Total</small>
                                 <h5 id="t_val" class="fw-bold text-primary mb-0">0,00</h5>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="inventario-tabs">
-        <ul class="nav nav-tabs mb-0" id="inventarioTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="tabla-tab" data-bs-toggle="tab" data-bs-target="#tabla-pane" type="button" role="tab" aria-controls="tabla-pane" aria-selected="true">
+    <div class="inventario-tabs card shadow-sm border-0 rounded-3 overflow-hidden">
+        <ul class="nav nav-tabs mb-0" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabla-pane" type="button">
                     Detalle de Existencias
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="grafico-tab" data-bs-toggle="tab" data-bs-target="#grafico-pane" type="button" role="tab" aria-controls="grafico-pane" aria-selected="false">
-                    Gráfico por Marca
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#grafico-pane" type="button">
+                    Gráfico por Clasificación
                 </button>
             </li>
         </ul>
-
-        <div class="tab-content" id="inventarioTabContent">
-            <div class="tab-pane fade show active p-3" id="tabla-pane" role="tabpanel" aria-labelledby="tabla-tab">
+        <div class="tab-content">
+            <div class="tab-pane fade show active p-3" id="tabla-pane">
                 <div class="table-responsive">
                     <table class="table table-hover table-sm mb-0">
-                        <thead class="table-light sticky-top">
-                            <tr>
-                                <th class="ps-3">CÓDIGO</th>
-                                <th>DESCRIPCIÓN DEL ARTÍCULO</th>
-                                <th>MARCA</th>
-                                <th class="text-end">STOCK</th>
-                                <th class="text-end text-costo">COSTO UNIT.</th>
-                                <th class="text-end text-pvp">PVP NUEVO</th>
-                                <th class="text-end text-pvp">PVP M.E.</th>
-                                <th class="text-end text-pvp">COST PR ME</th>
-                                <th class="text-end text-empaque">TOTAL EMPAQUE</th>
-                                <th class="text-end pe-3 text-valor fw-bold" id="th-valor-total">
-                                    Valor Total
-                                </th>
-                            </tr>
-                        </thead>
+                        <thead class="table-light sticky-top" id="tabla-head"></thead>
                         <tbody id="tabla_inv"></tbody>
                     </table>
                 </div>
             </div>
-
-            <div class="tab-pane fade p-4" id="grafico-pane" role="tabpanel" aria-labelledby="grafico-tab">
-                <h5 class="panel-title mb-4" id="titulo-grafico">Gráfico por Marca</h5>
-                <div class="chart-container">
-                    <canvas id="chartInvMarca"></canvas>
-                </div>
+            <div class="tab-pane fade p-4" id="grafico-pane">
+                <h5 class="panel-title mb-4" id="titulo-grafico">Gráfico por Clasificación</h5>
+                <div class="chart-container"><canvas id="chartInvMarca"></canvas></div>
             </div>
         </div>
     </div>
 </div>
 
+<div id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner-border text-success" role="status"></div>
+        <div class="mt-3 fw-bold text-success fs-5">Cargando inventario, por favor espere...</div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-let instInv = {};
-let preciosCargados = false;  // Evita recargar el select múltiples veces
+let chartInstance  = null;
+let preciosSync    = false;
+let tsValorizar    = null;
+let tsProducto     = null;
+let tsCaracs       = {};
 
+const loadingOverlay = document.getElementById('loadingOverlay');
+function showLoading() { loadingOverlay.style.display = 'flex'; }
+function hideLoading() { loadingOverlay.style.display = 'none'; }
+
+function debounce(fn, delay = 400) {
+    let t;
+    return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); };
+}
+const debouncedCargarInv = debounce(cargarInv);
+
+// ── Init Tom Selects fijos ────────────────────────────────────────────────
+function initTomSelects() {
+    tsValorizar = new TomSelect('#valorizar_a', {
+        allowEmptyOption: false,
+        onChange: () => cargarInv()
+    });
+
+    tsProducto = new TomSelect('#inv_prod', {
+        placeholder: 'Buscar producto...',
+        allowEmptyOption: true,
+        maxOptions: 300,
+        onChange: () => cargarInv()
+    });
+}
+
+// Actualizar opciones de valorizar_a
+function actualizarValorizarA(nombresPrecios) {
+    if (!tsValorizar) return;
+    const actual = tsValorizar.getValue();
+    tsValorizar.clearOptions();
+    tsValorizar.addOption({ value: 'costo', text: 'Costo' });
+    Object.entries(nombresPrecios)
+        .sort((a, b) => Number(a[0]) - Number(b[0]))
+        .forEach(([key, nombre]) => {
+            if (nombre?.trim())
+                tsValorizar.addOption({ value: `precio${key}`, text: nombre.trim() });
+        });
+    tsValorizar.refreshOptions(false);
+    tsValorizar.setValue(actual && tsValorizar.options[actual] ? actual : 'costo', true);
+}
+
+// Poblar Tom Select de producto
+function poblarSelectProducto(lista) {
+    if (!tsProducto) return;
+    const actual = tsProducto.getValue();
+    tsProducto.clearOptions();
+    tsProducto.addOption({ value: '', text: 'Todos los productos' });
+    lista.forEach(p => tsProducto.addOption({ value: p, text: p }));
+    tsProducto.refreshOptions(false);
+    tsProducto.setValue(actual && lista.includes(actual) ? actual : '', true);
+}
+
+// Crear Tom Selects dinámicos para clasificaciones
+function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
+    const container = document.getElementById('filtros-container');
+    container.innerHTML = '';
+    container.style.display = 'none';
+
+    // Destruir anteriores
+    Object.values(tsCaracs).forEach(ts => ts.destroy());
+    tsCaracs = {};
+
+    if (!caracteristicas || !Object.keys(caracteristicas).length) return;
+
+    container.style.display = 'flex';
+
+    Object.entries(caracteristicas).forEach(([idx, nombre]) => {
+        const valores = filtrosDinamicos?.[`filtro_carac${idx}`] || [];
+
+        const col = document.createElement('div');
+        col.className = 'col-md-3 col-sm-6 col-12 filtro-carac-col';
+        col.innerHTML = `
+            <label>${nombre}</label>
+            <select id="filtro_carac${idx}">
+                <option value="">Todos</option>
+            </select>
+        `;
+        container.appendChild(col);
+
+        const ts = new TomSelect(`#filtro_carac${idx}`, {
+            placeholder: `Buscar ${nombre}...`,
+            allowEmptyOption: true,
+            maxOptions: 200,
+            onChange: () => cargarInv()
+        });
+        valores.filter(v => v.trim()).forEach(v => ts.addOption({ value: v, text: v }));
+        ts.refreshOptions(false);
+        tsCaracs[idx] = ts;
+    });
+}
+
+// ── Función principal ─────────────────────────────────────────────────────
 async function cargarInv() {
+    showLoading();
     try {
-        const busqueda    = document.getElementById("inv_prod").value.trim();
-        let valorizar_a   = document.getElementById("valorizar_a").value;
-
-        const r = await fetch("/api/inventario", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ producto: busqueda, valorizar_a })
-        });
-        
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const d = await r.json();
-
-        const fmt = (n) => (n || 0).toLocaleString('es-VE', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+        const params = {
+            producto:    tsProducto  ? (tsProducto.getValue()  || '') : '',
+            valorizar_a: tsValorizar ? (tsValorizar.getValue()  || 'costo') : 'costo'
+        };
+        Object.entries(tsCaracs).forEach(([idx, ts]) => {
+            const v = ts.getValue();
+            if (v) params[`carac${idx}`] = v;
         });
 
-        // Cargar nombres de precios dinámicamente (solo una vez)
-        const selectPrecio = document.getElementById("valorizar_a");
-        if (!preciosCargados && d.nombres_precios) {
-            selectPrecio.innerHTML = '<option value="costo">Costo</option>';
-            
-            ['1', '2', '3'].forEach(key => {
-                const nombre = d.nombres_precios[key] || `Precio ${key}`;
-                const option = document.createElement('option');
-                option.value = `precio${key}`;
-                option.textContent = nombre;
-                if (valorizar_a === `precio${key}`) option.selected = true;
-                selectPrecio.appendChild(option);
-            });
-            
-            preciosCargados = true;
+        const resp = await fetch('/api/inventario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        if (!resp.ok) throw new Error('Error en API');
+
+        const d = await resp.json();
+        const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        // Actualizar lista de productos
+        if (d.lista_productos?.length) poblarSelectProducto(d.lista_productos);
+
+        // Actualizar valorizar_a
+        if (d.nombres_precios) {
+            actualizarValorizarA(d.nombres_precios);
+
+            // Encabezados de tabla (solo primera vez)
+            if (!preciosSync) {
+                const head = document.getElementById('tabla-head');
+                head.innerHTML = '';
+                const cols1 = [
+                    { t: 'CÓDIGO',       c: 'ps-3' },
+                    { t: 'DESCRIPCIÓN',  c: '' },
+                    { t: 'STOCK',        c: 'text-end fw-bold' },
+                    { t: 'COSTO UNIT.',  c: 'text-end text-costo' },
+                ];
+                cols1.forEach(col => {
+                    const th = document.createElement('th');
+                    th.textContent = col.t; th.className = col.c;
+                    head.appendChild(th);
+                });
+                Object.entries(d.nombres_precios)
+                    .sort((a, b) => Number(a[0]) - Number(b[0]))
+                    .forEach(([, nombre]) => {
+                        if (!nombre?.trim()) return;
+                        const th = document.createElement('th');
+                        th.className = 'text-end text-pvp';
+                        th.textContent = nombre.trim();
+                        head.appendChild(th);
+                    });
+                [
+                    { t: 'TOTAL EMPAQUE', c: 'text-end text-empaque' },
+                    { t: 'VALOR TOTAL',   c: 'text-end pe-3 text-valor fw-bold', id: 'th-valor-total' },
+                ].forEach(col => {
+                    const th = document.createElement('th');
+                    th.textContent = col.t; th.className = col.c;
+                    if (col.id) th.id = col.id;
+                    head.appendChild(th);
+                });
+                if (d.caracteristicas) {
+                    Object.entries(d.caracteristicas).forEach(([, nombre]) => {
+                        const th = document.createElement('th');
+                        th.className = 'text-end text-dynamic small';
+                        th.textContent = nombre;
+                        head.appendChild(th);
+                    });
+                }
+                preciosSync = true;
+            }
         }
 
-        // Si el valor seleccionado no coincide (por ejemplo al cambiar filtro), ajustarlo
-        if (!selectPrecio.querySelector(`option[value="${valorizar_a}"]`)) {
-            valorizar_a = 'costo';
-            selectPrecio.value = 'costo';
-        }
+        // Filtros dinámicos
+        actualizarFiltrosCarac(d.caracteristicas, d.filtros_dinamicos);
 
         // KPIs
-        document.getElementById("t_val").innerText = `${fmt(d.totales.valor_total || 0)}`;
-        document.getElementById("t_exi").innerText = (d.totales.existencia || 0).toLocaleString('es-VE');
-        document.getElementById("t_art").innerText = (d.totales.articulos || 0).toLocaleString('es-VE');
+        document.getElementById('t_exi').textContent = Number(d.totales?.existencia || 0).toLocaleString('es-VE');
+        document.getElementById('t_art').textContent = Number(d.totales?.articulos  || 0).toLocaleString('es-VE');
+        document.getElementById('t_val').textContent = fmt(d.totales?.valor_total   || 0);
 
-        // Títulos dinámicos
-        const titulosColumna = {
-            'costo':   'Costo Total',
-            'precio1': `Valor al ${d.nombres_precios?.["1"] || 'Precio 1'}`,
-            'precio2': `Valor al ${d.nombres_precios?.["2"] || 'Precio 2'}`,
-            'precio3': `Valor al ${d.nombres_precios?.["3"] || 'Precio 3'}`
-        };
-        document.getElementById("th-valor-total").textContent = titulosColumna[valorizar_a] || 'Valor Total';
+        const labelActual = tsValorizar?.getOption(tsValorizar.getValue())?.textContent || 'Costo';
+        const thVal = document.getElementById('th-valor-total');
+        if (thVal) thVal.textContent = `Valor Total (${labelActual})`;
+        const tGraf = document.getElementById('titulo-grafico');
+        if (tGraf) tGraf.textContent = `Gráfico por Clasificación (${labelActual})`;
 
-        const titulosGrafico = {
-            'costo':   'Gráfico por Marca (al Costo)',
-            'precio1': `Gráfico por Marca (al ${d.nombres_precios?.["1"] || 'Precio 1'})`,
-            'precio2': `Gráfico por Marca (al ${d.nombres_precios?.["2"] || 'Precio 2'})`,
-            'precio3': `Gráfico por Marca (al ${d.nombres_precios?.["3"] || 'Precio 3'})`
-        };
-        document.getElementById("titulo-grafico").textContent = titulosGrafico[valorizar_a] || 'Gráfico por Marca';
+        // Tabla
+        const filtroActual = document.getElementById('filtro_general').value;
+        const precioKeys = Object.entries(d.nombres_precios || {})
+            .filter(([, n]) => n?.trim())
+            .sort((a, b) => Number(a[0]) - Number(b[0]))
+            .map(([k]) => k);
 
-        // Tabla con debug visual temporal
-        const tbody = document.getElementById("tabla_inv");
-        tbody.innerHTML = (d.tabla || []).map(i => {
-            const ex = Number(i.EXISTENCIA) || 0;
-            const cu = ex > 0 ? Number(i.COSTO_UNITARIO) || 0 : 0;
-            const costo_x_me = (cu * 3).toFixed(2);
-
-            // Debug: si no llega TOTAL_EMPAQUE, mostrar advertencia
-            let empaqueValor = Number(i.TOTAL_EMPAQUE) || 0;
-            let empaqueDisplay = fmt(empaqueValor);
-            if (empaqueValor === 0 && i.TOTAL_EMPAQUE === undefined) {
-                empaqueDisplay = '<span style="color:orange; font-size:0.8rem;">?</span>';
+        document.getElementById('tabla_inv').innerHTML = (d.tabla || []).map(i => {
+            let h = '';
+            h += `<td class="ps-3 small text-muted fw-bold">${i.CODIGO || '-'}</td>`;
+            h += `<td style="font-size:0.85rem;" class="fw-medium">${i.DESCRIPCION || ''}</td>`;
+            h += `<td class="text-end fw-bold">${Number(i.EXISTENCIA || 0).toLocaleString('es-VE')}</td>`;
+            h += `<td class="text-end text-costo">${fmt(i.COSTO_UNITARIO)}</td>`;
+            precioKeys.forEach(k => { h += `<td class="text-end text-pvp">${fmt(i[`PRECIO${k}`])}</td>`; });
+            h += `<td class="text-end text-empaque">${fmt(i.TOTAL_EMPAQUE || 0)}</td>`;
+            h += `<td class="text-end pe-3 text-valor fw-bold">${fmt(i.VALOR_TOTAL)}</td>`;
+            if (d.caracteristicas) {
+                Object.keys(d.caracteristicas).forEach(idx => {
+                    h += `<td class="text-end small text-dynamic">${i[`CARAC${idx}`] || '-'}</td>`;
+                });
             }
-
-            return `
-                <tr>
-                    <td class="ps-3 small text-muted fw-bold">${i.CODIGO || '-'}</td>
-                    <td style="font-size: 0.85rem;" class="fw-medium">${i.DESCRIPCION || '—'}</td>
-                    <td><span class="badge bg-soft-info">${i.MARCA || 'Sin marca'}</span></td>
-                    <td class="text-end fw-bold">${ex.toLocaleString('es-VE')}</td>
-                    <td class="text-end text-costo">${fmt(cu)}</td>
-                    <td class="text-end text-pvp">${fmt(Number(i.PRECIO1) || 0)}</td>
-                    <td class="text-end text-pvp">${fmt(Number(i.PRECIO2) || 0)}</td>
-                    <td class="text-end text-pvp">${fmt(costo_x_me)}</td>
-                    <td class="text-end text-empaque">${empaqueDisplay}</td>
-                    <td class="text-end pe-3 text-valor fw-bold">
-                        ${fmt(Number(i.VALOR_TOTAL) || 0)}
-                    </td>
-                </tr>
-            `;
-        }).join("");
+            return `<tr>${h}</tr>`;
+        }).join('');
 
         // Gráfico
-        renderInvChart("chartInvMarca", 
-            d.marcas_chart?.map(x => x.MARCA) || [], 
-            d.marcas_chart?.map(x => x.V) || []
+        renderInvChart(
+            'chartInvMarca',
+            d.marcas_chart?.map(x => x.MARCA) || [],
+            d.marcas_chart?.map(x => x.V)     || []
         );
 
-    } catch (e) { 
-        console.error("Error cargando inventario:", e);
-        document.getElementById("tabla_inv").innerHTML = 
-            `<tr><td colspan="10" class="text-center text-danger py-4">Error al cargar datos</td></tr>`;
+        // Reaplicar filtro general si había uno activo
+        if (filtroActual.trim()) aplicarFiltroGeneral(filtroActual);
+
+    } catch (err) {
+        console.error('Error cargando inventario:', err);
+    } finally {
+        hideLoading();
     }
 }
 
 function renderInvChart(id, labels, values) {
     const canvas = document.getElementById(id);
     if (!canvas) return;
-    if (instInv[id]) instInv[id].destroy();
-
-    instInv[id] = new Chart(canvas.getContext('2d'), {
+    if (chartInstance) chartInstance.destroy();
+    const total = values.reduce((s, v) => s + (v || 0), 0);
+    chartInstance = new Chart(canvas.getContext('2d'), {
         type: 'doughnut',
         data: {
-            labels: labels,
+            labels,
             datasets: [{
                 data: values,
-                backgroundColor: [
-                    '#2ecc71', '#27ae60', '#1abc9c', '#16a085', '#3498db',
-                    '#2980b9', '#f1c40f', '#e67e22', '#e74c3c', '#9b59b6'
-                ],
-                borderWidth: 2,
-                hoverOffset: 20
+                backgroundColor: ['#2ecc71','#27ae60','#1abc9c','#16a085','#3498db','#2980b9','#f1c40f','#e67e22','#e74c3c','#9b59b6'],
+                borderWidth: 2, borderColor: '#fff'
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, maintainAspectRatio: false, cutout: '60%',
             plugins: {
-                legend: {
-                    position: 'right',
-                    labels: { boxWidth: 14, font: { size: 13 }, padding: 20 }
-                },
+                legend: { position: 'bottom', labels: { font: { size: 12 } } },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => ` ${ctx.label}: ${ctx.raw.toLocaleString('es-VE', {minimumFractionDigits: 2})}`
+                        label: ctx => {
+                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                            const f = ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            return `${ctx.label}: ${f} (${pct}%)`;
+                        }
                     }
                 }
-            },
-            cutout: '60%'
+            }
         }
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
+    initTomSelects();
     cargarInv();
 });
+
+// ── Filtro general en tiempo real ─────────────────────────────────────────
+function aplicarFiltroGeneral(texto) {
+    const btn = document.getElementById('btn_limpiar_gral');
+    const count = document.getElementById('filtro_gral_count');
+    btn.style.display = texto ? 'block' : 'none';
+
+    const filtro = texto.trim().toUpperCase();
+    const filas = document.querySelectorAll('#tabla_inv tr');
+    let visibles = 0;
+
+    filas.forEach(tr => {
+        if (!filtro) {
+            tr.style.display = '';
+            visibles++;
+            return;
+        }
+        // Buscar en todo el texto de la fila
+        const textoFila = tr.textContent.toUpperCase();
+        const coincide = textoFila.includes(filtro);
+        tr.style.display = coincide ? '' : 'none';
+        if (coincide) visibles++;
+    });
+
+    // Mostrar contador
+    if (filtro && filas.length > 0) {
+        count.textContent = `${visibles} de ${filas.length}`;
+        count.style.display = 'inline';
+    } else {
+        count.style.display = 'none';
+    }
+}
+
+function limpiarFiltroGeneral() {
+    const input = document.getElementById('filtro_general');
+    input.value = '';
+    aplicarFiltroGeneral('');
+    input.focus();
+}
 </script>
 
 {% endblock %}

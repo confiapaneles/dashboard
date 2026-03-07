@@ -15,13 +15,26 @@
     .filter-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 18px;
+        gap: 16px;
         align-items: flex-end;
+        margin-bottom: 12px;
     }
 
     .filter-col {
         flex: 1;
-        min-width: 160px;
+        min-width: 140px;
+    }
+
+    .filter-col.select-col {
+        flex-grow: 0;
+        flex-basis: 160px;
+        max-width: 180px;
+    }
+
+    .filter-col.text-col {
+        flex-grow: 2;
+        flex-basis: 220px;
+        min-width: 220px;
     }
 
     .filter-col label {
@@ -75,13 +88,8 @@
         color: white;
     }
 
-    .tab-pane {
-        display: none;
-    }
-
-    .tab-pane.active {
-        display: block;
-    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
 
     .card-chart {
         background: white;
@@ -98,10 +106,7 @@
         margin-bottom: 16px;
     }
 
-    .chart-container {
-        position: relative;
-        height: 420px;
-    }
+    .chart-container { position: relative; height: 420px; }
 
     .info-tag {
         background: #e8f5e9;
@@ -119,7 +124,6 @@
         text-align: center;
     }
 
-    /* Nuevos estilos para KPIs adicionales */
     .kpi-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -135,26 +139,82 @@
         border: 1px solid #e2e8f0;
     }
 
-    .kpi-label {
-        font-size: 0.9rem;
-        color: #64748b;
-        margin-bottom: 6px;
+    .kpi-label { font-size: 0.9rem; color: #64748b; margin-bottom: 6px; }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; color: #1e293b; }
+    .kpi-monto { font-size: 1.35rem; color: #27ae60; }
+    .kpi-small { font-size: 1.1rem; color: #334155; }
+
+    /* Tabla Facturas del Período */
+    .factura-table { width: 100%; font-size: 0.88rem; table-layout: fixed; }
+    .factura-table th, .factura-table td { padding: 8px 10px; vertical-align: middle; }
+    
+    /* Columna Fecha SIEMPRE en una línea */
+    .fecha-col {
+        white-space: nowrap !important;
+        width: 110px !important;
+        min-width: 110px !important;
+        max-width: 110px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .kpi-value {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #1e293b;
+    /* Otras columnas con ancho mínimo */
+    .factura-table th:nth-child(2), .factura-table td:nth-child(2) { min-width: 180px; } /* Cliente */
+    .factura-table th:nth-child(3), .factura-table td:nth-child(3) { min-width: 120px; } /* Vendedor */
+    .factura-table th:nth-child(4), .factura-table td:nth-child(4) { min-width: 100px; }  /* Zona */
+    .factura-table th:nth-child(5), .factura-table td:nth-child(5) { min-width: 80px; }   /* Caja */
+
+    /* Tabla Detalle Producto */
+    #tablaDetalleProducto { width: 100%; font-size: 0.88rem; }
+    #tablaDetalleProducto th { background: #f8f9fa; position: sticky; top: 0; z-index: 1; }
+    #tablaDetalleProducto td, #tablaDetalleProducto th { padding: 8px 10px; vertical-align: middle; }
+    #tablaDetalleProducto .fecha-col { 
+        white-space: nowrap !important;
+        width: 110px !important;
+        min-width: 110px !important;
+        max-width: 110px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .kpi-monto {
-        font-size: 1.35rem;
-        color: #27ae60;
+    /* Overlay de carga - RESTAURADO */
+    #loadingOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(255,255,255,0.80);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
     }
+    .loading-content {
+        text-align: center;
+        background: white;
+        padding: 2.5rem 4rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        min-width: 320px;
+    }
+    .loading-content .spinner-border { width: 3rem; height: 3rem; }
 
-    .kpi-small {
-        font-size: 1.1rem;
-        color: #334155;
+    /* Autocomplete producto */
+    .prod-dropdown-item {
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        border-bottom: 1px solid #f3f4f6;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .prod-dropdown-item:last-child { border-bottom: none; }
+    .prod-dropdown-item:hover { background: #eff6ff; color: #1d4ed8; }
+    .prod-dropdown-item .prod-codigo { font-size: 0.78rem; color: #9ca3af; margin-left: 6px; }
+    #busqueda_producto.producto-seleccionado {
+        border-color: #27ae60 !important;
+        background: #f0fdf4;
+        font-weight: 600;
     }
 </style>
 
@@ -167,38 +227,59 @@
         </div>
 
         <div class="filter-row">
-            <div class="filter-col">
-                <label>Desde</label>
-                <input type="date" id="fecha_inicio" onchange="cargarDatos()">
+            <div class="filter-col select-col">
+                <label>Status Factura</label>
+                <select id="filtro_status" onchange="cargarDatos()">
+                    <option value="TODOS">TODOS</option>
+                    <option value="Contado">Contado</option>
+                    <option value="Crédito">Crédito</option>
+                </select>
             </div>
-            <div class="filter-col">
-                <label>Hasta</label>
-                <input type="date" id="fecha_fin" onchange="cargarDatos()">
-            </div>
-            <div class="filter-col">
-                <label>Cliente</label>
-                <input type="text" id="busqueda_cliente" placeholder="Buscar cliente..." onchange="cargarDatos()">
-            </div>
-            <div class="filter-col">
+            <div class="filter-col select-col">
                 <label>Moneda</label>
                 <select id="moneda" onchange="cargarDatos()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
-            <div class="filter-col">
-                <label>Top N</label>
+            <div class="filter-col select-col">
+                <label>Top N (tops)</label>
                 <select id="top_n" onchange="cargarDatos()">
                     <option value="10">Top 10</option>
                     <option value="20">Top 20</option>
                     <option value="50">Top 50</option>
                 </select>
             </div>
-            <div class="filter-col">
+            <div class="filter-col select-col">
                 <label>Vendedor</label>
                 <select id="filtro_vendedor" onchange="cargarDatos()">
                     <option value="TODOS">Todos los vendedores</option>
                 </select>
+            </div>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-col text-col">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="debouncedCargarDatos()">
+            </div>
+            <div class="filter-col text-col">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="debouncedCargarDatos()">
+            </div>
+            <div class="filter-col text-col">
+                <label>Cliente</label>
+                <input type="text" id="busqueda_cliente" placeholder="Nombre o código..." oninput="debouncedCargarDatos()">
+            </div>
+            <div class="filter-col text-col" style="min-width:260px;">
+                <label>Producto</label>
+                <select id="select_producto" placeholder="Buscar producto...">
+                    <option value="">Todos los productos</option>
+                </select>
+            </div>
+            <div class="filter-col text-col">
+                <label>Caja</label>
+                <input type="text" id="busqueda_caja" placeholder="Caja / punto..." oninput="debouncedCargarDatos()">
             </div>
         </div>
     </div>
@@ -210,9 +291,11 @@
         <button class="tab-btn" data-tab="p_cli">Clientes</button>
         <button class="tab-btn" data-tab="p_prod">Productos</button>
         <button class="tab-btn" data-tab="p_vend">Vendedores</button>
+        <button class="tab-btn" data-tab="p_facturas">Facturas del Período</button>
+        <button class="tab-btn" data-tab="p_det_prod">Detalles por Producto</button>
     </div>
 
-    <!-- Contenido de cada pestaña -->
+    <!-- Pestaña Resumen General -->
     <div id="p_gen" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-8">
@@ -223,14 +306,13 @@
             </div>
             <div class="col-lg-4">
                 <div class="card-chart text-center d-flex flex-column justify-content-center">
-                    <div class="chart-title">Clientes Únicos</div>
+                    <div class="chart-title">Clientes atendidos</div>
                     <div style="font-size: 4.5rem; font-weight: 800; color: var(--accent, #3498db);" id="val_conteo_cli">0</div>
-                    <div class="text-muted mt-2">atendidos en el período</div>
+                    <div class="text-muted mt-2">en el período</div>
 
-                    <!-- Nuevos KPIs adicionales -->
                     <div class="kpi-grid mt-4">
                         <div class="kpi-item">
-                            <div class="kpi-label">Total Facturas</div>
+                            <div class="kpi-label">Total Facturas Únicas</div>
                             <div class="kpi-value" id="val_total_fact">0</div>
                         </div>
                         <div class="kpi-item">
@@ -249,6 +331,7 @@
         </div>
     </div>
 
+    <!-- Pestaña Zonas -->
     <div id="p_zona" class="tab-pane">
         <div class="row g-4">
             <div class="col-lg-8">
@@ -266,6 +349,7 @@
         </div>
     </div>
 
+    <!-- Pestaña Clientes -->
     <div id="p_cli" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title text-center">Ranking de Clientes por Monto</div>
@@ -273,6 +357,7 @@
         </div>
     </div>
 
+    <!-- Pestaña Productos -->
     <div id="p_prod" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title text-center">Productos Líderes en Ventas</div>
@@ -280,6 +365,7 @@
         </div>
     </div>
 
+    <!-- Pestaña Vendedores -->
     <div id="p_vend" class="tab-pane">
         <div class="row g-4">
             <div class="col-lg-6">
@@ -296,242 +382,487 @@
             </div>
         </div>
     </div>
+
+    <!-- Pestaña Facturas del Período -->
+    <div id="p_facturas" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title">Listado de Facturas del Período (filtradas)</div>
+            <div class="table-responsive">
+                <table class="table table-hover factura-table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="fecha-col">Fecha</th>
+                            <th>Cliente</th>
+                            <th>Vendedor</th>
+                            <th>Zona</th>
+                            <th>Caja</th>
+                            <th>Documento</th>
+                            <th>Status</th>
+                            <th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_facturas"></tbody>
+                </table>
+            </div>
+            <div id="no_facturas" class="no-data mt-4 text-center" style="display:none;">
+                No se encontraron facturas con los filtros aplicados
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña Detalles por Producto -->
+    <div id="p_det_prod" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title" id="titulo_det_prod">Detalles del Producto</div>
+            <div id="resumen_producto" class="mb-4"></div>
+            <div class="table-responsive">
+                <table class="table table-hover" id="tablaDetalleProducto">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="fecha-col">Fecha</th>
+                            <th>N° Factura</th>
+                            <th>Caja</th>
+                            <th>Cliente</th>
+                            <th>Vendedor</th>
+                            <th class="text-end">Cantidad</th>
+                            <th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDetalleProducto"></tbody>
+                </table>
+            </div>
+            <div id="no_det_prod" class="no-data mt-4 text-center" style="display:none;">
+                Seleccione o busque un producto para ver detalles
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Overlay de carga -->
+<div id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-3 fw-bold text-primary fs-5">Cargando datos, por favor espere...</div>
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
+/* Tom Select overrides para que quede igual al resto de filtros */
+.ts-wrapper.single .ts-control {
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    cursor: text;
+    background: white;
+}
+.ts-wrapper.single.focus .ts-control,
+.ts-wrapper.single .ts-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+}
+.ts-wrapper.single.has-items .ts-control {
+    font-weight: 500;
+}
+.ts-dropdown {
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+}
+.ts-dropdown .option { padding: 9px 14px; }
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active { background: #eff6ff; color: #1d4ed8; }
+.ts-dropdown-content { max-height: 260px; }
+.ts-wrapper { width: 100%; }
+</style>
+
 <script>
-    let chartsInst = {};
-    let vendedoresCargados = false;
+let chartsInst = {};
+let vendedoresCargados = false;
+let ultimosDatos = null;
+let ultimaMoneda = 'Bs';
+let ultimoProductoBuscado = '';
+let productoSeleccionado = '';
+let listaProductos = [];
 
-    // Cargar lista de vendedores al inicio
-    async function cargarListaVendedores() {
-        try {
-            const resp = await fetch("/api/vendedores", {
-                method: "GET",
-                headers: { "Content-Type": "application/json" }
-            });
+const loadingOverlay = document.getElementById('loadingOverlay');
 
-            if (!resp.ok) throw new Error("Error al cargar vendedores");
+function showLoading() { loadingOverlay.style.display = 'flex'; }
+function hideLoading() { loadingOverlay.style.display = 'none'; }
 
-            const data = await resp.json();
+function debounce(func, wait = 600) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+const debouncedCargarDatos = debounce(cargarDatos);
 
-            if (data.status === "success" && data.vendedores?.length) {
-                const sel = document.getElementById("filtro_vendedor");
-                sel.innerHTML = '<option value="TODOS">Todos los vendedores</option>';
+async function cargarListaVendedores() {
+    try {
+        const resp = await fetch("/api/vendedores", { method: "GET" });
+        if (!resp.ok) return;
 
-                data.vendedores.forEach(v => {
-                    const opt = document.createElement("option");
-                    opt.value = v;
-                    opt.textContent = v;
-                    sel.appendChild(opt);
-                });
+        const data = await resp.json();
+        if (data.status !== "success" || !data.vendedores?.length) return;
 
-                vendedoresCargados = true;
-            }
-        } catch (err) {
-            console.error("Error cargando lista de vendedores:", err);
-        }
-    }
+        const sel = document.getElementById("filtro_vendedor");
+        sel.innerHTML = '<option value="TODOS">Todos los vendedores</option>';
 
-    // Manejo de pestañas (sin recarga automática al cambiar pestaña)
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            this.classList.add('active');
-            document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+        data.vendedores.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            sel.appendChild(opt);
         });
-    });
 
-    function generarColores(cant) {
-        const paleta = [
-            '#3498db', '#2980b9', '#1f75cb', '#27ae60', '#2ecc71',
-            '#16a085', '#0e6655', '#1abc9c', '#f39c12', '#e67e22',
-            '#e74c3c', '#c0392b', '#9b59b6', '#8e44ad', '#34495e'
-        ];
-        return Array.from({length: cant || 5}, (_, i) => paleta[i % paleta.length]);
+        vendedoresCargados = true;
+    } catch (err) {
+        console.error("Error cargando vendedores:", err);
     }
+}
 
-    async function cargarDatos() {
-        const params = {
-            moneda: document.getElementById("moneda").value,
-            top_n: document.getElementById("top_n").value,
-            fecha_inicio: document.getElementById("fecha_inicio").value,
-            fecha_fin: document.getElementById("fecha_fin").value,
-            cliente: document.getElementById("busqueda_cliente").value.trim(),
-            vendedor: document.getElementById("filtro_vendedor").value || "TODOS"
-        };
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
 
-        try {
-            const resp = await fetch("/api/ventas", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(params)
-            });
+        if (tabId === 'p_det_prod') {
+            renderDetallesProducto(ultimosDatos, ultimaMoneda, ultimoProductoBuscado);
+        }
+    });
+});
 
-            if (!resp.ok) throw new Error("Error en la respuesta del servidor");
+function generarColores(cant) {
+    const paleta = ['#3498db','#2980b9','#1f75cb','#27ae60','#2ecc71','#16a085','#0e6655','#1abc9c','#f39c12','#e67e22','#e74c3c','#c0392b','#9b59b6','#8e44ad','#34495e'];
+    return Array.from({length: cant || 5}, (_, i) => paleta[i % paleta.length]);
+}
 
-            const d = await resp.json();
+async function cargarDatos() {
+    showLoading();
 
-            if (d.status === "error") {
-                console.error("Error del backend:", d.message);
-                return;
-            }
+    const params = {
+        moneda: document.getElementById("moneda").value,
+        top_n: document.getElementById("top_n").value,
+        fecha_inicio: document.getElementById("fecha_inicio").value,
+        fecha_fin: document.getElementById("fecha_fin").value,
+        busqueda_cliente: document.getElementById("busqueda_cliente").value.trim().toUpperCase(),
+        busqueda_producto: productoSeleccionado,
+        busqueda_caja: document.getElementById("busqueda_caja").value.trim().toUpperCase(),
+        vendedor: document.getElementById("filtro_vendedor").value || "TODOS",
+        status: document.getElementById("filtro_status").value
+    };
 
-            // Total general
-            document.getElementById("txt_total_general").textContent = 
-                (d.total_gral || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 
-                ' ' + params.moneda;
+    try {
+        const resp = await fetch("/api/ventas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(params)
+        });
 
-            // Conteo clientes
-            document.getElementById("val_conteo_cli").textContent = d.general?.conteo_cli || 0;
+        if (!resp.ok) throw new Error("Error HTTP");
 
-            // Nuevos valores de facturas
-            document.getElementById("val_total_fact").textContent = d.general?.total_facturas || 0;
-            document.getElementById("val_fact_cont_cant").textContent = d.general?.fact_cont_cant || 0;
-            document.getElementById("val_fact_cont_monto").textContent = 
-                (d.general?.fact_cont_monto || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' ' + params.moneda;
-            document.getElementById("val_fact_cred_cant").textContent = d.general?.fact_cred_cant || 0;
-            document.getElementById("val_fact_cred_monto").textContent = 
-                (d.general?.fact_cred_monto || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' ' + params.moneda;
+        const d = await resp.json();
 
-            // Gráficos generales
-            renderChart("chartTotales", "pie", "Ventas", 
-                Object.keys(d.resumen_tipo || {}), Object.values(d.resumen_tipo || {}), 'x', generarColores(2));
+        if (d.status === "error") {
+            console.error(d.message);
+            hideLoading();
+            return;
+        }
 
-            renderChart("chartZonas", "bar", "Monto", 
-                (d.zonas || []).map(x => x.label), (d.zonas || []).map(x => x.value), 'x', generarColores(d.zonas?.length || 0));
+        // Guardar globalmente
+        ultimosDatos = d;
+        ultimaMoneda = params.moneda;
+        ultimoProductoBuscado = productoSeleccionado;
+        if (d.lista_productos?.length) { listaProductos = d.lista_productos; poblarSelectProducto(); }
 
-            document.getElementById("lista_detalles_zona").innerHTML = 
-                (d.zonas || []).length > 0 
-                ? (d.zonas || []).map(z => 
-                    `<div class="info-tag">● <b>${z.label}</b> <span style="float:right">${(z.value||0).toLocaleString('es-VE')}</span></div>`
-                  ).join("")
-                : '<div class="no-data">No hay datos de zonas</div>';
+        const monedaStr = params.moneda;
+        const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            renderChart("chartClientes", "bar", "Monto", 
-                (d.clientes || []).map(x => x.label), (d.clientes || []).map(x => x.value), 'y', generarColores(d.clientes?.length || 0));
+        // Total general
+        document.getElementById("txt_total_general").textContent = 
+            fmt(d.total_gral || 0) + ' ' + monedaStr;
 
-            renderChart("chartProductos", "bar", "Monto", 
-                (d.productos || []).map(x => x.label), (d.productos || []).map(x => x.value), 'y', generarColores(d.productos?.length || 0));
+        // KPIs
+        document.getElementById("val_conteo_cli").textContent = d.general?.conteo_clientes || 0;
+        document.getElementById("val_total_fact").textContent = d.general?.total_facturas_unicas || 0;
+        document.getElementById("val_fact_cont_cant").textContent = d.general?.facturas_contado_unicas || 0;
+        document.getElementById("val_fact_cont_monto").textContent = fmt(d.general?.fact_cont_monto || 0) + ' ' + monedaStr;
+        document.getElementById("val_fact_cred_cant").textContent = d.general?.facturas_credito_unicas || 0;
+        document.getElementById("val_fact_cred_monto").textContent = fmt(d.general?.fact_cred_monto || 0) + ' ' + monedaStr;
 
-            // ── Sección Vendedores ───────────────────────────────────────
-            if (d.vendedores?.length) {
-                renderChart("chartVendedores", "bar", "Ventas", 
-                    d.vendedores.map(x => x.label), 
-                    d.vendedores.map(x => x.value), 
-                    'y', generarColores(d.vendedores.length));
+        // Gráficos
+        renderChartWithPercent("chartTotales", "pie", "Ventas", 
+            Object.keys(d.resumen_tipo || {}), Object.values(d.resumen_tipo || {}), generarColores(2));
 
-                const vendedorSel = params.vendedor;
-                let titulo = "";
-                let productos = [];
+        renderChartWithPercent("chartZonas", "bar", "Monto", 
+            (d.zonas || []).map(x => x.label), (d.zonas || []).map(x => x.value), generarColores(d.zonas?.length || 0));
 
-                if (vendedorSel !== "TODOS") {
-                    titulo = `Productos más vendidos: ${vendedorSel}`;
-                    if (d.detalles_vendedor?.[vendedorSel]) {
-                        productos = d.detalles_vendedor[vendedorSel] || [];
-                    }
-                } else {
-                    titulo = "Productos más vendidos (todos los vendedores)";
-                    productos = d.productos || [];
-                }
+        document.getElementById("lista_detalles_zona").innerHTML = 
+            (d.zonas || []).length > 0 
+            ? (d.zonas || []).map(z => 
+                `<div class="info-tag">● <b>${z.label}</b> <span style="float:right">${fmt(z.value||0)} ${monedaStr}</span></div>`
+              ).join("")
+            : '<div class="no-data">No hay datos de zonas</div>';
 
-                document.getElementById("titulo_prod_vend").textContent = titulo;
+        renderChartWithPercent("chartClientes", "bar", "Monto", 
+            (d.clientes || []).map(x => x.label), (d.clientes || []).map(x => x.value), generarColores(d.clientes?.length || 0), 'y');
 
-                if (productos.length > 0) {
-                    renderChart("chartProdVendedor", "bar", "Monto", 
-                        productos.map(x => x.label), 
-                        productos.map(x => x.value), 
-                        'y', generarColores(productos.length));
-                } else {
-                    const canvas = document.getElementById("chartProdVendedor");
-                    if (canvas && chartsInst["chartProdVendedor"]) {
-                        chartsInst["chartProdVendedor"].destroy();
-                        chartsInst["chartProdVendedor"] = null;
-                    }
-                    document.getElementById("titulo_prod_vend").textContent = 
-                        vendedorSel === "TODOS" 
-                            ? "No hay productos vendidos en el período" 
-                            : `No hay productos para ${vendedorSel}`;
-                }
+        renderChartWithPercent("chartProductos", "bar", "Monto", 
+            (d.productos || []).map(x => x.label), (d.productos || []).map(x => x.value), generarColores(d.productos?.length || 0), 'y');
+
+        if (d.vendedores?.length) {
+            renderChartWithPercent("chartVendedores", "bar", "Ventas", 
+                d.vendedores.map(x => x.label), d.vendedores.map(x => x.value), generarColores(d.vendedores.length), 'y');
+
+            const vendedorSel = params.vendedor;
+            let titulo = vendedorSel !== "TODOS" ? `Productos más vendidos: ${vendedorSel}` : "Productos más vendidos (todos)";
+            document.getElementById("titulo_prod_vend").textContent = titulo;
+
+            let productos = vendedorSel !== "TODOS" && d.detalles_vendedor?.[vendedorSel] 
+                ? d.detalles_vendedor[vendedorSel] 
+                : d.productos || [];
+
+            if (productos.length > 0) {
+                renderChartWithPercent("chartProdVendedor", "bar", "Monto", 
+                    productos.map(x => x.label), productos.map(x => x.value), generarColores(productos.length), 'y');
             } else {
-                document.getElementById("titulo_prod_vend").textContent = "No hay datos de vendedores";
+                if (chartsInst["chartProdVendedor"]) chartsInst["chartProdVendedor"].destroy();
+                document.getElementById("titulo_prod_vend").textContent = 
+                    vendedorSel === "TODOS" ? "No hay productos vendidos" : `No hay productos para ${vendedorSel}`;
             }
-
-        } catch (err) {
-            console.error("Error al cargar datos:", err);
-        }
-    }
-
-    function renderChart(id, type, label, labels, values, indexAxis = 'x', colores) {
-        const canvas = document.getElementById(id);
-        if (!canvas) return;
-
-        if (chartsInst[id]) {
-            chartsInst[id].destroy();
+        } else {
+            document.getElementById("titulo_prod_vend").textContent = "No hay datos de vendedores";
         }
 
-        const ctx = canvas.getContext('2d');
+        // Tabla Facturas del Período
+        const tbodyFact = document.getElementById("tabla_facturas");
+        const noFactMsg = document.getElementById("no_facturas");
+        tbodyFact.innerHTML = '';
 
-        let config = {
-            type,
-            data: {
-                labels,
-                datasets: [{
-                    label,
-                    data: values,
-                    backgroundColor: colores,
-                    borderWidth: 0,
-                    borderRadius: type === 'bar' ? 6 : 0,
-                    barThickness: (id.includes('Productos') || id.includes('Vendedores') || id.includes('Clientes')) ? 28 : 'flex'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis,
-                plugins: {
-                    legend: { display: type === 'pie', position: 'bottom' },
-                    tooltip: { enabled: true }
-                },
-                scales: indexAxis === 'y' ? {
-                    y: {
-                        ticks: {
-                            autoSkip: false,
-                            font: { size: 11 },
-                            callback: function(_, idx) {
-                                let str = (labels[idx] || '').trim();
-                                return str.length > 38 ? str.substring(0,35)+'…' : str;
-                            }
-                        },
-                        grid: { display: false }
-                    },
-                    x: { grid: { color: '#f0f0f0' } }
-                } : {
-                    x: { grid: { color: '#f0f0f0' } },
-                    y: { beginAtZero: true }
-                },
-                layout: indexAxis === 'y' ? { padding: { left: 20, right: 20 } } : {}
-            }
-        };
+        if (d.facturas?.length > 0) {
+            d.facturas.forEach(f => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fecha-col">${f.FECHA || '-'}</td>
+                    <td>${f.CLIENTE || 'S/C'}</td>
+                    <td>${f.VENDEDOR || 'S/V'}</td>
+                    <td>${f.ZONA || 'Sin zona'}</td>
+                    <td>${f.CAJA || 'S/C'}</td>
+                    <td>${f.DOCUMENTO || '-'}</td>
+                    <td>
+                        <span class="status-badge ${f.TIPO === 'Contado' ? 'status-contado' : 'status-credito'}">
+                            ${f.TIPO}
+                        </span>
+                    </td>
+                    <td class="text-end fw-bold">${fmt(f.MONTO)} ${monedaStr}</td>
+                `;
+                tbodyFact.appendChild(tr);
+            });
+            noFactMsg.style.display = 'none';
+        } else {
+            noFactMsg.style.display = 'block';
+        }
 
-        chartsInst[id] = new Chart(ctx, config);
+        // Detalles por Producto - renderizado dinámico
+        renderDetallesProducto(d, monedaStr, params.busqueda_producto.trim());
+
+    } catch (err) {
+        console.error("Error al cargar datos de ventas:", err);
+    } finally {
+        hideLoading();
     }
+}
 
-    // Inicialización
-    document.addEventListener("DOMContentLoaded", async () => {
-        const hoy = new Date();
-        document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
-        
-        const mesAnterior = new Date(hoy);
-        mesAnterior.setMonth(hoy.getMonth() - 1);
-        document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
 
-        await cargarListaVendedores();
-        await cargarDatos();
+// ─── SELECCIÓN DE PRODUCTO CON TOM SELECT ────────────────────────────────
+let tomSelectProducto = null;
+
+function inicializarTomSelect() {
+    if (tomSelectProducto) return; // ya inicializado
+    tomSelectProducto = new TomSelect('#select_producto', {
+        placeholder: 'Buscar producto...',
+        allowEmptyOption: true,
+        maxOptions: 300,
+        onChange: function(valor) {
+            productoSeleccionado = valor ? valor.toUpperCase() : '';
+            ultimoProductoBuscado = productoSeleccionado;
+            if (!valor) {
+                ultimosDatos = ultimosDatos ? {...ultimosDatos, detalle_producto: null} : null;
+                renderDetallesProducto(null, ultimaMoneda, '');
+            }
+            cargarDatos();
+        }
     });
+}
+
+function poblarSelectProducto() {
+    if (!tomSelectProducto) return;
+    const valorActual = productoSeleccionado;
+    tomSelectProducto.clearOptions();
+    tomSelectProducto.addOption({value: '', text: 'Todos los productos'});
+    listaProductos.forEach(p => {
+        tomSelectProducto.addOption({value: p, text: p});
+    });
+    tomSelectProducto.refreshOptions(false);
+    // Restaurar selección si existía
+    if (valorActual) {
+        tomSelectProducto.setValue(valorActual, true);
+    } else {
+        tomSelectProducto.setValue('', true);
+    }
+}
+
+function limpiarProducto() {
+    productoSeleccionado = '';
+    if (tomSelectProducto) tomSelectProducto.setValue('', true);
+    ultimosDatos = ultimosDatos ? {...ultimosDatos, detalle_producto: null} : null;
+    ultimoProductoBuscado = '';
+    renderDetallesProducto(null, ultimaMoneda, '');
+    cargarDatos();
+}
+
+function renderDetallesProducto(d, monedaStr, prodBuscado) {
+    const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const tituloDetProd = document.getElementById("titulo_det_prod");
+    const resumenProd = document.getElementById("resumen_producto");
+    const tbodyDetProd = document.getElementById("tbodyDetalleProducto");
+    const noDetProdMsg = document.getElementById("no_det_prod");
+
+    if (prodBuscado && d.detalle_producto) {
+        tituloDetProd.textContent = `Detalles del Producto: ${prodBuscado}`;
+
+        resumenProd.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="kpi-box text-center p-3">
+                        <small class="text-muted d-block">Cantidad Total</small>
+                        <h5 class="fw-bold mb-0">${d.detalle_producto.cantidad_total || 0}</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-box text-center p-3">
+                        <small class="text-muted d-block">Monto Total</small>
+                        <h5 class="fw-bold mb-0">${fmt(d.detalle_producto.monto_total || 0)} ${monedaStr}</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-box text-center p-3">
+                        <small class="text-muted d-block">Facturas Únicas</small>
+                        <h5 class="fw-bold mb-0">${d.detalle_producto.facturas_unicas || 0}</h5>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        tbodyDetProd.innerHTML = '';
+        (d.detalle_producto.detalles || []).forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="fecha-col">${row.FECHA || '-'}</td>
+                <td>${row.FACTURA || '-'}</td>
+                <td>${row.CAJA || 'S/C'}</td>
+                <td>${row.CLIENTE || 'S/C'}</td>
+                <td>${row.VENDEDOR || 'S/V'}</td>
+                <td class="text-end">${row.CANTIDAD || 0}</td>
+                <td class="text-end fw-bold">${fmt(row.MONTO || 0)} ${monedaStr}</td>
+            `;
+            tbodyDetProd.appendChild(tr);
+        });
+
+        noDetProdMsg.style.display = 'none';
+    } else {
+        tituloDetProd.textContent = "Detalles por Producto";
+        resumenProd.innerHTML = '';
+        tbodyDetProd.innerHTML = '';
+        noDetProdMsg.style.display = 'block';
+    }
+}
+
+function renderChartWithPercent(id, type, labelAxis, labels, values, colores, indexAxis = 'x') {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+
+    if (chartsInst[id]) chartsInst[id].destroy();
+
+    const total = values.reduce((sum, v) => sum + (v || 0), 0);
+
+    const config = {
+        type,
+        data: {
+            labels,
+            datasets: [{
+                label: labelAxis,
+                data: values,
+                backgroundColor: colores,
+                borderWidth: 0,
+                borderRadius: type === 'bar' ? 6 : 0,
+                barThickness: (id.includes('Productos') || id.includes('Vendedores') || id.includes('Clientes')) ? 28 : 'flex'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis,
+            plugins: {
+                legend: { display: type === 'pie', position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const porcentaje = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            const montoFmt = value.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            const moneda = document.getElementById("moneda").value;
+                            return `${context.label}: ${montoFmt} ${moneda}  (${porcentaje}%)`;
+                        }
+                    }
+                }
+            },
+            scales: indexAxis === 'y' ? {
+                y: {
+                    ticks: {
+                        autoSkip: false,
+                        font: { size: 11 },
+                        callback: (_, idx) => {
+                            let str = (labels[idx] || '').trim();
+                            return str.length > 38 ? str.substring(0,35)+'…' : str;
+                        }
+                    },
+                    grid: { display: false }
+                },
+                x: { grid: { color: '#f0f0f0' } }
+            } : {
+                x: { grid: { color: '#f0f0f0' } },
+                y: { beginAtZero: true }
+            }
+        }
+    };
+
+    chartsInst[id] = new Chart(canvas.getContext('2d'), config);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const hoy = new Date();
+    document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
+    
+    const mesAnterior = new Date(hoy);
+    mesAnterior.setMonth(hoy.getMonth() - 1);
+    document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
+
+    inicializarTomSelect();
+    await cargarListaVendedores();
+    await cargarDatos();
+});
 </script>
 
 {% endblock %}
