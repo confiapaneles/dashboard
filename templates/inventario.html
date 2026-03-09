@@ -57,6 +57,8 @@
         font-size: 0.92rem; background: white; cursor: text;
     }
     .ts-wrapper.single.focus .ts-control { border-color: #86b7fe; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
+    .ts-wrapper.single.focus .ts-control,
+    .ts-wrapper.single.has-items .ts-control { font-weight: 500; }
     .ts-dropdown { border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #dee2e6; font-size: 0.9rem; }
     .ts-dropdown .option { padding: 8px 14px; }
     .ts-dropdown .option:hover, .ts-dropdown .option.active { background: #eff6ff; color: #1d4ed8; }
@@ -64,6 +66,25 @@
     .ts-wrapper { width: 100%; }
 
     .filtro-carac-col label { font-size: 0.82rem; font-weight: 600; color: #495057; margin-bottom: 4px; display: block; }
+
+    /* ── ✅ FIX-1: Etiqueta de filtro activo en los selects de clasificación ── */
+    .filtro-carac-col .filtro-activo-badge {
+        display: none;
+        font-size: 0.72rem;
+        font-weight: 700;
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+        border-radius: 5px;
+        padding: 1px 7px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+    .filtro-carac-col.tiene-filtro label .filtro-activo-badge { display: inline; }
+    .filtro-carac-col.tiene-filtro .ts-wrapper.single .ts-control {
+        border-color: #22c55e;
+        background: #f0fdf4;
+    }
 </style>
 
 <div class="container-fluid py-3">
@@ -76,6 +97,28 @@
                         <h4 class="mb-0 panel-title">
                             <i class="bi bi-box-seam me-2"></i>{{ empresa }} | Panel de Inventario
                         </h4>
+
+                        <!-- KPIs -->
+                        <div class="row g-3 justify-content-end">
+                            <div class="col-md-3 col-sm-6 col-12">
+                                <div class="kpi-box text-center p-3">
+                                    <small class="text-muted d-block fw-medium">Stock Físico</small>
+                                    <h5 id="t_exi" class="fw-bold text-dark mb-0">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 col-12">
+                                <div class="kpi-box text-center p-3">
+                                    <small class="text-muted d-block fw-medium">Artículos</small>
+                                    <h5 id="t_art" class="fw-bold mb-0">0</h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-12">
+                                <div class="kpi-box text-center p-3 border border-primary">
+                                    <small class="text-muted d-block fw-medium">Valorización Total</small>
+                                    <h5 id="t_val" class="fw-bold text-primary mb-0">0,00</h5>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Fila de filtros principales -->
@@ -111,28 +154,6 @@
 
                     <!-- FILTROS DINÁMICOS (clasificaciones) -->
                     <div class="row g-3 mb-3" id="filtros-container" style="display:none;"></div>
-
-                    <!-- KPIs -->
-                    <div class="row g-3 justify-content-end">
-                        <div class="col-md-3 col-sm-6 col-12">
-                            <div class="kpi-box text-center p-3">
-                                <small class="text-muted d-block fw-medium">Stock Físico</small>
-                                <h5 id="t_exi" class="fw-bold text-dark mb-0">0</h5>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-12">
-                            <div class="kpi-box text-center p-3">
-                                <small class="text-muted d-block fw-medium">Artículos</small>
-                                <h5 id="t_art" class="fw-bold mb-0">0</h5>
-                            </div>
-                        </div>
-                        <div class="col-md-4 col-sm-6 col-12">
-                            <div class="kpi-box text-center p-3 border border-primary">
-                                <small class="text-muted d-block fw-medium">Valorización Total</small>
-                                <h5 id="t_val" class="fw-bold text-primary mb-0">0,00</h5>
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
             </div>
@@ -236,43 +257,103 @@ function poblarSelectProducto(lista) {
     tsProducto.setValue(actual && lista.includes(actual) ? actual : '', true);
 }
 
-// Crear Tom Selects dinámicos para clasificaciones
+// ── ✅ FIX-1: Crear TomSelects dinámicos PRESERVANDO el valor activo ──────
 function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
     const container = document.getElementById('filtros-container');
-    container.innerHTML = '';
     container.style.display = 'none';
 
-    // Destruir anteriores
-    Object.values(tsCaracs).forEach(ts => ts.destroy());
-    tsCaracs = {};
-
-    if (!caracteristicas || !Object.keys(caracteristicas).length) return;
+    if (!caracteristicas || !Object.keys(caracteristicas).length) {
+        // Destruir todos y limpiar
+        Object.values(tsCaracs).forEach(ts => ts.destroy());
+        tsCaracs = {};
+        container.innerHTML = '';
+        return;
+    }
 
     container.style.display = 'flex';
 
     Object.entries(caracteristicas).forEach(([idx, nombre]) => {
-        const valores = filtrosDinamicos?.[`filtro_carac${idx}`] || [];
+        const valores = (filtrosDinamicos?.[`filtro_carac${idx}`] || []).filter(v => v.trim());
 
-        const col = document.createElement('div');
-        col.className = 'col-md-3 col-sm-6 col-12 filtro-carac-col';
+        // ✅ Guardar valor activo ANTES de tocar el DOM
+        const valorActivo = tsCaracs[idx] ? tsCaracs[idx].getValue() : '';
+
+        // Destruir instancia anterior si existe
+        if (tsCaracs[idx]) {
+            tsCaracs[idx].destroy();
+            delete tsCaracs[idx];
+        }
+
+        // Crear o reusar columna del DOM
+        let col = document.getElementById(`col_carac${idx}`);
+        if (!col) {
+            col = document.createElement('div');
+            col.id = `col_carac${idx}`;
+            col.className = 'col-md-3 col-sm-6 col-12 filtro-carac-col';
+            container.appendChild(col);
+        }
+
         col.innerHTML = `
-            <label>${nombre}</label>
+            <label>
+                ${nombre}
+                <span class="filtro-activo-badge" id="badge_carac${idx}"></span>
+            </label>
             <select id="filtro_carac${idx}">
                 <option value="">Todos</option>
             </select>
         `;
-        container.appendChild(col);
 
         const ts = new TomSelect(`#filtro_carac${idx}`, {
             placeholder: `Buscar ${nombre}...`,
             allowEmptyOption: true,
             maxOptions: 200,
-            onChange: () => cargarInv()
+            onChange: (val) => {
+                // ✅ Actualizar badge y estilo visual al cambiar
+                actualizarBadgeCarac(idx, val, nombre);
+                cargarInv();
+            }
         });
-        valores.filter(v => v.trim()).forEach(v => ts.addOption({ value: v, text: v }));
+
+        valores.forEach(v => ts.addOption({ value: v, text: v }));
         ts.refreshOptions(false);
+
+        // ✅ Restaurar valor activo si todavía existe en la lista
+        const restaurar = valorActivo && valores.includes(valorActivo) ? valorActivo : '';
+        ts.setValue(restaurar, true);
+
+        // ✅ Mostrar badge si hay filtro activo restaurado
+        actualizarBadgeCarac(idx, restaurar, nombre);
+
         tsCaracs[idx] = ts;
     });
+
+    // Eliminar columnas de clasificaciones que ya no existen
+    const idxActivos = Object.keys(caracteristicas);
+    Object.keys(tsCaracs).forEach(idx => {
+        if (!idxActivos.includes(idx)) {
+            tsCaracs[idx].destroy();
+            delete tsCaracs[idx];
+            const col = document.getElementById(`col_carac${idx}`);
+            if (col) col.remove();
+        }
+    });
+}
+
+// ✅ FIX-1: Badge que muestra el filtro activo sobre el label
+function actualizarBadgeCarac(idx, val, nombre) {
+    const col   = document.getElementById(`col_carac${idx}`);
+    const badge = document.getElementById(`badge_carac${idx}`);
+    if (!col || !badge) return;
+
+    if (val) {
+        badge.textContent = `✓ ${val}`;
+        badge.style.display = 'inline';
+        col.classList.add('tiene-filtro');
+    } else {
+        badge.textContent = '';
+        badge.style.display = 'none';
+        col.classList.remove('tiene-filtro');
+    }
 }
 
 // ── Función principal ─────────────────────────────────────────────────────
@@ -310,10 +391,10 @@ async function cargarInv() {
                 const head = document.getElementById('tabla-head');
                 head.innerHTML = '';
                 const cols1 = [
-                    { t: 'CÓDIGO',       c: 'ps-3' },
-                    { t: 'DESCRIPCIÓN',  c: '' },
-                    { t: 'STOCK',        c: 'text-end fw-bold' },
-                    { t: 'COSTO UNIT.',  c: 'text-end text-costo' },
+                    { t: 'CÓDIGO',      c: 'ps-3' },
+                    { t: 'DESCRIPCIÓN', c: '' },
+                    { t: 'STOCK',       c: 'text-end fw-bold' },
+                    { t: 'COSTO UNIT.', c: 'text-end text-costo' },
                 ];
                 cols1.forEach(col => {
                     const th = document.createElement('th');
@@ -329,9 +410,10 @@ async function cargarInv() {
                         th.textContent = nombre.trim();
                         head.appendChild(th);
                     });
+                // ✅ FIX-2: VALOR TOTAL primero, TOTAL EMPAQUE después
                 [
+                    { t: 'VALOR TOTAL',   c: 'text-end pe-2 text-valor fw-bold', id: 'th-valor-total' },
                     { t: 'TOTAL EMPAQUE', c: 'text-end text-empaque' },
-                    { t: 'VALOR TOTAL',   c: 'text-end pe-3 text-valor fw-bold', id: 'th-valor-total' },
                 ].forEach(col => {
                     const th = document.createElement('th');
                     th.textContent = col.t; th.className = col.c;
@@ -350,7 +432,7 @@ async function cargarInv() {
             }
         }
 
-        // Filtros dinámicos
+        // Filtros dinámicos (✅ FIX-1 dentro de actualizarFiltrosCarac)
         actualizarFiltrosCarac(d.caracteristicas, d.filtros_dinamicos);
 
         // KPIs
@@ -378,8 +460,9 @@ async function cargarInv() {
             h += `<td class="text-end fw-bold">${Number(i.EXISTENCIA || 0).toLocaleString('es-VE')}</td>`;
             h += `<td class="text-end text-costo">${fmt(i.COSTO_UNITARIO)}</td>`;
             precioKeys.forEach(k => { h += `<td class="text-end text-pvp">${fmt(i[`PRECIO${k}`])}</td>`; });
+            // ✅ FIX-2: VALOR TOTAL antes de TOTAL EMPAQUE en las filas también
+            h += `<td class="text-end pe-2 text-valor fw-bold">${fmt(i.VALOR_TOTAL)}</td>`;
             h += `<td class="text-end text-empaque">${fmt(i.TOTAL_EMPAQUE || 0)}</td>`;
-            h += `<td class="text-end pe-3 text-valor fw-bold">${fmt(i.VALOR_TOTAL)}</td>`;
             if (d.caracteristicas) {
                 Object.keys(d.caracteristicas).forEach(idx => {
                     h += `<td class="text-end small text-dynamic">${i[`CARAC${idx}`] || '-'}</td>`;
@@ -445,28 +528,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Filtro general en tiempo real ─────────────────────────────────────────
 function aplicarFiltroGeneral(texto) {
-    const btn = document.getElementById('btn_limpiar_gral');
+    const btn   = document.getElementById('btn_limpiar_gral');
     const count = document.getElementById('filtro_gral_count');
     btn.style.display = texto ? 'block' : 'none';
 
     const filtro = texto.trim().toUpperCase();
-    const filas = document.querySelectorAll('#tabla_inv tr');
+    const filas  = document.querySelectorAll('#tabla_inv tr');
     let visibles = 0;
 
     filas.forEach(tr => {
-        if (!filtro) {
-            tr.style.display = '';
-            visibles++;
-            return;
-        }
-        // Buscar en todo el texto de la fila
-        const textoFila = tr.textContent.toUpperCase();
-        const coincide = textoFila.includes(filtro);
+        if (!filtro) { tr.style.display = ''; visibles++; return; }
+        const coincide = tr.textContent.toUpperCase().includes(filtro);
         tr.style.display = coincide ? '' : 'none';
         if (coincide) visibles++;
     });
 
-    // Mostrar contador
     if (filtro && filas.length > 0) {
         count.textContent = `${visibles} de ${filas.length}`;
         count.style.display = 'inline';
