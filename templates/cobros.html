@@ -3,176 +3,100 @@
 
 <style>
     :root {
-        --cob-primary: #6d28d9;
-        --cob-accent1: #7c3aed;
-        --cob-accent2: #a78bfa;
-        --cob-success: #10b981;
-        --cob-warning: #f59e0b;
-        --cob-info: #3b82f6;
-        --cob-light: #f3e8ff;
+        --cob-primary: #9c27b0;
+        --cob-light:   #f3e5f5;
     }
 
-    .dashboard-wrapper {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
 
     .filter-card {
-        background: white;
-        border-radius: 12px;
+        background: white; border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 20px;
-        margin-bottom: 25px;
+        padding: 20px; margin-bottom: 25px;
     }
-
-    .filter-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 18px;
-        align-items: flex-end;
+    .filter-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+    .filter-col { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+    .filter-col label { font-size: 0.82rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .filter-col input, .filter-col select {
+        padding: 8px 11px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem; background: white;
     }
-
-    .filter-col {
-        flex: 1;
-        min-width: 160px;
-    }
-
-    .filter-col label {
-        font-size: 0.85rem;
-        color: #555;
-        margin-bottom: 6px;
-        font-weight: 500;
-        display: block;
-    }
-
-    .filter-col input,
-    .filter-col select {
-        width: 100%;
-        padding: 9px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.92rem;
-    }
-
-    .filter-col input:focus,
-    .filter-col select:focus {
+    .filter-col input:focus, .filter-col select:focus {
         border-color: var(--cob-primary);
-        box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+        box-shadow: 0 0 0 3px rgba(156,39,176,0.15); outline: none;
     }
 
     .total-kpi {
-        font-size: 2.4rem;
-        font-weight: 800;
-        color: var(--cob-primary);
-        line-height: 1;
+        font-size: 1.8rem; font-weight: 800; color: var(--cob-primary);
+        background: var(--cob-light); padding: 8px 20px; border-radius: 10px;
+        white-space: nowrap;
     }
 
-    .tab-navigation {
-        margin-bottom: 25px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
+    /* ✅ Botón limpiar filtros */
+    .btn-limpiar {
+        padding: 8px 16px; background: #fee2e2; color: #dc2626;
+        border: 1px solid #fca5a5; border-radius: 8px;
+        font-size: 0.82rem; font-weight: 600; cursor: pointer;
+        white-space: nowrap; transition: all 0.2s; align-self: flex-end;
     }
+    .btn-limpiar:hover { background: #fecaca; }
+    .btn-limpiar.oculto { display: none; }
 
+    .tab-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
     .tab-btn {
-        padding: 11px 26px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        background: #f3f4f6;
-        color: #374151;
-        cursor: pointer;
-        transition: all 0.25s;
+        padding: 10px 22px; border: none; border-radius: 8px;
+        font-weight: 600; background: #f3f4f6; color: #374151;
+        cursor: pointer; transition: all 0.25s;
     }
+    .tab-btn.active, .tab-btn:hover { background: var(--cob-primary); color: white; }
 
-    .tab-btn.active,
-    .tab-btn:hover {
-        background: var(--cob-primary);
-        color: white;
-    }
-
-    .tab-pane {
-        display: none;
-    }
-
-    .tab-pane.active {
-        display: block;
-    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
 
     .card-chart {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 20px;
-        height: 100%;
+        background: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 0;
     }
 
     .chart-title {
-        font-size: 1.18rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 15px;
-        border-left: 5px solid var(--cob-primary);
-        padding-left: 10px;
+        font-size: 1.05rem; font-weight: 700; color: #1f2937;
+        margin-bottom: 15px; border-left: 5px solid var(--cob-primary); padding-left: 10px;
     }
+    .chart-container { position: relative; height: 380px; }
 
-    .chart-container {
-        position: relative;
-        height: 380px;
-    }
-
-    .table-responsive {
-        max-height: 68vh;
-        overflow-y: auto;
-        border-radius: 8px;
-    }
-
+    .table-responsive { max-height: 68vh; overflow-y: auto; border-radius: 8px; }
     .table thead th {
-        position: sticky;
-        top: 0;
-        background: #f8f9fa;
-        z-index: 10;
-        font-size: 0.85rem;
-        text-transform: uppercase;
+        position: sticky; top: 0; background: #f8f9fa;
+        z-index: 1100; font-size: 0.83rem; text-transform: uppercase;
         border-bottom: 2px solid #dee2e6;
+    }
+    .table td { font-size: 0.9rem; vertical-align: middle; }
+
+    /* ✅ FIX: fecha en una línea siempre */
+    .table td.fecha-col, .table th.fecha-col {
+        white-space: nowrap !important;
+        width: 115px !important; min-width: 115px !important; max-width: 115px !important;
+        overflow: hidden; text-overflow: ellipsis;
     }
 
     .badge-forma {
-        background-color: var(--cob-light);
-        color: var(--cob-primary);
-        font-weight: 500;
+        background-color: var(--cob-light); color: var(--cob-primary); font-weight: 500;
+        white-space: nowrap;
     }
 
-    /* Overlay de carga */
     #loadingOverlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(255,255,255,0.80);
-        backdrop-filter: blur(4px);
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
+        position: fixed; inset: 0; background: rgba(255,255,255,0.80);
+        backdrop-filter: blur(4px); z-index: 9999; display: none;
+        align-items: center; justify-content: center;
     }
-
     .loading-content {
-        text-align: center;
-        background: white;
-        padding: 2.5rem 4rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        min-width: 320px;
+        text-align: center; background: white; padding: 2.5rem 4rem;
+        border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px;
     }
-
-    .loading-content .spinner-border {
-        width: 3rem;
-        height: 3rem;
-    }
+    .loading-content .spinner-border { width: 3rem; height: 3rem; }
 </style>
 
 <div class="dashboard-wrapper">
-    <!-- Filtros + Total -->
     <div class="filter-card">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cobros y Recibos</h4>
@@ -180,25 +104,24 @@
         </div>
 
         <div class="filter-row">
-            <div class="filter-col">
+            <div class="filter-col" style="max-width:145px;">
                 <label>Desde</label>
                 <input type="date" id="fecha_inicio" onchange="debouncedCargarCobros()">
             </div>
-            <div class="filter-col">
+            <div class="filter-col" style="max-width:145px;">
                 <label>Hasta</label>
                 <input type="date" id="fecha_fin" onchange="debouncedCargarCobros()">
             </div>
-            <div class="filter-col">
+            <div class="filter-col" style="max-width:160px;">
                 <label>Moneda</label>
                 <select id="moneda" onchange="cargarCobros()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
-            <!-- FILTRO POR CAJA AGREGADO -->
             <div class="filter-col">
                 <label>Caja / Punto</label>
-                <select id="caja" class="form-select" onchange="cargarCobros()">
+                <select id="caja" onchange="cargarCobros()">
                     <option value="TODAS">Todas las cajas</option>
                 </select>
             </div>
@@ -221,18 +144,21 @@
                 <label>Cliente</label>
                 <input type="text" id="filtro_cliente" placeholder="Nombre o código..." oninput="debouncedCargarCobros()">
             </div>
-            <div class="filter-col">
-                <label>Top N Clientes</label>
+            <div class="filter-col" style="max-width:130px;">
+                <label>Top N</label>
                 <select id="top_n" onchange="cargarCobros()">
                     <option value="5">Top 5</option>
                     <option value="10" selected>Top 10</option>
                     <option value="20">Top 20</option>
                 </select>
             </div>
+            <!-- ✅ Botón limpiar filtros -->
+            <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">
+                ✕ Limpiar filtros
+            </button>
         </div>
     </div>
 
-    <!-- Pestañas -->
     <div class="tab-navigation">
         <button class="tab-btn active" data-tab="tab_resumen">Resumen General</button>
         <button class="tab-btn" data-tab="tab_clientes">Top Clientes</button>
@@ -280,7 +206,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>Recibo</th>
-                            <th>Fecha</th>
+                            <th class="fecha-col">Fecha</th>
                             <th>Cliente</th>
                             <th>Forma Pago</th>
                             <th>Caja</th>
@@ -295,7 +221,6 @@
     </div>
 </div>
 
-<!-- Overlay de carga -->
 <div id="loadingOverlay">
     <div class="loading-content">
         <div class="spinner-border text-primary" role="status"></div>
@@ -303,28 +228,60 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Variables globales
 let charts = {};
 
-// Overlay helpers
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
 
-// Debounce para búsqueda de cliente y otros filtros rápidos
 function debounce(func, wait = 600) {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-    };
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); };
 }
 const debouncedCargarCobros = debounce(cargarCobros);
 
-// Manejo de pestañas
+// ✅ Fechas de inicio de mes y fin hoy
+function fechasDefault() {
+    const hoy = new Date();
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+}
+
+// ✅ Limpiar filtros — devuelve todo a estado inicial
+function limpiarFiltros() {
+    fechasDefault();
+    document.getElementById('moneda').value     = 'Bs';
+    document.getElementById('caja').value        = 'TODAS';
+    document.getElementById('forma_pago').value  = 'TODAS';
+    document.getElementById('filtro_cliente').value = '';
+    document.getElementById('top_n').value       = '10';
+    actualizarBtnLimpiar();
+    cargarCobros();
+}
+
+// ✅ Mostrar/ocultar botón limpiar según filtros activos
+function actualizarBtnLimpiar() {
+    const hoy    = new Date();
+    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const fechaInicioDefault = primero.toISOString().split('T')[0];
+    const fechaFinDefault    = hoy.toISOString().split('T')[0];
+
+    const hayFiltro =
+        document.getElementById('fecha_inicio').value !== fechaInicioDefault ||
+        document.getElementById('fecha_fin').value    !== fechaFinDefault    ||
+        document.getElementById('caja').value        !== 'TODAS'            ||
+        document.getElementById('forma_pago').value  !== 'TODAS'            ||
+        document.getElementById('filtro_cliente').value.trim() !== ''       ||
+        document.getElementById('top_n').value       !== '10';
+
+    document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         this.classList.add('active');
@@ -333,16 +290,17 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 async function cargarCobros() {
+    actualizarBtnLimpiar();
     showLoading();
 
     const params = {
         fecha_inicio: document.getElementById('fecha_inicio').value,
-        fecha_fin: document.getElementById('fecha_fin').value,
-        moneda: document.getElementById('moneda').value,
-        forma_pago: document.getElementById('forma_pago').value,
-        cliente: document.getElementById('filtro_cliente').value.trim().toUpperCase(),
-        top_n: parseInt(document.getElementById('top_n').value),
-        caja: document.getElementById('caja').value   // ← filtro por caja enviado
+        fecha_fin:    document.getElementById('fecha_fin').value,
+        moneda:       document.getElementById('moneda').value,
+        forma_pago:   document.getElementById('forma_pago').value,
+        cliente:      document.getElementById('filtro_cliente').value.trim().toUpperCase(),
+        top_n:        parseInt(document.getElementById('top_n').value),
+        caja:         document.getElementById('caja').value
     };
 
     try {
@@ -351,32 +309,29 @@ async function cargarCobros() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(params)
         });
-
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
 
         const data = await r.json();
 
-        // Llenar select de cajas (solo la primera vez)
-        const selectCaja = document.getElementById('caja');
-        if (selectCaja.options.length === 1 && data.cajas_lista) {
+        // Llenar cajas (solo primera vez)
+        const selCaja = document.getElementById('caja');
+        if (selCaja.options.length === 1 && data.cajas_lista) {
             data.cajas_lista.forEach(c => {
                 const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                selectCaja.appendChild(opt);
+                opt.value = c; opt.textContent = c;
+                selCaja.appendChild(opt);
             });
         }
 
         const monedaStr = params.moneda;
         const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        document.getElementById('total_general').textContent = 
-            fmt(data.total_general || 0) + ' ' + monedaStr;
+        document.getElementById('total_general').textContent = fmt(data.total_general || 0) + ' ' + monedaStr;
 
         renderAll(data, monedaStr);
 
     } catch (e) {
-        console.error("Error cargando cobros:", e);
+        console.error('Error cargando cobros:', e);
     } finally {
         hideLoading();
     }
@@ -385,72 +340,60 @@ async function cargarCobros() {
 function renderAll(d, moneda) {
     const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    // Gráficos con porcentaje en tooltip
-    renderChartWithPercent('chartFormas', 'doughnut', 'Formas de Pago', 
+    renderChartWithPercent('chartFormas',    'doughnut', 'Formas de Pago',
         d.formas_pago?.map(x => x.label) || [], d.formas_pago?.map(x => x.value) || [],
-        ['#9c27b0', '#a855f7', '#c084fc', '#d8b4fe', '#e9d5ff']);
+        ['#9c27b0','#a855f7','#c084fc','#d8b4fe','#e9d5ff']);
 
-    renderChartWithPercent('chartCobradores', 'bar', 'Cobradores', 
+    renderChartWithPercent('chartCobradores', 'bar', 'Cobradores',
         d.cobradores?.map(x => x.label) || [], d.cobradores?.map(x => x.value) || [],
-        ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'], 'y');
+        ['#10b981','#34d399','#6ee7b7','#a7f3d0'], 'y');
 
-    renderChartWithPercent('chartCajas', 'pie', 'Cajas / Puntos', 
+    renderChartWithPercent('chartCajas', 'pie', 'Cajas / Puntos',
         d.cajas?.map(x => x.label) || [], d.cajas?.map(x => x.value) || [],
-        ['#f59e0b', '#fbbf24', '#fcd34d', '#fde68a']);
+        ['#f59e0b','#fbbf24','#fcd34d','#fde68a']);
 
-    renderChartWithPercent('chartClientes', 'bar', 'Top Clientes', 
+    renderChartWithPercent('chartClientes', 'bar', 'Top Clientes',
         d.clientes?.map(x => x.label) || [], d.clientes?.map(x => x.value) || [],
-        ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'], 'y');
+        ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe'], 'y');
 
-    // Tabla de detalle
-    const tbody = document.getElementById('tabla_body');
-    tbody.innerHTML = (d.tabla || []).map(r => `
+    // ✅ Tabla con fecha en clase fecha-col → nowrap garantizado por CSS
+    document.getElementById('tabla_body').innerHTML = (d.tabla || []).map(r => `
         <tr>
-            <td class="fw-bold">${r.RECIBO || '-'}</td>
-            <td>${r.FECHA || '-'}</td>
+            <td class="fw-bold" style="white-space:nowrap">${r.RECIBO || '-'}</td>
+            <td class="fecha-col">${r.FECHA || '-'}</td>
             <td><small>${r.CLIENTE || '—'}</small></td>
-            <td><span class="badge badge-forma">${r.FORMA || '—'}</span></td>
-            <td><small>${r.CAJA || '—'}</small></td>
+            <td><span class="badge badge-forma" style="white-space:nowrap">${r.FORMA || '—'}</span></td>
+            <td><small style="white-space:nowrap">${r.CAJA || '—'}</small></td>
             <td><small>${r.COBRADOR || '—'}</small></td>
-            <td class="text-end fw-bold" style="color: var(--cob-primary);">${fmt(r.MONTO)} ${moneda}</td>
+            <td class="text-end fw-bold pe-3" style="white-space:nowrap;color:var(--cob-primary)">${fmt(r.MONTO)} ${moneda}</td>
         </tr>
-    `).join("");
+    `).join('');
 }
 
 function renderChartWithPercent(id, type, title, labels, values, colores, indexAxis = 'x') {
     const canvas = document.getElementById(id);
     if (!canvas) return;
-
     if (charts[id]) charts[id].destroy();
-
-    const total = values.reduce((sum, v) => sum + (v || 0), 0);
-
+    const total = values.reduce((s, v) => s + (v || 0), 0);
     charts[id] = new Chart(canvas.getContext('2d'), {
         type,
         data: {
             labels,
             datasets: [{
-                label: title,
-                data: values,
-                backgroundColor: colores,
-                borderWidth: type === 'doughnut' || type === 'pie' ? 2 : 0,
+                label: title, data: values, backgroundColor: colores,
+                borderWidth: (type === 'doughnut' || type === 'pie') ? 2 : 0,
                 borderRadius: type === 'bar' ? 6 : 0
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis,
+            responsive: true, maintainAspectRatio: false, indexAxis,
             plugins: {
                 legend: { position: 'bottom', display: type !== 'bar' },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
-                            const value = context.raw;
-                            const porcentaje = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                            const montoFmt = value.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            const moneda = document.getElementById('moneda').value;
-                            return `${context.label}: ${montoFmt} ${moneda}  (${porcentaje}%)`;
+                        label: ctx => {
+                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                            return `${ctx.label}: ${ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2 })} ${document.getElementById('moneda').value}  (${pct}%)`;
                         }
                     }
                 }
@@ -466,15 +409,9 @@ function renderChartWithPercent(id, type, title, labels, values, colores, indexA
     });
 }
 
-// Carga inicial + fechas por defecto (último mes)
-document.addEventListener("DOMContentLoaded", () => {
-    const hoy = new Date();
-    document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
-    
-    const mesAnterior = new Date(hoy);
-    mesAnterior.setMonth(hoy.getMonth() - 1);
-    document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
-    
+document.addEventListener('DOMContentLoaded', () => {
+    // ✅ Fecha: 01 del mes actual → hoy
+    fechasDefault();
     cargarCobros();
 });
 </script>

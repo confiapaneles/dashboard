@@ -33,6 +33,15 @@
         white-space: nowrap;
     }
 
+    .btn-limpiar {
+        padding: 8px 16px; background: #fee2e2; color: #dc2626;
+        border: 1px solid #fca5a5; border-radius: 8px;
+        font-size: 0.82rem; font-weight: 600; cursor: pointer;
+        white-space: nowrap; transition: all 0.2s; align-self: flex-end;
+    }
+    .btn-limpiar:hover { background: #fecaca; }
+    .btn-limpiar.oculto { display: none; }
+
     .tab-navigation { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
     .tab-btn {
         padding: 9px 20px; border: 1px solid #d1d5db; background: white;
@@ -72,21 +81,13 @@
         border-bottom: 2px solid #dee2e6;
     }
     .table td { font-size: 0.9rem; vertical-align: middle; }
-    .table td.fecha-col { white-space: nowrap; width: 130px; overflow: hidden; text-overflow: ellipsis; }
+    .table td.fecha-col { white-space: nowrap !important; width: 130px; overflow: hidden; text-overflow: ellipsis; }
 
     .text-vencido { color: var(--cxc-danger); font-weight: 600; }
     .badge-doc { background-color: #e3f2fd; color: #1e40af; font-weight: 500; }
 
-    /* ✅ Indicador de filtro activo en búsqueda */
-    #bus_cxc.activo {
-        border-color: var(--cxc-primary);
-        background: #fdf4ff;
-        font-weight: 500;
-    }
-    .filtro-info {
-        font-size: 0.78rem; color: var(--cxc-primary);
-        margin-top: 3px; display: none;
-    }
+    #bus_cxc.activo { border-color: var(--cxc-primary); background: #fdf4ff; font-weight: 500; }
+    .filtro-info { font-size: 0.78rem; color: var(--cxc-primary); margin-top: 3px; display: none; }
     .filtro-info.visible { display: block; }
 </style>
 
@@ -116,9 +117,9 @@
                 <input type="text" id="bus_cxc"
                     placeholder="Escribe para filtrar tabla y resumen..."
                     oninput="aplicarBusqueda()">
-                <!-- ✅ Indicador de cuántos registros filtrados -->
                 <span class="filtro-info" id="filtro_info_cxc"></span>
             </div>
+            <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
         </div>
     </div>
 
@@ -127,7 +128,6 @@
         <button class="tab-btn" data-tab="detalle">Detalle Facturas Pendientes</button>
     </div>
 
-    <!-- Pestaña Resumen General -->
     <div id="tab_resumen" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-7">
@@ -145,7 +145,6 @@
         </div>
     </div>
 
-    <!-- Pestaña Detalle -->
     <div id="tab_detalle" class="tab-pane">
         <div class="card-kpi">
             <div class="chart-title">Facturas Pendientes (filtradas)</div>
@@ -171,44 +170,55 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// ─── ESTADO GLOBAL ────────────────────────────────────────────────────────
 let chartEnvej        = null;
-let dataCache         = null;      // datos completos de la API
-let tablaFiltrada     = [];        // ✅ siempre refleja el filtro activo
+let dataCache         = null;
+let tablaFiltrada     = [];
 let vendedoresCargados = false;
 
 const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-// ─── PESTAÑAS — renderiza con tablaFiltrada activa ────────────────────────
+// ✅ Limpiar filtros
+function limpiarFiltros() {
+    document.getElementById('moneda').value = 'Bs';
+    document.getElementById('filtro_vendedor').value = 'TODOS';
+    document.getElementById('bus_cxc').value = '';
+    document.getElementById('bus_cxc').classList.remove('activo');
+    document.getElementById('filtro_info_cxc').classList.remove('visible');
+    actualizarBtnLimpiar();
+    cargarCxC();
+}
+
+function actualizarBtnLimpiar() {
+    const hayFiltro =
+        document.getElementById('moneda').value !== 'Bs' ||
+        document.getElementById('filtro_vendedor').value !== 'TODOS' ||
+        document.getElementById('bus_cxc').value.trim() !== '';
+    document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         this.classList.add('active');
         document.getElementById('tab_' + this.dataset.tab).classList.add('active');
-
-        // ✅ Siempre renderiza con los datos YA filtrados
         if (this.dataset.tab === 'resumen') renderResumen(tablaFiltrada);
         if (this.dataset.tab === 'detalle') renderTabla(tablaFiltrada);
     });
 });
 
-// ─── CARGA PRINCIPAL (API) ────────────────────────────────────────────────
 async function cargarCxC() {
+    actualizarBtnLimpiar();
     try {
         const params = {
             moneda:   document.getElementById('moneda').value,
             vendedor: document.getElementById('filtro_vendedor').value
         };
-
         const r = await fetch('/api/cartera_cxc', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(params)
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params)
         });
         dataCache = await r.json();
 
-        // Poblar vendedores (solo primera vez)
         if (!vendedoresCargados && dataCache.vendedores?.length) {
             const sel = document.getElementById('filtro_vendedor');
             dataCache.vendedores.forEach(v => {
@@ -220,25 +230,17 @@ async function cargarCxC() {
             });
             vendedoresCargados = true;
         }
-
-        // ✅ Aplicar búsqueda activa sobre los nuevos datos
         aplicarBusqueda();
-
-    } catch (e) {
-        console.error('Error cargando CxC:', e);
-    }
+    } catch (e) { console.error('Error CxC:', e); }
 }
 
-// ─── FILTRO DE BÚSQUEDA — filtra y actualiza TODO ────────────────────────
 function aplicarBusqueda() {
     if (!dataCache?.tabla) return;
-
-    const bus = document.getElementById('bus_cxc').value.toLowerCase().trim();
-    const infoEl = document.getElementById('filtro_info_cxc');
+    const bus     = document.getElementById('bus_cxc').value.toLowerCase().trim();
+    const infoEl  = document.getElementById('filtro_info_cxc');
     const inputEl = document.getElementById('bus_cxc');
 
     if (bus) {
-        // ✅ Filtrar sobre dataCache.tabla
         tablaFiltrada = dataCache.tabla.filter(row =>
             [row.GRUPO, row.CLIENTE, row.DOCUMENTO, row.VENDEDOR]
                 .some(val => String(val || '').toLowerCase().includes(bus))
@@ -247,118 +249,60 @@ function aplicarBusqueda() {
         infoEl.textContent = `${tablaFiltrada.length} registros de ${dataCache.tabla.length}`;
         infoEl.classList.add('visible');
     } else {
-        // Sin búsqueda — usar todos los datos de la API
         tablaFiltrada = [...dataCache.tabla];
         inputEl.classList.remove('activo');
         infoEl.classList.remove('visible');
     }
+    actualizarBtnLimpiar();
 
-    // ✅ Actualizar KPI total con la suma de los registros filtrados
     const totalFiltrado = tablaFiltrada.reduce((s, r) => s + (r.SALDO || 0), 0);
     document.getElementById('total_cxc').textContent = fmt(totalFiltrado);
 
-    // ✅ Renderizar la pestaña activa con tablaFiltrada
     const tabActiva = document.querySelector('.tab-btn.active')?.dataset.tab;
     if (tabActiva === 'resumen') renderResumen(tablaFiltrada);
     if (tabActiva === 'detalle') renderTabla(tablaFiltrada);
 }
 
-// ─── RESUMEN GENERAL — calcula desde tablaFiltrada ────────────────────────
 function renderResumen(rows) {
-    // ✅ Recalcular envejecimiento desde filas filtradas
-    const enveje = {
-        'No Vencido': 0, '1-7 Dias': 0, '8-14 Dias': 0,
-        '15-21 Dias': 0, '22-30 Dias': 0, '+30 Dias': 0
-    };
-
-    // Usamos los datos de envejecimiento por registro si están disponibles,
-    // o fallback a los totales de la API cuando no hay búsqueda activa
+    const enveje = { 'No Vencido': 0, '1-7 Dias': 0, '8-14 Dias': 0, '15-21 Dias': 0, '22-30 Dias': 0, '+30 Dias': 0 };
     const bus = document.getElementById('bus_cxc').value.trim();
 
     if (!bus && dataCache?.envejecimiento) {
-        // Sin filtro: usar totales precalculados de la API (más preciso)
-        dataCache.envejecimiento.forEach(x => {
-            if (enveje.hasOwnProperty(x.label)) enveje[x.label] = x.value;
-        });
+        dataCache.envejecimiento.forEach(x => { if (enveje.hasOwnProperty(x.label)) enveje[x.label] = x.value; });
     } else {
-        // Con filtro: sumar SALDO de filas filtradas según días de vencimiento
         rows.forEach(row => {
-            const dias = row.DIAS || 0;
-            const saldo = row.SALDO || 0;
-            if (dias <= 0)       enveje['No Vencido']  += saldo;
-            else if (dias <= 7)  enveje['1-7 Dias']    += saldo;
-            else if (dias <= 14) enveje['8-14 Dias']   += saldo;
-            else if (dias <= 21) enveje['15-21 Dias']  += saldo;
-            else if (dias <= 30) enveje['22-30 Dias']  += saldo;
-            else                 enveje['+30 Dias']    += saldo;
+            const dias = row.DIAS || 0; const saldo = row.SALDO || 0;
+            if (dias <= 0) enveje['No Vencido'] += saldo;
+            else if (dias <= 7)  enveje['1-7 Dias']  += saldo;
+            else if (dias <= 14) enveje['8-14 Dias']  += saldo;
+            else if (dias <= 21) enveje['15-21 Dias'] += saldo;
+            else if (dias <= 30) enveje['22-30 Dias'] += saldo;
+            else                 enveje['+30 Dias']   += saldo;
         });
     }
 
-    // ✅ Recalcular grupos desde filas filtradas
     const gruposDict = {};
-    rows.forEach(row => {
-        const g = row.GRUPO || 'Sin Grupo';
-        gruposDict[g] = (gruposDict[g] || 0) + (row.SALDO || 0);
-    });
-    const grupos = Object.entries(gruposDict)
-        .filter(([, v]) => Math.abs(v) > 0.01)
-        .sort((a, b) => b[1] - a[1])
-        .map(([k, v]) => ({ GRUPO: k, MONTO: v }));
+    rows.forEach(row => { const g = row.GRUPO || 'Sin Grupo'; gruposDict[g] = (gruposDict[g] || 0) + (row.SALDO || 0); });
+    const grupos = Object.entries(gruposDict).filter(([, v]) => Math.abs(v) > 0.01).sort((a, b) => b[1] - a[1]);
 
-    // Actualizar título si hay filtro
-    const titulo = document.getElementById('titulo_envej');
-    const bus2 = document.getElementById('bus_cxc').value.trim();
-    titulo.textContent = bus2
-        ? `Envejecimiento de Deuda — Filtrado: "${bus2}"`
-        : 'Envejecimiento de Deuda';
+    document.getElementById('titulo_envej').textContent = bus ? `Envejecimiento de Deuda — Filtrado: "${bus}"` : 'Envejecimiento de Deuda';
 
-    // Renderizar grupos
     document.getElementById('resumen_grupos').innerHTML = grupos.length
-        ? grupos.map(g => `
-            <div class="grupo-item">
-                <span class="grupo-nombre">${g.GRUPO}</span>
-                <span class="grupo-monto">${fmt(g.MONTO)}</span>
-            </div>`).join('')
+        ? grupos.map(([k, v]) => `<div class="grupo-item"><span class="grupo-nombre">${k}</span><span class="grupo-monto">${fmt(v)}</span></div>`).join('')
         : '<p class="text-muted text-center p-3">Sin datos para el filtro aplicado</p>';
 
-    // Gráfico de envejecimiento
     if (chartEnvej) { chartEnvej.destroy(); chartEnvej = null; }
-    const ctx = document.getElementById('chartEnvejecimiento').getContext('2d');
-    const labels = Object.keys(enveje);
-    const values = Object.values(enveje);
-    chartEnvej = new Chart(ctx, {
+    chartEnvej = new Chart(document.getElementById('chartEnvejecimiento').getContext('2d'), {
         type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Monto Pendiente',
-                data: values,
-                backgroundColor: ['#2ecc71','#f1c40f','#f39c12','#e67e22','#d35400','#c0392b'],
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: ctx => fmt(ctx.raw) + ' ' + document.getElementById('moneda').value
-                    }
-                }
-            },
-            scales: {
-                y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
-                x: { grid: { display: false } }
-            }
-        }
+        data: { labels: Object.keys(enveje), datasets: [{ label: 'Monto Pendiente', data: Object.values(enveje), backgroundColor: ['#2ecc71','#f1c40f','#f39c12','#e67e22','#d35400','#c0392b'], borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) + ' ' + document.getElementById('moneda').value } } },
+            scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } } }
     });
 }
 
-// ─── TABLA DETALLE ────────────────────────────────────────────────────────
 function renderTabla(rows) {
-    const tbody = document.getElementById('tabla_cxc');
-    tbody.innerHTML = (rows || []).map(row => `
+    document.getElementById('tabla_cxc').innerHTML = (rows || []).map(row => `
         <tr>
             <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO || '-'}</small></td>
             <td>${row.CLIENTE || '-'}</td>
@@ -370,7 +314,6 @@ function renderTabla(rows) {
         </tr>`).join('');
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => cargarCxC());
 </script>
 
