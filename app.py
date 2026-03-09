@@ -541,94 +541,99 @@ def get_cobros_facturas():
     fecha_fin       = params.get('fecha_fin', '')
     moneda          = params.get('moneda', 'Bs')
     forma_pago      = (params.get('forma_pago') or 'TODAS').strip().upper()
-    vendedor_filtro = (params.get('vendedor') or 'TODOS').strip().upper()
+    vendedor_filtro = (params.get('vendedor')   or 'TODOS').strip().upper()
+    caja_filtro     = (params.get('caja')       or 'TODAS').strip().upper()
     top_n           = int(params.get('top_n', 10))
-    # ✅ CORRECCIÓN 1: leer filtro_caja (match exacto desde TomSelect)
-    filtro_caja     = (params.get('filtro_caja') or '').strip().upper()
-    # ✅ CORRECCIÓN 2: leer cliente (búsqueda parcial)
-    filtro_cliente  = (params.get('cliente') or '').strip().upper()
 
     def normalizar_forma(raw):
         if not raw or str(raw).strip() == '':
             return 'SIN FORMA'
-        f = str(raw).strip().upper().replace('.', '').replace(' ', '')
-        mapa = {
+        f = str(raw).strip().upper().replace('.', '').replace(' ', '').replace('-', '')
+        mapping = {
             'TDEBITO':       'T.DEBITO',
+            'TARJETADEBITO': 'T.DEBITO',
+            'DEBITO':        'T.DEBITO',
             'TCREDITO':      'T.CREDITO',
+            'TARJETACREDITO':'T.CREDITO',
+            'CREDITO':       'T.CREDITO',
             'TRANSFERENCIA': 'TRANSFERENCIA',
+            'TRANSF':        'TRANSFERENCIA',
+            'ZELLE':         'DIVISAS',
+            'PAYPAL':        'DIVISAS',
+            'BINANCE':       'DIVISAS',
             'DIVISAS':       'DIVISAS',
             'EFECTIVO':      'EFECTIVO',
+            'EFE':           'EFECTIVO',
+            'CHEQUE':        'CHEQUE',
+            'CHQ':           'CHEQUE',
+            'DEPOSITO':      'DEPOSITO',
+            'DEP':           'DEPOSITO',
             'POS':           'POS / TARJETA',
             'TARJETA':       'POS / TARJETA',
-            'CHEQUE':        'CHEQUE',
-            'DEPOSITO':      'DEPOSITO',
-            'OTRO':          'OTRO',
+            'POSTARI':       'POS / TARJETA',
         }
-        return mapa.get(f, str(raw).strip().upper()) or 'SIN FORMA'
+        for clave, valor in mapping.items():
+            if clave in f:
+                return valor
+        return str(raw).strip().upper()
 
-    total_cobrado   = 0.0
-    por_forma       = defaultdict(float)
-    por_vendedor    = defaultdict(float)
-    por_caja        = defaultdict(float)
-    data_tabla      = []
+    total_cobrado = 0.0
+    por_forma     = defaultdict(float)
+    por_vendedor  = defaultdict(float)
+    por_caja      = defaultdict(float)
+    data_tabla    = []
 
-    all_vendedores  = set()
-    all_formas      = set()
-    all_cajas       = set()   # ✅ CORRECCIÓN 3: recolectar todas las cajas para TomSelect
+    all_vendedores = set()
+    all_formas     = set()
+    all_cajas      = set()   # ✅ recolectada ANTES de aplicar filtro de caja
 
     try:
-        path = get_dbf_path('tablero_facturas.DBF')
+        path = get_dbf_path('tablero_cobro_factura.DBF')
         if not os.path.exists(path):
-            return jsonify({"error": "Archivo de facturas no encontrado"}), 404
+            return jsonify({"error": "Archivo DBF no encontrado"}), 404
 
         for rec in DBF(path, encoding='latin-1'):
             fecha_reg = parse_fecha(rec.get('FECHA'))
-
             if fecha_inicio and fecha_reg < fecha_inicio: continue
             if fecha_fin    and fecha_reg > fecha_fin:    continue
 
-            vendedor_norm = str(rec.get('VENDEDOR') or rec.get('CODVEN') or 'S/V').strip().upper()
+            # ── Vendedor ──────────────────────────────────────
+            vendedor_raw  = str(rec.get('VENDEDOR', 'S/V')).strip()
+            vendedor_norm = ' '.join(vendedor_raw.upper().split())
             all_vendedores.add(vendedor_norm)
 
-            caja = str(rec.get('CAJA', '')).strip().upper()
-            if caja:
-                all_cajas.add(caja)   # recolectar ANTES del filtro
-
-            forma_raw = str(rec.get('FORMAPAGO') or rec.get('FORMA_PAGO') or '').strip()
-            forma = normalizar_forma(forma_raw)
+            # ── Forma de pago ─────────────────────────────────
+            forma_raw = str(rec.get('FORMAPAGO', 'S/I')).strip()
+            forma     = normalizar_forma(forma_raw)
             all_formas.add(forma)
 
-            cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
+            # ── Caja — recolectar SIEMPRE antes de filtrar ────
+            caja = str(rec.get('CAJA', 'S/C')).strip().upper()
+            all_cajas.add(caja)
 
-            # ── Aplicar filtros ──────────────────────────────────────────
-            if vendedor_filtro and vendedor_filtro != 'TODOS' and vendedor_filtro != vendedor_norm:
+            # ── Aplicar filtros ───────────────────────────────
+            if vendedor_filtro != 'TODOS' and vendedor_norm != vendedor_filtro:
+                continue
+            if forma_pago != 'TODAS' and forma != forma_pago:
+                continue
+            if caja_filtro != 'TODAS' and caja != caja_filtro:
                 continue
 
-            # ✅ Filtro caja — match EXACTO (viene de TomSelect con valores reales)
-            if filtro_caja and filtro_caja != caja:
-                continue
+            # ── Monto ─────────────────────────────────────────
+            monto_raw = safe_float(rec.get('MONTO'))
+            tasa      = safe_float(rec.get('TASADOLAR')) or 1.0
+            monto     = monto_raw if moneda == 'Bs' else round(monto_raw / tasa, 2)
 
-            # ✅ Filtro cliente — búsqueda parcial (input texto)
-            if filtro_cliente and filtro_cliente not in cliente:
-                continue
-
-            if forma_pago and forma_pago != 'TODAS' and forma_pago != forma:
-                continue
-
-            m_raw  = safe_float(rec.get('MONTO'))
-            tasa   = safe_float(rec.get('FACTOR') or rec.get('TASADOLAR')) or 1.0
-            monto  = m_raw if moneda == 'Bs' else (m_raw / tasa)
-
-            total_cobrado       += monto
-            por_forma[forma]    += monto
+            total_cobrado   += monto
+            por_forma[forma] += monto
             por_vendedor[vendedor_norm] += monto
-            por_caja[caja]      += monto
+            por_caja[caja]  += monto
 
             if len(data_tabla) < 1000:
                 data_tabla.append({
                     "CODIGO":    str(rec.get('CODIGO', '')).strip(),
                     "FECHA":     fecha_reg,
-                    "CLIENTE":   cliente,
+                    "CLIENTE":   str(rec.get('CLIENTE', 'S/C')).strip(),
                     "VENDEDOR":  vendedor_norm,
                     "CAJA":      caja,
                     "FORMAPAGO": forma,
@@ -649,8 +654,8 @@ def get_cobros_facturas():
             "cajas":           format_top(por_caja),
             "tabla":           data_tabla,
             "lista_vendedores": sorted(list(all_vendedores)),
-            "lista_formas":    sorted([f for f in all_formas if f and f != 'SIN FORMA']),
-            "lista_cajas":     sorted(list(all_cajas)),   # ✅ para poblar TomSelect de caja
+            "lista_formas":    sorted(list(all_formas)),
+            "lista_cajas":     sorted(list(all_cajas)),   # ✅ nuevo — pobla el select de caja
         })
 
     except Exception as e:

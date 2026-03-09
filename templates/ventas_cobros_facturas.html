@@ -2,6 +2,11 @@
 {% block content %}
 
 <style>
+    :root {
+        --vcf-primary: #27ae60;
+        --vcf-light:   #e8f5e9;
+    }
+
     .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
 
     .filter-card {
@@ -10,17 +15,22 @@
         padding: 20px; margin-bottom: 25px;
     }
     .filter-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
-    .filter-col { flex: 1; min-width: 140px; }
-    .filter-col label { font-size: 0.85rem; color: #555; margin-bottom: 6px; font-weight: 500; display: block; }
+    .filter-col { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+    .filter-col label { font-size: 0.82rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
     .filter-col input, .filter-col select {
-        width: 100%; padding: 9px 12px; border: 1px solid #d1d5db;
-        border-radius: 8px; font-size: 0.92rem;
+        padding: 8px 11px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem; background: white;
     }
     .filter-col input:focus, .filter-col select:focus {
-        border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,0.15); outline: none;
+        border-color: var(--vcf-primary);
+        box-shadow: 0 0 0 3px rgba(39,174,96,0.15); outline: none;
     }
 
-    .total-kpi { font-size: 2.2rem; font-weight: 800; color: #27ae60; white-space: nowrap; }
+    .total-kpi {
+        font-size: 1.8rem; font-weight: 800; color: var(--vcf-primary);
+        background: var(--vcf-light); padding: 8px 20px; border-radius: 10px;
+        white-space: nowrap;
+    }
 
     .btn-limpiar {
         padding: 8px 16px; background: #fee2e2; color: #dc2626;
@@ -31,33 +41,47 @@
     .btn-limpiar:hover { background: #fecaca; }
     .btn-limpiar.oculto { display: none; }
 
-    .tab-navigation { margin: 0 0 25px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .tab-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
     .tab-btn {
-        padding: 10px 24px; border: none; border-radius: 8px;
-        font-weight: 600; background: #e5e7eb; color: #4b5563; cursor: pointer; transition: all 0.25s;
+        padding: 10px 22px; border: none; border-radius: 8px;
+        font-weight: 600; background: #f3f4f6; color: #374151;
+        cursor: pointer; transition: all 0.25s;
     }
-    .tab-btn.active, .tab-btn:hover { background: #3498db; color: white; }
+    .tab-btn.active, .tab-btn:hover { background: var(--vcf-primary); color: white; }
+
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
-    .card-chart { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 25px; }
-    .chart-title { font-size: 1.18rem; font-weight: 700; color: #1f2937; margin-bottom: 16px; }
-    .chart-container { position: relative; height: 420px; }
-
-    #tablaDetalle { width: 100%; font-size: 0.9rem; table-layout: auto; }
-    #tablaDetalle th { background: #f8f9fa; position: sticky; top: 0; z-index: 1100; }
-    #tablaDetalle td, #tablaDetalle th { padding: 8px 10px; vertical-align: middle; }
-
-    /* ✅ Fecha siempre en una línea */
-    #tablaDetalle th.fecha-col,
-    #tablaDetalle td.fecha-col {
-        white-space: nowrap !important;
-        overflow: hidden; text-overflow: ellipsis;
-        width: 115px !important; min-width: 100px; max-width: 115px;
+    .card-chart {
+        background: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 0;
     }
-    #tablaDetalle th.cliente-col,
-    #tablaDetalle td.cliente-col {
+    .chart-title {
+        font-size: 1.05rem; font-weight: 700; color: #1f2937;
+        margin-bottom: 15px; border-left: 5px solid var(--vcf-primary); padding-left: 10px;
+    }
+    .chart-container { position: relative; height: 380px; }
+
+    .table-responsive { max-height: 68vh; overflow-y: auto; border-radius: 8px; }
+    .table thead th {
+        position: sticky; top: 0; background: #f8f9fa;
+        z-index: 1100; font-size: 0.83rem; text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .table td { font-size: 0.9rem; vertical-align: middle; }
+
+    .table td.fecha-col, .table th.fecha-col {
+        white-space: nowrap !important;
+        width: 115px !important; min-width: 115px !important; max-width: 115px !important;
+        overflow: hidden; text-overflow: ellipsis;
+    }
+    .table td.cliente-col, .table th.cliente-col {
         max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .badge-forma {
+        background-color: var(--vcf-light); color: var(--vcf-primary); font-weight: 500;
+        white-space: nowrap;
     }
 
     #loadingOverlay {
@@ -65,7 +89,10 @@
         backdrop-filter: blur(4px); z-index: 9999; display: none;
         align-items: center; justify-content: center;
     }
-    .loading-content { text-align: center; background: white; padding: 2.5rem 4rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px; }
+    .loading-content {
+        text-align: center; background: white; padding: 2.5rem 4rem;
+        border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px;
+    }
     .loading-content .spinner-border { width: 3rem; height: 3rem; }
 </style>
 
@@ -75,6 +102,7 @@
             <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cobros (Facturas)</h4>
             <div class="total-kpi" id="txt_total_general">0,00</div>
         </div>
+
         <div class="filter-row">
             <div class="filter-col" style="max-width:145px;">
                 <label>Desde</label>
@@ -84,17 +112,33 @@
                 <label>Hasta</label>
                 <input type="date" id="fecha_fin" onchange="debouncedCargarDatos()">
             </div>
-            <div class="filter-col" style="max-width:155px;">
+            <div class="filter-col" style="max-width:160px;">
                 <label>Moneda</label>
                 <select id="moneda" onchange="cargarDatos()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
+            <!-- ✅ Mismo patrón que cobros.html — select poblado desde API -->
             <div class="filter-col">
-                <label>Forma Pago</label>
+                <label>Caja / Punto</label>
+                <select id="caja" onchange="cargarDatos()">
+                    <option value="TODAS">Todas las cajas</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Forma de Pago</label>
                 <select id="forma_pago" onchange="cargarDatos()">
                     <option value="TODAS">Todas</option>
+                    <option value="EFECTIVO">Efectivo</option>
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                    <option value="POS / TARJETA">POS / Tarjeta</option>
+                    <option value="CHEQUE">Cheque</option>
+                    <option value="DEPOSITO">Depósito</option>
+                    <option value="T.DEBITO">Tarjeta Débito</option>
+                    <option value="T.CREDITO">Tarjeta Crédito</option>
+                    <option value="DIVISAS">Divisas</option>
+                    <option value="OTRO">Otro</option>
                 </select>
             </div>
             <div class="filter-col">
@@ -103,61 +147,73 @@
                     <option value="TODOS">Todos</option>
                 </select>
             </div>
-            <div class="filter-col">
-                <label>Caja</label>
-                <input type="text" id="busqueda_caja" placeholder="Filtrar por caja..." oninput="filtrarTablaDetalle()">
-            </div>
-            <div class="filter-col" style="max-width:120px;">
+            <div class="filter-col" style="max-width:130px;">
                 <label>Top N</label>
                 <select id="top_n" onchange="cargarDatos()">
-                    <option value="10">Top 10</option>
-                    <option value="15">Top 15</option>
-                    <option value="25">Top 25</option>
-                    <option value="50">Top 50</option>
+                    <option value="5">Top 5</option>
+                    <option value="10" selected>Top 10</option>
+                    <option value="20">Top 20</option>
                 </select>
             </div>
-            <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
+            <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">
+                ✕ Limpiar filtros
+            </button>
         </div>
     </div>
 
     <div class="tab-navigation">
-        <button class="tab-btn active" data-tab="resumen">Resumen General</button>
-        <button class="tab-btn" data-tab="vendedores">Top Vendedores</button>
-        <button class="tab-btn" data-tab="detalle">Detalle Facturas</button>
+        <button class="tab-btn active" data-tab="tab_resumen">Resumen General</button>
+        <button class="tab-btn" data-tab="tab_vendedores">Top Vendedores</button>
+        <button class="tab-btn" data-tab="tab_detalle">Detalle Facturas</button>
     </div>
 
-    <div id="resumen" class="tab-pane active">
+    <div id="tab_resumen" class="tab-pane active">
         <div class="row g-4">
-            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Formas de Pago</div><div class="chart-container"><canvas id="chartFormas"></canvas></div></div></div>
-            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Cobros por Vendedor</div><div class="chart-container"><canvas id="chartVendedores"></canvas></div></div></div>
-            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Cajas / Puntos</div><div class="chart-container"><canvas id="chartCajas"></canvas></div></div></div>
+            <div class="col-lg-4">
+                <div class="card-chart">
+                    <div class="chart-title">Formas de Pago</div>
+                    <div class="chart-container"><canvas id="chartFormas"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-chart">
+                    <div class="chart-title">Cobros por Vendedor</div>
+                    <div class="chart-container"><canvas id="chartVendedores"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-chart">
+                    <div class="chart-title">Cajas / Puntos</div>
+                    <div class="chart-container"><canvas id="chartCajas"></canvas></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="vendedores" class="tab-pane">
+    <div id="tab_vendedores" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title">Ranking de Vendedores (Monto Cobrado)</div>
             <div class="chart-container" style="height: 520px;"><canvas id="chartTopVendedores"></canvas></div>
         </div>
     </div>
 
-    <div id="detalle" class="tab-pane">
+    <div id="tab_detalle" class="tab-pane">
         <div class="card-chart">
-            <div class="chart-title">Últimas Facturas Cobradas</div>
-            <div style="max-height: 520px; overflow-y: auto;">
-                <table class="table table-sm table-hover" id="tablaDetalle">
-                    <thead>
+            <div class="chart-title">Detalle de Facturas Cobradas</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>CÓDIGO</th>
-                            <th class="fecha-col">FECHA</th>
-                            <th class="cliente-col">CLIENTE</th>
-                            <th>VENDEDOR</th>
-                            <th>CAJA</th>
-                            <th>FORMA</th>
-                            <th class="text-end">MONTO</th>
+                            <th>Código</th>
+                            <th class="fecha-col">Fecha</th>
+                            <th class="cliente-col">Cliente</th>
+                            <th>Vendedor</th>
+                            <th>Caja</th>
+                            <th>Forma Pago</th>
+                            <th class="text-end pe-3">Monto</th>
                         </tr>
                     </thead>
-                    <tbody id="tbodyDetalle"></tbody>
+                    <tbody id="tabla_body"></tbody>
                 </table>
             </div>
         </div>
@@ -166,153 +222,201 @@
 
 <div id="loadingOverlay">
     <div class="loading-content">
-        <div class="spinner-border text-primary" role="status"></div>
-        <div class="mt-3 fw-bold text-primary fs-5">Cargando datos, por favor espere...</div>
+        <div class="spinner-border text-success" role="status"></div>
+        <div class="mt-3 fw-bold text-success fs-5">Cargando cobros de facturas, por favor espere...</div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let charts = {};
+
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
-function debounce(f, w = 600) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => f(...a), w); }; }
-const debouncedCargarDatos = debounce(cargarDatos);
-function generarColores(n = 15) {
-    const p = ['#3498db','#2ecc71','#e74c3c','#f1c40f','#9b59b6','#1abc9c','#e67e22','#34495e','#27ae60','#c0392b','#16a085','#d35400','#8e44ad','#2980b9','#f39c12'];
-    return Array.from({ length: n }, (_, i) => p[i % p.length]);
-}
 
+function debounce(func, wait = 600) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); };
+}
+const debouncedCargarDatos = debounce(cargarDatos);
+
+// ✅ Mismo patrón que cobros.html
 function fechasDefault() {
     const hoy = new Date();
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
     const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById('fecha_fin').value    = hoy.toISOString().split('T')[0];
     document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
 }
 
 function limpiarFiltros() {
     fechasDefault();
     document.getElementById('moneda').value          = 'Bs';
+    document.getElementById('caja').value            = 'TODAS';
     document.getElementById('forma_pago').value      = 'TODAS';
     document.getElementById('filtro_vendedor').value = 'TODOS';
-    document.getElementById('busqueda_caja').value   = '';
     document.getElementById('top_n').value           = '10';
     actualizarBtnLimpiar();
     cargarDatos();
 }
 
 function actualizarBtnLimpiar() {
-    const hoy = new Date();
+    const hoy    = new Date();
     const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     const hayFiltro =
         document.getElementById('fecha_inicio').value !== primero.toISOString().split('T')[0] ||
         document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0]     ||
-        document.getElementById('forma_pago').value   !== 'TODAS'  ||
+        document.getElementById('caja').value         !== 'TODAS' ||
+        document.getElementById('forma_pago').value   !== 'TODAS' ||
         document.getElementById('filtro_vendedor').value !== 'TODOS' ||
-        document.getElementById('busqueda_caja').value.trim() !== '' ||
-        document.getElementById('top_n').value !== '10';
+        document.getElementById('top_n').value        !== '10';
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab).classList.add('active');
+    });
+});
 
 async function cargarDatos() {
     actualizarBtnLimpiar();
     showLoading();
+
     const params = {
         fecha_inicio: document.getElementById('fecha_inicio').value,
         fecha_fin:    document.getElementById('fecha_fin').value,
         moneda:       document.getElementById('moneda').value,
-        forma_pago:   document.getElementById('forma_pago').value?.trim().toUpperCase() || 'TODAS',
-        vendedor:     document.getElementById('filtro_vendedor').value?.trim().toUpperCase() || 'TODOS',
-        top_n:        document.getElementById('top_n').value
+        caja:         document.getElementById('caja').value,
+        forma_pago:   document.getElementById('forma_pago').value,
+        vendedor:     document.getElementById('filtro_vendedor').value,
+        top_n:        parseInt(document.getElementById('top_n').value)
     };
+
     try {
-        const res = await fetch('/api/cobros-facturas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.error) { console.error('Error backend:', data.error); hideLoading(); return; }
+        const r = await fetch('/api/cobros-facturas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+
+        // ✅ Poblar cajas solo la primera vez — igual a cobros.html
+        const selCaja = document.getElementById('caja');
+        if (selCaja.options.length === 1 && data.lista_cajas?.length) {
+            data.lista_cajas.forEach(c => {
+                if (c?.trim()) {
+                    const opt = document.createElement('option');
+                    opt.value = c; opt.textContent = c;
+                    selCaja.appendChild(opt);
+                }
+            });
+        }
+
+        // Poblar vendedores (primera vez o actualizar)
+        const selVend = document.getElementById('filtro_vendedor');
+        if (selVend.options.length === 1 && data.lista_vendedores?.length) {
+            data.lista_vendedores.forEach(v => {
+                if (v?.trim() && v !== 'TODOS') {
+                    const opt = document.createElement('option');
+                    opt.value = v.trim().toUpperCase();
+                    opt.textContent = v.trim();
+                    selVend.appendChild(opt);
+                }
+            });
+        }
 
         const monedaStr = params.moneda;
-        const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
         document.getElementById('txt_total_general').textContent = fmt(data.total_general || 0) + ' ' + monedaStr;
 
-        const selForma = document.getElementById('forma_pago');
-        const formaAnterior = selForma.value;
-        while (selForma.options.length > 1) selForma.remove(1);
-        if (data.lista_formas?.length) {
-            const vistas = new Set();
-            data.lista_formas.forEach(f => { const fn = (f||'').trim().toUpperCase(); if (!fn||fn==='TODAS'||vistas.has(fn)) return; vistas.add(fn); selForma.appendChild(new Option(f.trim(), fn)); });
-            selForma.value = [...selForma.options].some(o => o.value === formaAnterior) ? formaAnterior : 'TODAS';
-        }
+        renderAll(data, monedaStr);
 
-        const selVend = document.getElementById('filtro_vendedor');
-        const vendAnterior = selVend.value;
-        while (selVend.options.length > 1) selVend.remove(1);
-        if (data.lista_vendedores?.length) {
-            const vistas = new Set();
-            data.lista_vendedores.forEach(v => { const vn = (v||'').trim().toUpperCase(); if (!vn||vn==='TODOS'||['S/V','SIN VENDEDOR'].includes(vn)||vistas.has(vn)) return; vistas.add(vn); selVend.appendChild(new Option(v.trim(), vn)); });
-            selVend.value = [...selVend.options].some(o => o.value === vendAnterior) ? vendAnterior : 'TODOS';
-        }
-
-        const colores = generarColores();
-        renderChartWithPercent('chartFormas',       'doughnut', 'Formas de Pago',     data.formas_pago?.map(x=>x.label)||[], data.formas_pago?.map(x=>x.value)||[], colores);
-        renderChartWithPercent('chartVendedores',   'bar',      'Cobros por Vendedor', data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
-        renderChartWithPercent('chartCajas',        'doughnut', 'Cajas / Puntos',      data.cajas?.map(x=>x.label)||[], data.cajas?.map(x=>x.value)||[], colores);
-        renderChartWithPercent('chartTopVendedores','bar',      'Ranking Vendedores',  data.vendedores?.map(x=>x.label)||[], data.vendedores?.map(x=>x.value)||[], colores, 'y');
-
-        const tbody = document.getElementById('tbodyDetalle');
-        tbody.innerHTML = '';
-        (data.tabla || []).forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row.CODIGO||'-'}</td>
-                <td class="fecha-col">${row.FECHA||'-'}</td>
-                <td class="cliente-col">${row.CLIENTE||'S/C'}</td>
-                <td>${row.VENDEDOR||'S/V'}</td>
-                <td>${row.CAJA||'S/C'}</td>
-                <td>${row.FORMAPAGO||'S/I'}</td>
-                <td class="text-end">${fmt(row.MONTO||0)} ${monedaStr}</td>`;
-            tbody.appendChild(tr);
-        });
-        filtrarTablaDetalle();
-    } catch (err) { console.error('Error:', err); }
-    finally { hideLoading(); }
+    } catch (e) {
+        console.error('Error cargando cobros-facturas:', e);
+    } finally {
+        hideLoading();
+    }
 }
 
-function renderChartWithPercent(id, type, title, labels, values, colors, indexAxis = 'x') {
-    const canvas = document.getElementById(id); if (!canvas) return;
+function renderAll(d, moneda) {
+    const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    renderChartWithPercent('chartFormas', 'doughnut', 'Formas de Pago',
+        d.formas_pago?.map(x => x.label) || [], d.formas_pago?.map(x => x.value) || [],
+        ['#27ae60','#2ecc71','#58d68d','#a9dfbf','#1abc9c']);
+
+    renderChartWithPercent('chartVendedores', 'bar', 'Cobros por Vendedor',
+        d.vendedores?.map(x => x.label) || [], d.vendedores?.map(x => x.value) || [],
+        ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe'], 'y');
+
+    renderChartWithPercent('chartCajas', 'pie', 'Cajas / Puntos',
+        d.cajas?.map(x => x.label) || [], d.cajas?.map(x => x.value) || [],
+        ['#f59e0b','#fbbf24','#fcd34d','#fde68a']);
+
+    renderChartWithPercent('chartTopVendedores', 'bar', 'Ranking Vendedores',
+        d.vendedores?.map(x => x.label) || [], d.vendedores?.map(x => x.value) || [],
+        ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe'], 'y');
+
+    document.getElementById('tabla_body').innerHTML = (d.tabla || []).map(r => `
+        <tr>
+            <td class="fw-bold" style="white-space:nowrap">${r.CODIGO || '-'}</td>
+            <td class="fecha-col">${r.FECHA || '-'}</td>
+            <td class="cliente-col"><small>${r.CLIENTE || '—'}</small></td>
+            <td><small>${r.VENDEDOR || '—'}</small></td>
+            <td><small style="white-space:nowrap">${r.CAJA || '—'}</small></td>
+            <td><span class="badge badge-forma" style="white-space:nowrap">${r.FORMAPAGO || '—'}</span></td>
+            <td class="text-end fw-bold pe-3" style="white-space:nowrap;color:var(--vcf-primary)">${fmt(r.MONTO)} ${moneda}</td>
+        </tr>
+    `).join('');
+}
+
+function renderChartWithPercent(id, type, title, labels, values, colores, indexAxis = 'x') {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
     if (charts[id]) charts[id].destroy();
-    const total = values.reduce((s, v) => s + (v||0), 0);
+    const total = values.reduce((s, v) => s + (v || 0), 0);
     charts[id] = new Chart(canvas.getContext('2d'), {
         type,
-        data: { labels, datasets: [{ label: title, data: values, backgroundColor: colors.slice(0, labels.length), borderWidth: type==='doughnut'?2:0, borderRadius: type==='bar'?5:0 }] },
+        data: {
+            labels,
+            datasets: [{
+                label: title, data: values, backgroundColor: colores,
+                borderWidth: (type === 'doughnut' || type === 'pie') ? 2 : 0,
+                borderRadius: type === 'bar' ? 6 : 0
+            }]
+        },
         options: {
             responsive: true, maintainAspectRatio: false, indexAxis,
-            plugins: { legend: { position: 'bottom' }, title: { display: true, text: title, font: { size: 16 } },
-                tooltip: { callbacks: { label: ctx => { const pct = total>0?((ctx.raw/total)*100).toFixed(1):0; return `${ctx.label}: ${ctx.raw.toLocaleString('es-VE',{minimumFractionDigits:2})} ${document.getElementById('moneda').value}  (${pct}%)`; } } } },
-            scales: indexAxis==='y' ? { y: { ticks: { autoSkip:false, font:{size:11} } }, x: { beginAtZero:true } } : { x: { beginAtZero:true } }
+            plugins: {
+                legend: { position: 'bottom', display: type !== 'bar' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                            return `${ctx.label}: ${ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2 })} ${document.getElementById('moneda').value}  (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            scales: indexAxis === 'y' ? {
+                y: { ticks: { autoSkip: false, font: { size: 11 } }, grid: { display: false } },
+                x: { beginAtZero: true, grid: { color: '#f0f0f0' } }
+            } : {
+                x: { beginAtZero: true, grid: { display: false } },
+                y: { grid: { color: '#f0f0f0' } }
+            }
         }
-    });
-}
-
-function filtrarTablaDetalle() {
-    actualizarBtnLimpiar();
-    const bus = document.getElementById('busqueda_caja').value.trim().toLowerCase();
-    document.querySelectorAll('#tbodyDetalle tr').forEach(fila => {
-        const caja = fila.querySelector('td:nth-child(5)')?.textContent.toLowerCase() || '';
-        fila.style.display = caja.includes(bus) ? '' : 'none';
     });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     fechasDefault();
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.tab).classList.add('active');
-        });
-    });
     cargarDatos();
 });
 </script>
