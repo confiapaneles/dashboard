@@ -332,7 +332,7 @@
                     <div class="text-muted mt-2">en el período</div>
                     <div class="kpi-grid mt-4">
                         <div class="kpi-item">
-                            <div class="kpi-label">Total Facturas Únicas</div>
+                            <div class="kpi-label">Total Facturas</div>
                             <div class="kpi-value" id="val_total_fact">0</div>
                         </div>
                         <div class="kpi-item">
@@ -344,6 +344,10 @@
                             <div class="kpi-label">Crédito</div>
                             <div class="kpi-value kpi-small" id="val_fact_cred_cant">0</div>
                             <div class="kpi-monto" id="val_fact_cred_monto">0,00</div>
+                        </div>
+                        <div class="kpi-item" style="border-left: 3px solid #e74c3c;">
+                            <div class="kpi-label" style="color:#e74c3c;">IGTF</div>
+                            <div class="kpi-value kpi-small" style="color:#e74c3c;" id="val_igtf">0,00</div>
                         </div>
                     </div>
                 </div>
@@ -643,6 +647,7 @@ async function cargarDatos() {
         document.getElementById("val_fact_cont_monto").textContent = fmt(d.general?.fact_cont_monto || 0) + ' ' + monedaStr;
         document.getElementById("val_fact_cred_cant").textContent  = d.general?.facturas_credito_unicas || 0;
         document.getElementById("val_fact_cred_monto").textContent = fmt(d.general?.fact_cred_monto || 0) + ' ' + monedaStr;
+        document.getElementById("val_igtf").textContent            = fmt(d.general?.total_igtf || 0) + ' ' + monedaStr;
 
         // Gráficos
         renderChartWithPercent("chartTotales", "pie", "Ventas",
