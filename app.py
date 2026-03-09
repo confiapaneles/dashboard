@@ -315,17 +315,17 @@ def get_cartera_cxc():
 @login_required
 def get_ventas():
     params = request.json
-    moneda = params.get('moneda', 'Bs')
-    top_n = int(params.get('top_n', 10))
-    fecha_inicio = params.get('fecha_inicio', '')
-    fecha_fin = params.get('fecha_fin', '')
-    vendedor = params.get('vendedor', '').strip()
-    busqueda_cliente = params.get('busqueda_cliente', '').strip().upper()
+    moneda            = params.get('moneda', 'Bs')
+    top_n             = int(params.get('top_n', 10))
+    fecha_inicio      = params.get('fecha_inicio', '')
+    fecha_fin         = params.get('fecha_fin', '')
+    vendedor          = params.get('vendedor', '').strip()
+    busqueda_cliente  = params.get('busqueda_cliente', '').strip().upper()
     busqueda_producto = params.get('busqueda_producto', '').strip().upper()
-    # ✅ CORRECCIÓN: leer filtro_caja (TomSelect, match exacto) en lugar de busqueda_caja (texto libre)
-    filtro_caja = (params.get('filtro_caja') or params.get('busqueda_caja', '')).strip().upper()
-    status_filtro = params.get('status', 'TODOS')
+    busqueda_caja     = params.get('busqueda_caja', '').strip().upper()
+    status_filtro     = params.get('status', 'TODOS')
 
+    # Cargar nombres completos de productos desde inventario
     nombres_completos = {}
     try:
         path_inv = get_dbf_path('tablero_inventario.DBF')
@@ -335,39 +335,37 @@ def get_ventas():
     except Exception as e:
         print(f"Error cargando inventario: {e}")
 
-    # Inicialización de contadores generales
-    ventas_tipo = {"Contado": 0.0, "Crédito": 0.0}
-    por_zona = defaultdict(float)
-    por_cliente = defaultdict(float)
-    por_producto = defaultdict(float)
-    por_vendedor = defaultdict(float)
+    # ── Contadores ────────────────────────────────────────────────────────
+    ventas_tipo    = {"Contado": 0.0, "Crédito": 0.0}
+    por_zona       = defaultdict(float)
+    por_cliente    = defaultdict(float)
+    por_producto   = defaultdict(float)
+    por_vendedor   = defaultdict(float)
     prods_por_vend = defaultdict(lambda: defaultdict(float))
+    por_dia_hist   = defaultdict(lambda: {"monto": 0.0, "facturas": 0})  # ← historico
 
     all_vendedores = set()
-    all_zonas = set()
-    all_clientes = set()
-    all_productos = set()
-    all_cajas = set()          # ✅ NUEVO: recolectar todas las cajas para el TomSelect
+    all_zonas      = set()
+    all_clientes   = set()
+    all_productos  = set()
     clientes_unicos = set()
 
-    facturas_unicas = set()
-    facturas_contado_unicas = set()
-    facturas_credito_unicas = set()
+    facturas_unicas          = set()
+    facturas_contado_unicas  = set()
+    facturas_credito_unicas  = set()
 
     fact_cont_monto = 0.0
     fact_cred_monto = 0.0
-    total_igtf = 0.0
-    total_gral = 0.0
+    total_gral      = 0.0
+    facturas_lista  = []
 
-    facturas_lista = []
-
+    # Para detalles por producto (coincidencias parciales + últimos 10)
     detalle_producto = {
         "cantidad_total": 0.0,
         "monto_total": 0.0,
         "facturas_unicas": set(),
         "detalles": []
     } if busqueda_producto else None
-
     detalles_temp = []
 
     try:
@@ -377,14 +375,14 @@ def get_ventas():
                 fecha_reg = parse_fecha(rec.get('FECHA'))
 
                 if fecha_inicio and fecha_reg < fecha_inicio: continue
-                if fecha_fin and fecha_reg > fecha_fin: continue
+                if fecha_fin    and fecha_reg > fecha_fin:    continue
 
                 vend = str(rec.get('VENDEDOR') or rec.get('CODVEN') or 'SIN VENDEDOR').strip()
                 all_vendedores.add(vend)
                 if vendedor and vendedor != 'TODOS' and vendedor != vend:
                     continue
 
-                zona = str(rec.get('ZONA', 'SIN ZONA')).strip().upper()
+                zona    = str(rec.get('ZONA', 'SIN ZONA')).strip().upper()
                 all_zonas.add(zona)
 
                 cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
@@ -392,7 +390,7 @@ def get_ventas():
                 if busqueda_cliente and busqueda_cliente not in cliente:
                     continue
 
-                cod_pro = str(rec.get('CODIGOPRO', '')).strip()
+                cod_pro  = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
                 all_productos.add(producto)
 
@@ -400,18 +398,14 @@ def get_ventas():
                     continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
-                if caja:
-                    all_cajas.add(caja)   # ✅ Recolectar caja ANTES del filtro
-
-                # ✅ CORRECCIÓN: match exacto (TomSelect lista) en lugar de búsqueda parcial
-                if filtro_caja and filtro_caja != caja:
+                if busqueda_caja and busqueda_caja not in caja:
                     continue
 
-                m_raw = safe_float(rec.get('MONTO'))
+                m_raw  = safe_float(rec.get('MONTO'))
                 factor = safe_float(rec.get('FACTOR')) or 1.0
-                monto = m_raw if moneda == 'Bs' else (m_raw / factor)
+                monto  = m_raw if moneda == 'Bs' else (m_raw / factor)
 
-                tipo_fact = str(rec.get('TIPO', '')).strip()
+                tipo_fact  = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo_fact == '1' else "Crédito"
 
                 if status_filtro != "TODOS" and tipo_texto != status_filtro:
@@ -422,112 +416,111 @@ def get_ventas():
                     facturas_unicas.add(nro_factura)
                     if tipo_fact == '1':
                         facturas_contado_unicas.add(nro_factura)
-                        fact_cont_monto += monto
+                        fact_cont_monto        += monto
                         ventas_tipo["Contado"] += monto
                     else:
                         facturas_credito_unicas.add(nro_factura)
-                        fact_cred_monto += monto
+                        fact_cred_monto        += monto
                         ventas_tipo["Crédito"] += monto
 
-                # ✅ IGTF — sumar el impuesto del registro
-                total_igtf += safe_float(rec.get('IGTF'))
-
-                total_gral += monto
-                por_zona[zona] += monto
+                total_gral           += monto
+                por_zona[zona]       += monto
                 por_cliente[cliente] += monto
                 por_producto[producto] += monto
-                por_vendedor[vend] += monto
+                por_vendedor[vend]   += monto
                 prods_por_vend[vend][producto] += monto
+
                 clientes_unicos.add(cliente)
 
+                # ✅ Histórico por día — para el gráfico temporal
+                por_dia_hist[fecha_reg]["monto"]    += monto
+                por_dia_hist[fecha_reg]["facturas"] += 1
+
                 facturas_lista.append({
-                    "FECHA": fecha_reg,
-                    "CLIENTE": cliente,
-                    "VENDEDOR": vend,
-                    "ZONA": zona,
-                    "CAJA": caja,
+                    "FECHA":     fecha_reg,
+                    "CLIENTE":   cliente,
+                    "VENDEDOR":  vend,
+                    "ZONA":      zona,
+                    "CAJA":      caja,
                     "DOCUMENTO": nro_factura,
-                    "TIPO": tipo_texto,
-                    "MONTO": round(monto, 2)
+                    "TIPO":      tipo_texto,
+                    "MONTO":     round(monto, 2)
                 })
 
+                # Detalles por producto
                 if busqueda_producto:
                     cant = safe_float(rec.get('CANTIDAD'))
                     detalle_producto["cantidad_total"] += cant
-                    detalle_producto["monto_total"] += monto
+                    detalle_producto["monto_total"]    += monto
                     if nro_factura:
                         detalle_producto["facturas_unicas"].add(nro_factura)
                     detalles_temp.append({
-                        "FECHA": fecha_reg,
-                        "FACTURA": nro_factura,
-                        "CAJA": caja,
-                        "CLIENTE": cliente,
+                        "FECHA":    fecha_reg,
+                        "FACTURA":  nro_factura,
+                        "CAJA":     caja,
+                        "CLIENTE":  cliente,
                         "VENDEDOR": vend,
                         "CANTIDAD": round(cant, 2),
-                        "MONTO": round(monto, 2)
+                        "MONTO":    round(monto, 2)
                     })
 
+        # Ordenar detalles de producto por fecha desc y limitar a 10
         if busqueda_producto:
             detalles_temp.sort(key=lambda x: x["FECHA"], reverse=True)
-            detalle_producto["detalles"] = detalles_temp[:10]
-            detalle_producto["facturas_unicas"] = len(detalle_producto["facturas_unicas"])
+            detalle_producto["detalles"]         = detalles_temp[:10]
+            detalle_producto["facturas_unicas"]  = len(detalle_producto["facturas_unicas"])
 
+        # ── Tops ──────────────────────────────────────────────────────────
         def format_top(dico):
             return sorted(
                 [{"label": k, "value": round(v, 2)} for k, v in dico.items()],
-                key=lambda x: x['value'],
-                reverse=True
+                key=lambda x: x['value'], reverse=True
             )[:top_n]
 
-        top_vendedores = format_top(por_vendedor)
-
+        top_vendedores   = format_top(por_vendedor)
         detalles_vendedor = {}
         for v in top_vendedores:
             v_name = v['label']
-            top_p = sorted(
-                prods_por_vend[v_name].items(),
-                key=lambda x: x[1],
-                reverse=True
-            )[:10]
-            detalles_vendedor[v_name] = [
-                {"label": p, "value": round(m, 2)}
-                for p, m in top_p
-            ]
+            top_p  = sorted(prods_por_vend[v_name].items(), key=lambda x: x[1], reverse=True)[:10]
+            detalles_vendedor[v_name] = [{"label": p, "value": round(m, 2)} for p, m in top_p]
+
+        # ✅ Histórico ventas ordenado por fecha
+        historico_ventas = sorted(
+            [{"fecha": f, "monto": round(v["monto"], 2), "facturas": v["facturas"]}
+             for f, v in por_dia_hist.items()],
+            key=lambda x: x["fecha"]
+        )
 
         return jsonify({
-            "status": "success",
+            "status":    "success",
             "total_gral": round(total_gral, 2),
             "resumen_tipo": {k: round(v, 2) for k, v in ventas_tipo.items()},
             "general": {
-                "conteo_clientes": len(clientes_unicos),
-                "total_facturas_unicas": len(facturas_unicas),
-                "facturas_contado_unicas": len(facturas_contado_unicas),
-                "fact_cont_monto": round(fact_cont_monto, 2),
-                "facturas_credito_unicas": len(facturas_credito_unicas),
-                "fact_cred_monto": round(fact_cred_monto, 2),
-                "total_igtf": round(total_igtf, 2)
+                "conteo_clientes":          len(clientes_unicos),
+                "total_facturas_unicas":    len(facturas_unicas),
+                "facturas_contado_unicas":  len(facturas_contado_unicas),
+                "fact_cont_monto":          round(fact_cont_monto, 2),
+                "facturas_credito_unicas":  len(facturas_credito_unicas),
+                "fact_cred_monto":          round(fact_cred_monto, 2)
             },
-            "zonas": format_top(por_zona),
-            "clientes": format_top(por_cliente),
-            "productos": format_top(por_producto),
-            "vendedores": top_vendedores,
-            "detalles_vendedor": detalles_vendedor,
-            "lista_vendedores": sorted(list(all_vendedores)),
-            "lista_zonas": sorted(list(all_zonas)),
-            "lista_clientes": sorted(list(all_clientes)),
-            "lista_productos": sorted(list(all_productos)),
-            "lista_cajas": sorted(list(all_cajas)),   # ✅ NUEVO: para TomSelect de caja
-            "facturas": facturas_lista[:1000],
-            "detalle_producto": detalle_producto
+            "zonas":              format_top(por_zona),
+            "clientes":           format_top(por_cliente),
+            "productos":          format_top(por_producto),
+            "vendedores":         top_vendedores,
+            "detalles_vendedor":  detalles_vendedor,
+            "lista_vendedores":   sorted(list(all_vendedores)),
+            "lista_zonas":        sorted(list(all_zonas)),
+            "lista_clientes":     sorted(list(all_clientes)),
+            "lista_productos":    sorted(list(all_productos)),
+            "facturas":           facturas_lista[:1000],
+            "detalle_producto":   detalle_producto,
+            "historico_ventas":   historico_ventas,
         })
 
     except Exception as e:
         import traceback
         print(traceback.format_exc())
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
     
 # Asumiendo que tienes estas funciones ya definidas en tu proyecto:
 # from tu_modulo import DBF, parse_fecha, safe_float, get_dbf_path, login_required
