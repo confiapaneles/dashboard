@@ -1,159 +1,125 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<style>
-    :root {
-        --primary:    #3b82f6;
-        --primary-dark:#1d4ed8;
-        --success:    #10b981;
-        --warning:    #f59e0b;
-        --danger:     #ef4444;
-        --purple:     #8b5cf6;
-        --teal:       #14b8a6;
-        --pink:       #ec4899;
-        --gray:       #6b7280;
-    }
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
+<style>
+    :root { --primary: #e67e22; --primary-hover: #d35400; }
+
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; }
 
     .filter-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 20px;
-        margin-bottom: 25px;
+        background: white; border-radius: 14px;
+        padding: 24px; margin-bottom: 24px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     }
-
     .filter-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 18px;
-        align-items: flex-end;
+        display: flex; flex-wrap: wrap;
+        gap: 14px; align-items: flex-end;
     }
-
     .filter-col {
-        flex: 1;
-        min-width: 160px;
+        display: flex; flex-direction: column;
+        gap: 4px; min-width: 140px;
     }
-
     .filter-col label {
-        font-size: 0.85rem;
-        color: #555;
-        margin-bottom: 6px;
-        font-weight: 500;
-        display: block;
+        font-size: 0.8rem; font-weight: 600;
+        color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;
     }
-
-    .filter-col input,
-    .filter-col select {
-        width: 100%;
-        padding: 9px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.92rem;
+    .filter-col select,
+    .filter-col input[type="date"] {
+        padding: 8px 12px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem;
+        background: white; color: #1f2937; outline: none;
         transition: border-color 0.2s, box-shadow 0.2s;
     }
-
-    .filter-col input:focus,
-    .filter-col select:focus {
+    .filter-col select:focus, .filter-col input:focus {
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        outline: none;
+        box-shadow: 0 0 0 3px rgba(230,126,34,0.15);
     }
 
+    /* Tom Select overrides — color naranja compras */
+    .ts-wrapper.single .ts-control {
+        padding: 8px 12px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem;
+        cursor: text; background: white; min-height: unset;
+    }
+    .ts-wrapper.single.focus .ts-control {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(230,126,34,0.15);
+    }
+    .ts-wrapper.single.has-items .ts-control { font-weight: 500; }
+    .ts-dropdown {
+        border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        border: 1px solid #d1d5db; font-size: 0.9rem;
+    }
+    .ts-dropdown .option { padding: 9px 14px; }
+    .ts-dropdown .option:hover,
+    .ts-dropdown .option.active { background: #fff3e0; color: #b45309; }
+    .ts-dropdown-content { max-height: 260px; }
+    .ts-wrapper { width: 100%; }
+
     .total-kpi {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: var(--primary);
-        line-height: 1;
-        white-space: nowrap;
+        font-size: 1.6rem; font-weight: 800; color: var(--primary);
+        background: #fff3e0; padding: 8px 20px; border-radius: 10px;
     }
 
     .tab-navigation {
-        margin-bottom: 25px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
     }
-
     .tab-btn {
-        padding: 10px 24px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        background: #e5e7eb;
-        color: #4b5563;
-        cursor: pointer;
-        transition: all 0.25s;
+        padding: 8px 18px; border: 1px solid #d1d5db;
+        background: white; border-radius: 8px;
+        font-size: 0.87rem; font-weight: 600; color: #374151;
+        cursor: pointer; transition: all 0.2s;
     }
-
-    .tab-btn.active,
-    .tab-btn:hover {
-        background: var(--primary);
-        color: white;
-    }
+    .tab-btn:hover { background: #f3f4f6; }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
     .card-chart {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 20px;
-        height: 100%;
+        background: white; border-radius: 14px;
+        padding: 20px; margin-bottom: 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     }
-
     .chart-title {
-        font-size: 1.18rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 15px;
-        border-left: 5px solid var(--primary);
+        font-size: 1.05rem; font-weight: 700; color: #1f2937;
+        margin-bottom: 14px; border-left: 4px solid var(--primary);
         padding-left: 10px;
     }
-
     .chart-container { position: relative; height: 420px; }
 
-    .info-tag {
-        background: #eff6ff;
-        color: #1e40af;
-        padding: 12px;
-        border-radius: 8px;
-        border-left: 5px solid var(--primary);
-        margin: 8px 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    .no-data {
+        color: #6b7280; font-style: italic;
+        padding: 40px 20px; text-align: center;
+    }
+    .kpi-box {
+        background: white; border: 1px solid #e0e0e0;
+        border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .fecha-col {
+        white-space: nowrap; width: 110px; min-width: 110px; max-width: 110px;
+        overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* Overlay de carga */
     #loadingOverlay {
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         background: rgba(255,255,255,0.80);
-        backdrop-filter: blur(4px);
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
+        backdrop-filter: blur(4px); z-index: 9999;
+        display: none; align-items: center; justify-content: center;
     }
-
     .loading-content {
-        text-align: center;
-        background: white;
-        padding: 2.5rem 4rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        min-width: 320px;
+        text-align: center; background: white;
+        padding: 2.5rem 4rem; border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px;
     }
-
-    .loading-content .spinner-border {
-        width: 3rem;
-        height: 3rem;
-    }
+    .loading-content .spinner-border { width: 3rem; height: 3rem; }
 </style>
 
 <div class="dashboard-wrapper">
-    <!-- Filtros -->
     <div class="filter-card">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Panel de Compras</h4>
@@ -177,14 +143,27 @@
                 </select>
             </div>
             <div class="filter-col">
-                <label>Proveedor</label>
-                <input type="text" id="bus_prov" list="l_prov" placeholder="Proveedor..." oninput="debouncedCargarCompras()">
-                <datalist id="l_prov"></datalist>
+                <label>Top N</label>
+                <select id="top_n" onchange="cargarCompras()">
+                    <option value="10">Top 10</option>
+                    <option value="15">Top 15</option>
+                    <option value="25">Top 25</option>
+                    <option value="50">Top 50</option>
+                </select>
             </div>
-            <div class="filter-col">
+            <!-- Proveedor — TomSelect -->
+            <div class="filter-col" style="min-width:220px;">
+                <label>Proveedor</label>
+                <select id="sel_prov">
+                    <option value="">Todos los proveedores</option>
+                </select>
+            </div>
+            <!-- Producto — TomSelect igual al inventario -->
+            <div class="filter-col" style="min-width:260px;">
                 <label>Producto</label>
-                <input type="text" id="bus_prod" list="l_prod" placeholder="Producto..." oninput="debouncedCargarCompras()">
-                <datalist id="l_prod"></datalist>
+                <select id="sel_prod">
+                    <option value="">Todos los productos</option>
+                </select>
             </div>
         </div>
     </div>
@@ -194,26 +173,28 @@
         <button class="tab-btn active" data-tab="tab_res">Resumen General</button>
         <button class="tab-btn" data-tab="tab_prov">Top Proveedores</button>
         <button class="tab-btn" data-tab="tab_prod">Top Productos</button>
+        <button class="tab-btn" data-tab="tab_det_prod">Detalle por Producto</button>
     </div>
 
-    <!-- Contenido -->
+    <!-- Resumen General -->
     <div id="tab_res" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="card-chart">
-                    <div class="chart-title">Distribución por Tipo</div>
+                    <div class="chart-title">Distribución por Tipo (Contado / Crédito)</div>
                     <div class="chart-container"><canvas id="chartTipo"></canvas></div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="card-chart">
-                    <div class="chart-title">Compras por Marca</div>
+                    <div class="chart-title">Compras por Marca / Clasificación</div>
                     <div class="chart-container"><canvas id="chartMarca"></canvas></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Top Proveedores -->
     <div id="tab_prov" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title">Ranking de Proveedores</div>
@@ -221,11 +202,12 @@
         </div>
     </div>
 
+    <!-- Top Productos -->
     <div id="tab_prod" class="tab-pane">
         <div class="card-chart">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div class="chart-title mb-0">Ranking de Productos</div>
-                <select id="criterio_prod" class="form-select" style="width: 180px;" onchange="cargarCompras()">
+                <select id="criterio_prod" class="form-select" style="width:180px;" onchange="cargarCompras()">
                     <option value="monto">Ver por Monto</option>
                     <option value="unid">Ver por Unidades</option>
                 </select>
@@ -233,186 +215,305 @@
             <div class="chart-container" style="height: 700px;"><canvas id="chartProd"></canvas></div>
         </div>
     </div>
+
+    <!-- ✅ NUEVA PESTAÑA: Detalle por Producto (a qué proveedor se le compró) -->
+    <div id="tab_det_prod" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title" id="titulo_det_prod">Detalle por Producto</div>
+
+            <!-- KPIs resumen del producto seleccionado -->
+            <div id="resumen_det_prod" class="mb-4"></div>
+
+            <!-- Tabla de compras del producto -->
+            <div class="table-responsive">
+                <table class="table table-hover" id="tabla_det_prod">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="fecha-col">Fecha</th>
+                            <th>N° Documento</th>
+                            <th>Proveedor</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Cantidad</th>
+                            <th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody_det_prod"></tbody>
+                </table>
+            </div>
+            <div id="no_det_prod" class="no-data" style="display:none;">
+                Seleccione un producto para ver a qué proveedor se le compró
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Overlay de carga -->
 <div id="loadingOverlay">
     <div class="loading-content">
-        <div class="spinner-border text-primary" role="status"></div>
-        <div class="mt-3 fw-bold text-primary fs-5">Cargando datos, por favor espere...</div>
+        <div class="spinner-border" style="color: var(--primary);" role="status"></div>
+        <div class="mt-3 fw-bold fs-5" style="color: var(--primary);">Cargando datos, por favor espere...</div>
     </div>
 </div>
 
 <script>
-    let inst = {};
+// ─── ESTADO GLOBAL ────────────────────────────────────────────────────────
+let inst              = {};
+let tsProveedor       = null;
+let tsProducto        = null;
+let productoSel       = '';
+let ultimosDatos      = null;
+let ultimaMoneda      = 'Bs';
 
-    const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingOverlay = document.getElementById('loadingOverlay');
+function showLoading() { loadingOverlay.style.display = 'flex'; }
+function hideLoading() { loadingOverlay.style.display = 'none'; }
 
-    function showLoading() { loadingOverlay.style.display = 'flex'; }
-    function hideLoading() { loadingOverlay.style.display = 'none'; }
+function debounce(func, wait = 600) {
+    let timeout;
+    return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); };
+}
+const debouncedCargarCompras = debounce(cargarCompras);
 
-    function debounce(func, wait = 600) {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
-        };
-    }
-    const debouncedCargarCompras = debounce(cargarCompras);
+const palette = ['#e67e22','#d35400','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#a78bfa','#2ecc71','#e74c3c','#1abc9c','#9b59b6'];
 
-    // Manejo de pestañas
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            this.classList.add('active');
-            document.getElementById(this.getAttribute('data-tab')).classList.add('active');
-            cargarCompras();  // Refrescar al cambiar pestaña
-        });
+// ─── PESTAÑAS ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+        // Al ir a detalle por producto, renderizar con datos actuales
+        if (tabId === 'tab_det_prod') {
+            renderDetalleProducto(ultimosDatos, ultimaMoneda, productoSel);
+        }
+    });
+});
+
+// ─── INICIALIZAR TOM SELECTS ──────────────────────────────────────────────
+function inicializarTomSelects() {
+    tsProveedor = new TomSelect('#sel_prov', {
+        placeholder: 'Buscar proveedor...',
+        allowEmptyOption: true,
+        maxOptions: 300,
+        onChange: () => cargarCompras()
     });
 
-    const defaultPalette = [
-        '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899',
-        '#14b8a6', '#f97316', '#ef4444', '#6366f1', '#a78bfa'
-    ];
-
-    async function cargarCompras() {
-        showLoading();
-
-        const monedaSel = document.getElementById("moneda_comp").value;
-        const params = {
-            moneda: monedaSel,
-            fecha_inicio: document.getElementById("f_inicio").value,
-            fecha_fin: document.getElementById("f_fin").value,
-            proveedor: document.getElementById("bus_prov").value.trim(),
-            producto: document.getElementById("bus_prod").value.trim(),
-            top_n: 15,
-            prod_criterio: document.getElementById("criterio_prod")?.value || 'monto'
-        };
-
-        try {
-            const resp = await fetch("/api/compras", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(params)
-            });
-
-            if (!resp.ok) throw new Error("Error HTTP");
-
-            const d = await resp.json();
-
-            // Total real
-            const totalSuma = (d.totales?.Contado || 0) + (d.totales?.Crédito || 0) + (d.totales?.Otros || 0);
-            document.getElementById("txt_total").textContent = 
-                totalSuma.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + monedaSel;
-
-            // Sugerencias datalist (proveedores y productos)
-            document.getElementById("l_prov").innerHTML = (d.sugerencias_prov || []).map(s => `<option value="${s}">`).join("");
-            document.getElementById("l_prod").innerHTML = (d.sugerencias_prod || []).map(s => `<option value="${s}">`).join("");
-
-            // Gráficos con porcentaje en tooltip
-            renderChartWithPercent("chartTipo", "bar", "Tipo de Compra", 
-                ["Contado", "Crédito", "Otros"], 
-                [d.totales?.Contado || 0, d.totales?.Crédito || 0, d.totales?.Otros || 0], 
-                ['#3b82f6', '#10b981', '#f59e0b'], 'x');
-
-            renderChartWithPercent("chartMarca", "pie", "Compras por Marca", 
-                d.marcas?.map(x => x.MARCA) || [], 
-                d.marcas?.map(x => x.V) || [], 
-                defaultPalette);
-
-            renderChartWithPercent("chartProv", "bar", "Ranking Proveedores", 
-                d.proveedores?.map(x => x.PROVEEDOR) || [], 
-                d.proveedores?.map(x => x.V) || [], 
-                defaultPalette, 'y');
-
-            const dataProd = params.prod_criterio === 'monto' ? (d.productos_monto || []) : (d.productos_unid || []);
-            renderChartWithPercent("chartProd", "bar", "Ranking Productos", 
-                dataProd.map(x => x.PRODUCTO), 
-                dataProd.map(x => x.V), 
-                defaultPalette, 'y');
-
-        } catch (err) {
-            console.error("Error cargando compras:", err);
-        } finally {
-            hideLoading();
+    tsProducto = new TomSelect('#sel_prod', {
+        placeholder: 'Buscar producto...',
+        allowEmptyOption: true,
+        maxOptions: 300,
+        onChange: (val) => {
+            productoSel = val ? val.toUpperCase() : '';
+            cargarCompras();
         }
+    });
+}
+
+// ─── POBLAR TOM SELECTS ───────────────────────────────────────────────────
+function poblarTS(ts, lista, valorVacio, textoVacio) {
+    if (!ts) return;
+    const actual = ts.getValue();
+    ts.clearOptions();
+    ts.addOption({ value: valorVacio, text: textoVacio });
+    lista.forEach(item => ts.addOption({ value: item, text: item }));
+    ts.refreshOptions(false);
+    ts.setValue(lista.includes(actual) ? actual : valorVacio, true);
+}
+
+// ─── CARGA PRINCIPAL ──────────────────────────────────────────────────────
+async function cargarCompras() {
+    showLoading();
+
+    const params = {
+        moneda:       document.getElementById('moneda_comp').value,
+        fecha_inicio: document.getElementById('f_inicio').value,
+        fecha_fin:    document.getElementById('f_fin').value,
+        top_n:        parseInt(document.getElementById('top_n').value) || 15,
+        proveedor:    tsProveedor ? (tsProveedor.getValue() || '') : '',
+        producto:     tsProducto  ? (tsProducto.getValue()  || '') : '',
+        prod_criterio: document.getElementById('criterio_prod')?.value || 'monto'
+    };
+
+    try {
+        const resp = await fetch('/api/compras', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        if (!resp.ok) throw new Error('Error HTTP');
+        const d = await resp.json();
+
+        ultimosDatos = d;
+        ultimaMoneda = params.moneda;
+
+        const monedaSel = params.moneda;
+        const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        // Total
+        const totalSuma = (d.totales?.Contado || 0) + (d.totales?.Crédito || 0) + (d.totales?.Otros || 0);
+        document.getElementById('txt_total').textContent = fmt(totalSuma) + ' ' + monedaSel;
+
+        // Poblar TomSelects desde API (lista real de BD)
+        if (d.lista_proveedores?.length) poblarTS(tsProveedor, d.lista_proveedores, '', 'Todos los proveedores');
+        if (d.lista_productos?.length)   poblarTS(tsProducto,  d.lista_productos,   '', 'Todos los productos');
+
+        // Gráficos
+        renderChart('chartTipo', 'bar', 'Tipo de Compra',
+            ['Contado', 'Crédito', 'Otros'],
+            [d.totales?.Contado || 0, d.totales?.Crédito || 0, d.totales?.Otros || 0],
+            [palette[0], palette[2], palette[4]], 'x');
+
+        renderChart('chartMarca', 'pie', 'Compras por Marca',
+            d.marcas?.map(x => x.MARCA) || [],
+            d.marcas?.map(x => x.V) || [],
+            palette);
+
+        renderChart('chartProv', 'bar', 'Ranking Proveedores',
+            d.proveedores?.map(x => x.PROVEEDOR) || [],
+            d.proveedores?.map(x => x.V) || [],
+            palette, 'y');
+
+        const dataProd = params.prod_criterio === 'monto'
+            ? (d.productos_monto || [])
+            : (d.productos_unid  || []);
+        renderChart('chartProd', 'bar', 'Ranking Productos',
+            dataProd.map(x => x.PRODUCTO),
+            dataProd.map(x => x.V),
+            palette, 'y');
+
+        // Si estamos en la pestaña detalle, actualizar
+        const tabActiva = document.querySelector('.tab-btn.active')?.dataset.tab;
+        if (tabActiva === 'tab_det_prod') {
+            renderDetalleProducto(d, monedaSel, productoSel);
+        }
+
+    } catch (err) {
+        console.error('Error cargando compras:', err);
+    } finally {
+        hideLoading();
     }
+}
 
-    function renderChartWithPercent(id, type, title, labels, values, colores, indexAxis = 'x') {
-        const canvas = document.getElementById(id);
-        if (!canvas) return;
+// ─── RENDER DETALLE PRODUCTO (igual al de ventas pero con Proveedor) ──────
+function renderDetalleProducto(d, monedaStr, prodSel) {
+    const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const titulo     = document.getElementById('titulo_det_prod');
+    const resumen    = document.getElementById('resumen_det_prod');
+    const tbody      = document.getElementById('tbody_det_prod');
+    const noMsg      = document.getElementById('no_det_prod');
 
-        if (inst[id]) inst[id].destroy();
+    if (prodSel && d?.detalle_producto) {
+        titulo.textContent = `Detalle de Compras: ${prodSel}`;
 
-        const total = values.reduce((sum, v) => sum + (v || 0), 0);
+        resumen.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="kpi-box text-center p-3">
+                        <small class="text-muted d-block">Cantidad Total Comprada</small>
+                        <h5 class="fw-bold mb-0">${fmt(d.detalle_producto.cantidad_total || 0)}</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-box text-center p-3">
+                        <small class="text-muted d-block">Monto Total</small>
+                        <h5 class="fw-bold mb-0" style="color:var(--primary)">${fmt(d.detalle_producto.monto_total || 0)} ${monedaStr}</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-box text-center p-3">
+                        <small class="text-muted d-block">Proveedores Distintos</small>
+                        <h5 class="fw-bold mb-0">${d.detalle_producto.proveedores_unicos || 0}</h5>
+                    </div>
+                </div>
+            </div>`;
 
-        const config = {
-            type,
-            data: {
-                labels,
-                datasets: [{
-                    label: title,
-                    data: values,
-                    backgroundColor: colores || defaultPalette,
-                    borderWidth: type === 'pie' ? 2 : 0,
-                    borderRadius: type === 'bar' ? 6 : 0,
-                    barThickness: (id === 'chartProd' || id === 'chartProv') ? 24 : 'flex'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis,
-                plugins: {
-                    legend: { display: type === 'pie', position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.raw;
-                                const porcentaje = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                const montoFmt = value.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                const moneda = document.getElementById("moneda_comp").value;
-                                return `${context.label}: ${montoFmt} ${moneda}  (${porcentaje}%)`;
-                            }
+        tbody.innerHTML = '';
+        (d.detalle_producto.detalles || []).forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="fecha-col">${row.FECHA || '-'}</td>
+                <td>${row.DOCUMENTO || '-'}</td>
+                <td><strong>${row.PROVEEDOR || 'S/P'}</strong></td>
+                <td><span class="badge" style="background:${row.TIPO === 'Contado' ? '#d1fae5' : '#fee2e2'}; color:${row.TIPO === 'Contado' ? '#065f46' : '#991b1b'}">${row.TIPO || '-'}</span></td>
+                <td class="text-end">${fmt(row.CANTIDAD || 0)}</td>
+                <td class="text-end fw-bold">${fmt(row.MONTO || 0)} ${monedaStr}</td>`;
+            tbody.appendChild(tr);
+        });
+        noMsg.style.display = 'none';
+    } else {
+        titulo.textContent = 'Detalle por Producto';
+        resumen.innerHTML  = '';
+        tbody.innerHTML    = '';
+        noMsg.style.display = 'block';
+    }
+}
+
+// ─── CHARTS ───────────────────────────────────────────────────────────────
+function renderChart(id, type, title, labels, values, colores, indexAxis = 'x') {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    if (inst[id]) inst[id].destroy();
+    const total = values.reduce((s, v) => s + (v || 0), 0);
+    inst[id] = new Chart(canvas.getContext('2d'), {
+        type,
+        data: {
+            labels,
+            datasets: [{
+                label: title, data: values,
+                backgroundColor: colores || palette,
+                borderWidth: type === 'pie' ? 2 : 0,
+                borderRadius: type === 'bar' ? 6 : 0,
+                barThickness: (id === 'chartProd' || id === 'chartProv') ? 24 : 'flex'
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, indexAxis,
+            plugins: {
+                legend: { display: type === 'pie', position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                            const f = ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            const mon = document.getElementById('moneda_comp').value;
+                            return `${ctx.label}: ${f} ${mon}  (${pct}%)`;
                         }
                     }
-                },
-                scales: indexAxis === 'y' ? {
-                    y: {
-                        ticks: {
-                            autoSkip: false,
-                            font: { size: 11 },
-                            callback: (_, idx) => {
-                                let str = (labels[idx] || '').trim();
-                                return str.length > 38 ? str.substring(0,35)+'…' : str;
-                            }
-                        },
-                        grid: { display: false }
-                    },
-                    x: { beginAtZero: true, grid: { color: '#f0f0f0' } }
-                } : {
-                    x: { beginAtZero: true, grid: { display: false } },
-                    y: { grid: { color: '#f0f0f0' } }
                 }
+            },
+            scales: indexAxis === 'y' ? {
+                y: {
+                    ticks: {
+                        autoSkip: false, font: { size: 11 },
+                        callback: (_, idx) => {
+                            const s = (labels[idx] || '').trim();
+                            return s.length > 38 ? s.substring(0, 35) + '…' : s;
+                        }
+                    },
+                    grid: { display: false }
+                },
+                x: { beginAtZero: true, grid: { color: '#f0f0f0' } }
+            } : {
+                x: { beginAtZero: true, grid: { display: false } },
+                y: { grid: { color: '#f0f0f0' } }
             }
-        };
-
-        inst[id] = new Chart(canvas.getContext('2d'), config);
-    }
-
-    // Carga inicial + fechas por defecto (último mes)
-    document.addEventListener("DOMContentLoaded", () => {
-        const hoy = new Date();
-        document.getElementById("f_fin").value = hoy.toISOString().split('T')[0];
-        
-        const mesAnterior = new Date(hoy);
-        mesAnterior.setMonth(hoy.getMonth() - 1);
-        document.getElementById("f_inicio").value = mesAnterior.toISOString().split('T')[0];
-
-        cargarCompras();
+        }
     });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date();
+    document.getElementById('f_fin').value = hoy.toISOString().split('T')[0];
+    // 1ro del mes actual — igual que ventas
+    const primeroDelMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    document.getElementById('f_inicio').value = primeroDelMes.toISOString().split('T')[0];
+
+    inicializarTomSelects();
+    cargarCompras();
+});
 </script>
 
 {% endblock %}

@@ -658,6 +658,7 @@ def get_cobros_facturas():
         print("Error en /api/cobros-facturas:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
     
+
 @app.route('/api/bancos', methods=['POST'])
 @login_required
 def get_bancos():
@@ -1117,69 +1118,123 @@ def get_cobros():
 @app.route('/api/compras', methods=['POST'])
 @login_required
 def get_compras():
-    params = request.json
-    moneda = params.get('moneda', 'Bs')
-    top_n = int(params.get('top_n', 10))
-    f_inicio = params.get('fecha_inicio', '')
-    f_fin = params.get('fecha_fin', '')
-    f_prov = params.get('proveedor', '').upper().strip()
-    f_prod = params.get('producto', '').upper().strip()
-    
-    totales_compra = {"Contado": 0, "Crédito": 0, "Otros": 0}
-    por_proveedor = defaultdict(float)
-    por_producto_monto = defaultdict(float)
-    por_producto_unid = defaultdict(float)
-    por_marca = defaultdict(float)
-    sugerencias_prov = set()
-    sugerencias_prod = set()
-    total_gral = 0
+    params       = request.json or {}
+    moneda       = params.get('moneda', 'Bs')
+    top_n        = int(params.get('top_n', 15))
+    f_inicio     = params.get('fecha_inicio', '')
+    f_fin        = params.get('fecha_fin', '')
+    # ✅ Filtros desde TomSelect — match exacto si viene valor, vacío = todos
+    f_prov       = (params.get('proveedor') or '').strip().upper()
+    f_prod       = (params.get('producto')  or '').strip().upper()
+    prod_criterio = params.get('prod_criterio', 'monto')
+
+    totales_compra      = {"Contado": 0.0, "Crédito": 0.0, "Otros": 0.0}
+    por_proveedor       = defaultdict(float)
+    por_producto_monto  = defaultdict(float)
+    por_producto_unid   = defaultdict(float)
+    por_marca           = defaultdict(float)
+
+    # ✅ Listas para poblar TomSelects
+    all_proveedores = set()
+    all_productos   = set()
+
+    total_gral = 0.0
+
+    # ✅ Detalle del producto seleccionado (qué proveedor, cuándo, cuánto)
+    detalle_producto = {
+        "cantidad_total":    0.0,
+        "monto_total":       0.0,
+        "proveedores_unicos": set(),
+        "detalles":          []
+    } if f_prod else None
+
+    detalles_temp = []
 
     try:
         path = get_dbf_path('tablero_compras.DBF')
         if os.path.exists(path):
             for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
-                prov_reg = str(rec.get('PROVEEDOR', 'S/P')).strip()
-                prod_reg = str(rec.get('NOMBREPRO', 'S/P')).strip()
+                prov_reg  = str(rec.get('PROVEEDOR', 'S/P')).strip().upper()
+                prod_reg  = str(rec.get('NOMBREPRO', 'S/P')).strip().upper()
                 fecha_reg = parse_fecha(rec.get('FECHA'))
-                sugerencias_prov.add(prov_reg)
-                sugerencias_prod.add(prod_reg)
 
-                if f_prov and f_prov not in prov_reg: continue
-                if f_prod and f_prod not in prod_reg: continue
-                if f_inicio and fecha_reg < f_inicio: continue
-                if f_fin and fecha_reg > f_fin: continue
+                # Recolectar listas ANTES de filtrar
+                all_proveedores.add(prov_reg)
+                all_productos.add(prod_reg)
 
-                m_raw = safe_float(rec.get('MONTO'))
+                # ── Filtros activos ──────────────────────────────────────
+                # Proveedor: match exacto si viene del TomSelect
+                if f_prov and f_prov != prov_reg:
+                    continue
+                # Producto: búsqueda parcial (puede ser substring)
+                if f_prod and f_prod not in prod_reg:
+                    continue
+                if f_inicio and fecha_reg < f_inicio:
+                    continue
+                if f_fin and fecha_reg > f_fin:
+                    continue
+
+                m_raw  = safe_float(rec.get('MONTO'))
                 factor = safe_float(rec.get('FACTOR')) or 1.0
-                monto = m_raw if moneda == 'Bs' else (m_raw / factor)
-                cant = safe_float(rec.get('CANTIDAD'))
-                tipo = str(rec.get('TIPO', '')).strip()
+                monto  = m_raw if moneda == 'Bs' else (m_raw / factor)
+                cant   = safe_float(rec.get('CANTIDAD'))
+                tipo   = str(rec.get('TIPO', '')).strip()
 
-                if tipo == '1': totales_compra["Contado"] += monto
-                elif tipo == '2': totales_compra["Crédito"] += monto
-                else: totales_compra["Otros"] += monto
-
+                tipo_texto = "Contado" if tipo == '1' else ("Crédito" if tipo == '2' else "Otros")
+                totales_compra[tipo_texto] += monto
                 total_gral += monto
-                por_proveedor[prov_reg] += monto
+
+                por_proveedor[prov_reg]      += monto
                 por_producto_monto[prod_reg] += monto
-                por_producto_unid[prod_reg] += cant
+                por_producto_unid[prod_reg]  += cant
                 por_marca[str(rec.get('CLASI1', 'SIN MARCA')).strip()] += monto
 
+                # ✅ Acumular detalle si hay producto seleccionado
+                if f_prod and detalle_producto is not None:
+                    detalle_producto["cantidad_total"] += cant
+                    detalle_producto["monto_total"]    += monto
+                    detalle_producto["proveedores_unicos"].add(prov_reg)
+                    nro_doc = str(rec.get('CODIGO', '')).strip()
+                    detalles_temp.append({
+                        "FECHA":     fecha_reg,
+                        "DOCUMENTO": nro_doc,
+                        "PROVEEDOR": prov_reg,
+                        "TIPO":      tipo_texto,
+                        "CANTIDAD":  round(cant, 2),
+                        "MONTO":     round(monto, 2),
+                    })
+
+        # Ordenar detalles del producto por fecha desc, tomar top 200
+        if f_prod and detalle_producto is not None:
+            detalles_temp.sort(key=lambda x: x["FECHA"], reverse=True)
+            detalle_producto["detalles"]          = detalles_temp[:200]
+            detalle_producto["proveedores_unicos"] = len(detalle_producto["proveedores_unicos"])
+            detalle_producto["monto_total"]        = round(detalle_producto["monto_total"], 2)
+            detalle_producto["cantidad_total"]     = round(detalle_producto["cantidad_total"], 2)
+
         def format_top(dico, label_key):
-            items = sorted(dico.items(), key=lambda x: x[1], reverse=True)[:top_n]
-            return [{label_key: k, "V": round(v, 2)} for k, v in items if v > 0]
+            return sorted(
+                [{label_key: k, "V": round(v, 2)} for k, v in dico.items() if v > 0],
+                key=lambda x: x["V"], reverse=True
+            )[:top_n]
 
         return jsonify({
-            "totales": totales_compra,
-            "total_general": round(total_gral, 2),
-            "proveedores": format_top(por_proveedor, "PROVEEDOR"),
-            "productos_monto": format_top(por_producto_monto, "PRODUCTO"),
-            "productos_unid": format_top(por_producto_unid, "PRODUCTO"),
-            "marcas": format_top(por_marca, "MARCA"),
-            "sugerencias_prov": sorted(list(sugerencias_prov)),
-            "sugerencias_prod": sorted(list(sugerencias_prod))
+            "totales":          {k: round(v, 2) for k, v in totales_compra.items()},
+            "total_general":    round(total_gral, 2),
+            "proveedores":      format_top(por_proveedor,      "PROVEEDOR"),
+            "productos_monto":  format_top(por_producto_monto, "PRODUCTO"),
+            "productos_unid":   format_top(por_producto_unid,  "PRODUCTO"),
+            "marcas":           format_top(por_marca,          "MARCA"),
+            # ✅ Listas para TomSelects
+            "lista_proveedores": sorted([p for p in all_proveedores if p and p != 'S/P']),
+            "lista_productos":   sorted([p for p in all_productos   if p and p != 'S/P']),
+            # ✅ Detalle del producto seleccionado
+            "detalle_producto":  detalle_producto,
         })
+
     except Exception as e:
+        import traceback
+        print("Error en /api/compras:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
     
 @app.route('/api/cobranzas', methods=['POST'])
