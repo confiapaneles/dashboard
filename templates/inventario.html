@@ -67,6 +67,35 @@
 
     .filtro-carac-col label { font-size: 0.82rem; font-weight: 600; color: #495057; margin-bottom: 4px; display: block; }
 
+    /* ── KPI strip ── */
+    .kpi-strip {
+        display: flex; flex-wrap: nowrap; gap: 12px;
+        justify-content: flex-end; align-items: stretch;
+        margin-top: 16px;
+    }
+    .kpi-strip .kpi-box {
+        flex: 0 0 auto; min-width: 130px; max-width: 200px;
+        padding: 10px 18px; white-space: nowrap;
+    }
+    .kpi-strip .kpi-box small {
+        font-size: 0.75rem; display: block; margin-bottom: 2px;
+        white-space: nowrap; font-weight: 600; color: #6b7280;
+    }
+    .kpi-strip .kpi-box h5 {
+        font-size: 1.25rem; font-weight: 800; margin: 0;
+        white-space: nowrap;
+    }
+
+    /* ── Botón limpiar filtros ── */
+    #btn_limpiar_todo {
+        display: none;
+        font-size: 0.82rem; font-weight: 600;
+        border: 1px solid #fca5a5; background: #fef2f2; color: #dc2626;
+        border-radius: 7px; padding: 5px 14px; cursor: pointer;
+        transition: all 0.2s; white-space: nowrap;
+    }
+    #btn_limpiar_todo:hover { background: #fee2e2; border-color: #f87171; }
+
     /* ── ✅ FIX-1: Etiqueta de filtro activo en los selects de clasificación ── */
     .filtro-carac-col .filtro-activo-badge {
         display: none;
@@ -93,31 +122,29 @@
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-body p-4">
 
-                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <!-- Título + botón limpiar -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h4 class="mb-0 panel-title">
                             <i class="bi bi-box-seam me-2"></i>{{ empresa }} | Panel de Inventario
                         </h4>
+                        <button id="btn_limpiar_todo" onclick="limpiarTodosFiltros()" title="Quitar todos los filtros">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+                        </button>
+                    </div>
 
-                        <!-- KPIs -->
-                        <div class="row g-3 justify-content-end">
-                            <div class="col-md-3 col-sm-6 col-12">
-                                <div class="kpi-box text-center p-3">
-                                    <small class="text-muted d-block fw-medium">Stock Físico</small>
-                                    <h5 id="t_exi" class="fw-bold text-dark mb-0">0</h5>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-6 col-12">
-                                <div class="kpi-box text-center p-3">
-                                    <small class="text-muted d-block fw-medium">Artículos</small>
-                                    <h5 id="t_art" class="fw-bold mb-0">0</h5>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 col-12">
-                                <div class="kpi-box text-center p-3 border border-primary">
-                                    <small class="text-muted d-block fw-medium">Valorización Total</small>
-                                    <h5 id="t_val" class="fw-bold text-primary mb-0">0,00</h5>
-                                </div>
-                            </div>
+                    <!-- KPIs en una sola línea horizontal -->
+                    <div class="kpi-strip">
+                        <div class="kpi-box text-center">
+                            <small>Stock Físico</small>
+                            <h5 id="t_exi" class="text-dark">0</h5>
+                        </div>
+                        <div class="kpi-box text-center">
+                            <small>Artículos</small>
+                            <h5 id="t_art">0</h5>
+                        </div>
+                        <div class="kpi-box text-center border border-primary">
+                            <small>Valorización Total</small>
+                            <h5 id="t_val" class="text-primary">0,00</h5>
                         </div>
                     </div>
 
@@ -226,7 +253,7 @@ function initTomSelects() {
         placeholder: 'Buscar producto...',
         allowEmptyOption: true,
         maxOptions: 300,
-        onChange: () => cargarInv()
+        onChange: () => { actualizarBtnLimpiarTodo(); cargarInv(); }
     });
 }
 
@@ -310,6 +337,7 @@ function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
             onChange: (val) => {
                 // ✅ Actualizar badge y estilo visual al cambiar
                 actualizarBadgeCarac(idx, val, nombre);
+                actualizarBtnLimpiarTodo();
                 cargarInv();
             }
         });
@@ -532,7 +560,7 @@ function aplicarFiltroGeneral(texto) {
     const count = document.getElementById('filtro_gral_count');
     btn.style.display = texto ? 'block' : 'none';
 
-    const filtro = texto.trim().toUpperCase();
+    const filtro  = texto.trim().toUpperCase();
     const filas  = document.querySelectorAll('#tabla_inv tr');
     let visibles = 0;
 
@@ -549,6 +577,7 @@ function aplicarFiltroGeneral(texto) {
     } else {
         count.style.display = 'none';
     }
+    actualizarBtnLimpiarTodo();
 }
 
 function limpiarFiltroGeneral() {
@@ -556,6 +585,27 @@ function limpiarFiltroGeneral() {
     input.value = '';
     aplicarFiltroGeneral('');
     input.focus();
+}
+
+// ── ✅ Botón "Limpiar todos los filtros" ──────────────────────────────────
+function limpiarTodosFiltros() {
+    if (tsProducto) tsProducto.setValue('', true);
+    Object.entries(tsCaracs).forEach(([idx, ts]) => {
+        ts.setValue('', true);
+        actualizarBadgeCarac(idx, '', '');
+    });
+    const gral = document.getElementById('filtro_general');
+    if (gral) { gral.value = ''; aplicarFiltroGeneral(''); }
+    actualizarBtnLimpiarTodo();
+    cargarInv();
+}
+
+function actualizarBtnLimpiarTodo() {
+    const hayProducto  = !!(tsProducto && tsProducto.getValue());
+    const hayCarac     = Object.values(tsCaracs).some(ts => ts.getValue());
+    const hayBusqueda  = !!(document.getElementById('filtro_general')?.value?.trim());
+    const btn = document.getElementById('btn_limpiar_todo');
+    if (btn) btn.style.display = (hayProducto || hayCarac || hayBusqueda) ? 'inline-flex' : 'none';
 }
 </script>
 
