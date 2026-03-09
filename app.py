@@ -322,10 +322,10 @@ def get_ventas():
     vendedor          = params.get('vendedor', '').strip()
     busqueda_cliente  = params.get('busqueda_cliente', '').strip().upper()
     busqueda_producto = params.get('busqueda_producto', '').strip().upper()
-    busqueda_caja     = params.get('busqueda_caja', '').strip().upper()
+    caja_filtro       = (params.get('filtro_caja') or '').strip().upper()   # match exacto, vacío = todas
     status_filtro     = params.get('status', 'TODOS')
 
-    # Cargar nombres completos de productos desde inventario
+    # Cargar nombres completos desde inventario
     nombres_completos = {}
     try:
         path_inv = get_dbf_path('tablero_inventario.DBF')
@@ -335,34 +335,35 @@ def get_ventas():
     except Exception as e:
         print(f"Error cargando inventario: {e}")
 
-    # ── Contadores ────────────────────────────────────────────────────────
+    # ── Contadores ─────────────────────────────────────────────────────────
     ventas_tipo    = {"Contado": 0.0, "Crédito": 0.0}
     por_zona       = defaultdict(float)
     por_cliente    = defaultdict(float)
     por_producto   = defaultdict(float)
     por_vendedor   = defaultdict(float)
     prods_por_vend = defaultdict(lambda: defaultdict(float))
-    por_dia_hist   = defaultdict(lambda: {"monto": 0.0, "facturas": 0})  # ← historico
+    por_dia_hist   = defaultdict(lambda: {"monto": 0.0, "facturas": 0})
 
-    all_vendedores = set()
-    all_zonas      = set()
-    all_clientes   = set()
-    all_productos  = set()
+    all_vendedores  = set()
+    all_zonas       = set()
+    all_clientes    = set()
+    all_productos   = set()
+    all_cajas       = set()   # ← recolectada ANTES del filtro de caja
     clientes_unicos = set()
 
-    facturas_unicas          = set()
-    facturas_contado_unicas  = set()
-    facturas_credito_unicas  = set()
+    facturas_unicas         = set()
+    facturas_contado_unicas = set()
+    facturas_credito_unicas = set()
 
     fact_cont_monto = 0.0
     fact_cred_monto = 0.0
+    total_igtf      = 0.0
     total_gral      = 0.0
     facturas_lista  = []
 
-    # Para detalles por producto (coincidencias parciales + últimos 10)
     detalle_producto = {
         "cantidad_total": 0.0,
-        "monto_total": 0.0,
+        "monto_total":    0.0,
         "facturas_unicas": set(),
         "detalles": []
     } if busqueda_producto else None
@@ -393,17 +394,25 @@ def get_ventas():
                 cod_pro  = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
                 all_productos.add(producto)
-
                 if busqueda_producto and busqueda_producto not in producto:
                     continue
 
+                # ── Caja: recolectar SIEMPRE antes de filtrar ──────────────
                 caja = str(rec.get('CAJA', '')).strip().upper()
-                if busqueda_caja and busqueda_caja not in caja:
+                if caja:
+                    all_cajas.add(caja)
+
+                # Filtro exacto de caja (igual al patrón de cobros.html)
+                if caja_filtro and caja != caja_filtro:
                     continue
 
                 m_raw  = safe_float(rec.get('MONTO'))
                 factor = safe_float(rec.get('FACTOR')) or 1.0
                 monto  = m_raw if moneda == 'Bs' else (m_raw / factor)
+
+                igtf_raw = safe_float(rec.get('IGTF', 0))
+                igtf     = igtf_raw if moneda == 'Bs' else (igtf_raw / factor)
+                total_igtf += igtf
 
                 tipo_fact  = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo_fact == '1' else "Crédito"
@@ -423,16 +432,15 @@ def get_ventas():
                         fact_cred_monto        += monto
                         ventas_tipo["Crédito"] += monto
 
-                total_gral           += monto
-                por_zona[zona]       += monto
-                por_cliente[cliente] += monto
+                total_gral             += monto
+                por_zona[zona]         += monto
+                por_cliente[cliente]   += monto
                 por_producto[producto] += monto
-                por_vendedor[vend]   += monto
+                por_vendedor[vend]     += monto
                 prods_por_vend[vend][producto] += monto
-
                 clientes_unicos.add(cliente)
 
-                # ✅ Histórico por día — para el gráfico temporal
+                # Histórico por día (para gráfico temporal)
                 por_dia_hist[fecha_reg]["monto"]    += monto
                 por_dia_hist[fecha_reg]["facturas"] += 1
 
@@ -447,7 +455,6 @@ def get_ventas():
                     "MONTO":     round(monto, 2)
                 })
 
-                # Detalles por producto
                 if busqueda_producto:
                     cant = safe_float(rec.get('CANTIDAD'))
                     detalle_producto["cantidad_total"] += cant
@@ -464,27 +471,24 @@ def get_ventas():
                         "MONTO":    round(monto, 2)
                     })
 
-        # Ordenar detalles de producto por fecha desc y limitar a 10
         if busqueda_producto:
             detalles_temp.sort(key=lambda x: x["FECHA"], reverse=True)
-            detalle_producto["detalles"]         = detalles_temp[:10]
-            detalle_producto["facturas_unicas"]  = len(detalle_producto["facturas_unicas"])
+            detalle_producto["detalles"]        = detalles_temp[:10]
+            detalle_producto["facturas_unicas"] = len(detalle_producto["facturas_unicas"])
 
-        # ── Tops ──────────────────────────────────────────────────────────
         def format_top(dico):
             return sorted(
                 [{"label": k, "value": round(v, 2)} for k, v in dico.items()],
                 key=lambda x: x['value'], reverse=True
             )[:top_n]
 
-        top_vendedores   = format_top(por_vendedor)
+        top_vendedores    = format_top(por_vendedor)
         detalles_vendedor = {}
         for v in top_vendedores:
             v_name = v['label']
             top_p  = sorted(prods_por_vend[v_name].items(), key=lambda x: x[1], reverse=True)[:10]
             detalles_vendedor[v_name] = [{"label": p, "value": round(m, 2)} for p, m in top_p]
 
-        # ✅ Histórico ventas ordenado por fecha
         historico_ventas = sorted(
             [{"fecha": f, "monto": round(v["monto"], 2), "facturas": v["facturas"]}
              for f, v in por_dia_hist.items()],
@@ -496,25 +500,27 @@ def get_ventas():
             "total_gral": round(total_gral, 2),
             "resumen_tipo": {k: round(v, 2) for k, v in ventas_tipo.items()},
             "general": {
-                "conteo_clientes":          len(clientes_unicos),
-                "total_facturas_unicas":    len(facturas_unicas),
-                "facturas_contado_unicas":  len(facturas_contado_unicas),
-                "fact_cont_monto":          round(fact_cont_monto, 2),
-                "facturas_credito_unicas":  len(facturas_credito_unicas),
-                "fact_cred_monto":          round(fact_cred_monto, 2)
+                "conteo_clientes":         len(clientes_unicos),
+                "total_facturas_unicas":   len(facturas_unicas),
+                "facturas_contado_unicas": len(facturas_contado_unicas),
+                "fact_cont_monto":         round(fact_cont_monto, 2),
+                "facturas_credito_unicas": len(facturas_credito_unicas),
+                "fact_cred_monto":         round(fact_cred_monto, 2),
+                "total_igtf":              round(total_igtf, 2),
             },
-            "zonas":              format_top(por_zona),
-            "clientes":           format_top(por_cliente),
-            "productos":          format_top(por_producto),
-            "vendedores":         top_vendedores,
-            "detalles_vendedor":  detalles_vendedor,
-            "lista_vendedores":   sorted(list(all_vendedores)),
-            "lista_zonas":        sorted(list(all_zonas)),
-            "lista_clientes":     sorted(list(all_clientes)),
-            "lista_productos":    sorted(list(all_productos)),
-            "facturas":           facturas_lista[:1000],
-            "detalle_producto":   detalle_producto,
-            "historico_ventas":   historico_ventas,
+            "zonas":             format_top(por_zona),
+            "clientes":          format_top(por_cliente),
+            "productos":         format_top(por_producto),
+            "vendedores":        top_vendedores,
+            "detalles_vendedor": detalles_vendedor,
+            "lista_vendedores":  sorted(list(all_vendedores)),
+            "lista_zonas":       sorted(list(all_zonas)),
+            "lista_clientes":    sorted(list(all_clientes)),
+            "lista_productos":   sorted(list(all_productos)),
+            "lista_cajas":       sorted([c for c in all_cajas if c]),  # ← NUEVO
+            "facturas":          facturas_lista[:1000],
+            "detalle_producto":  detalle_producto,
+            "historico_ventas":  historico_ventas,   # ← para gráfico temporal
         })
 
     except Exception as e:
