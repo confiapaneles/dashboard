@@ -10,53 +10,96 @@
     }
 
     .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
-    
+
     .filter-card, .card-chart {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 20px;
+        background: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px;
     }
+    .filter-card { margin-bottom: 24px; }
 
     .filter-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
     .filter-col { flex: 1; min-width: 160px; }
     .filter-col label { font-size: 0.85rem; color: #555; margin-bottom: 6px; font-weight: 500; display: block; }
     .filter-col input, .filter-col select {
-        width: 100%; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px;
+        width: 100%; padding: 9px 12px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem;
+    }
+    .filter-col input:focus, .filter-col select:focus {
+        border-color: var(--banco-primary);
+        box-shadow: 0 0 0 3px rgba(30,64,175,0.15); outline: none;
     }
 
     .total-kpi { font-size: 2.4rem; font-weight: 800; color: var(--banco-primary); }
+
     .kpi-box { background: white; border-radius: 10px; padding: 16px 20px; text-align: center; box-shadow: 0 3px 8px rgba(0,0,0,0.06); }
+    .kpi-label { font-size: 0.82rem; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 6px; }
     .kpi-value { font-size: 1.8rem; font-weight: 800; }
-    .kpi-ing { color: var(--banco-ing); }
-    .kpi-egr { color: var(--banco-egr); }
+    .kpi-ing  { color: var(--banco-ing); }
+    .kpi-egr  { color: var(--banco-egr); }
     .kpi-neto { color: var(--banco-neto); }
 
     .chart-container { position: relative; height: 420px; }
-    .chart-title { font-size: 1.18rem; font-weight: 700; margin-bottom: 15px; border-left: 5px solid var(--banco-primary); padding-left: 10px; }
+    .chart-title {
+        font-size: 1.1rem; font-weight: 700; margin-bottom: 15px;
+        border-left: 5px solid var(--banco-primary); padding-left: 10px; color: #1f2937;
+    }
 
     .table-responsive { max-height: 65vh; overflow-y: auto; border-radius: 8px; }
+    .table thead th {
+        position: sticky; top: 0; background: #f8f9fa;
+        z-index: 1100; font-size: 0.83rem; text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .table td { font-size: 0.9rem; vertical-align: middle; }
 
-    /* Overlay de carga */
+    .text-ingreso { color: var(--banco-ing); font-weight: 700; }
+    .text-egreso  { color: var(--banco-egr); font-weight: 700; }
+
+    /* Badge tipo — fondo azul claro, texto azul oscuro */
+    .badge-tipo {
+        background: #e0e7ff; color: #3730a3;
+        font-size: 0.72rem; font-weight: 600;
+        padding: 3px 8px; border-radius: 5px;
+        display: inline-block;
+    }
+
+    /* ✅ FIX BANCOS: descripción del concepto siempre oscura,
+       nunca hereda color blanco del badge ni de ningún padre */
+    .desc-concepto {
+        color: #374151 !important;
+        font-size: 0.85rem;
+        margin-top: 4px;
+        line-height: 1.35;
+    }
+
     #loadingOverlay {
         position: fixed; inset: 0; background: rgba(255,255,255,0.80);
         backdrop-filter: blur(4px); z-index: 9999; display: none;
         align-items: center; justify-content: center;
     }
-    .loading-content { text-align: center; background: white; padding: 2.5rem 4rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    .loading-content {
+        text-align: center; background: white; padding: 2.5rem 4rem;
+        border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
 </style>
 
 <div class="dashboard-wrapper">
+
     <!-- Filtros -->
     <div class="filter-card">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Tesorería / Bancos</h4>
             <div class="total-kpi" id="t_saldo">0,00</div>
         </div>
-
         <div class="filter-row">
-            <div class="filter-col"><label>Desde</label><input type="date" id="fecha_inicio" onchange="debouncedCargarBancos()"></div>
-            <div class="filter-col"><label>Hasta</label><input type="date" id="fecha_fin" onchange="debouncedCargarBancos()"></div>
+            <div class="filter-col">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="debouncedCargarBancos()">
+            </div>
+            <div class="filter-col">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="debouncedCargarBancos()">
+            </div>
             <div class="filter-col">
                 <label>Moneda</label>
                 <select id="filtro_moneda" onchange="cargarBancos()">
@@ -64,9 +107,19 @@
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
-            <div class="filter-col"><label>Banco</label><select id="filtro_banco" onchange="cargarBancos()"><option value="">Todos los bancos</option></select></div>
-            <div class="filter-col"><label>Tipo Cuenta</label><select id="filtro_tipocuen" onchange="cargarBancos()"><option value="">Todos los tipos</option></select></div>
-            <div class="filter-col" style="min-width: 350px;">
+            <div class="filter-col">
+                <label>Banco</label>
+                <select id="filtro_banco" onchange="cargarBancos()">
+                    <option value="">Todos los bancos</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label>Tipo Cuenta</label>
+                <select id="filtro_tipocuen" onchange="cargarBancos()">
+                    <option value="">Todos los tipos</option>
+                </select>
+            </div>
+            <div class="filter-col" style="min-width: 350px; flex-grow: 2;">
                 <label>Buscar</label>
                 <input type="text" id="bus_banco" placeholder="Banco, cuenta, descripción..." onkeyup="debouncedCargarBancos()">
             </div>
@@ -75,23 +128,47 @@
 
     <!-- KPIs -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4"><div class="kpi-box"><div class="kpi-label">Total Ingresos</div><div class="kpi-value kpi-ing" id="t_ing">0,00</div></div></div>
-        <div class="col-md-4"><div class="kpi-box"><div class="kpi-label">Total Egresos</div><div class="kpi-value kpi-egr" id="t_egr">0,00</div></div></div>
-        <div class="col-md-4"><div class="kpi-box"><div class="kpi-label">Saldo Neto</div><div class="kpi-value kpi-neto" id="t_neto">0,00</div></div></div>
+        <div class="col-md-4">
+            <div class="kpi-box">
+                <div class="kpi-label">Total Ingresos</div>
+                <div class="kpi-value kpi-ing" id="t_ing">0,00</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-box">
+                <div class="kpi-label">Total Egresos</div>
+                <div class="kpi-value kpi-egr" id="t_egr">0,00</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-box">
+                <div class="kpi-label">Saldo Neto</div>
+                <div class="kpi-value kpi-neto" id="t_neto">0,00</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Contenido -->
+    <!-- Tabla + Gráfico -->
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="card-chart">
                 <div class="chart-title">Movimientos Bancarios</div>
-                <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr>
-                    <th class="ps-3">Fecha</th><th>Institución / Cuenta</th><th>Concepto</th>
-                    <th class="text-end">Ingreso (+)</th><th class="text-end pe-3">Egreso (-)</th>
-                </tr></thead><tbody id="tabla_bancos"></tbody></table></div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Fecha</th>
+                                <th>Institución / Cuenta</th>
+                                <th>Concepto</th>
+                                <th class="text-end">Ingreso (+)</th>
+                                <th class="text-end pe-3">Egreso (-)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_bancos"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
         <div class="col-lg-4">
             <div class="card-chart">
                 <div class="chart-title">Saldos por Banco</div>
@@ -102,7 +179,7 @@
     </div>
 </div>
 
-<!-- Overlay de carga -->
+<!-- Overlay -->
 <div id="loadingOverlay">
     <div class="loading-content">
         <div class="spinner-border text-primary" role="status"></div>
@@ -110,19 +187,19 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-let chartInstance = null;
+let chartInstance        = null;
 let tiposCuentasPoblados = false;
-let bancosPoblados = false;
+let bancosPoblados       = false;
 
 const loadingOverlay = document.getElementById('loadingOverlay');
-
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
 
 function debounce(func, wait = 600) {
-    let timeout;
-    return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); };
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); };
 }
 const debouncedCargarBancos = debounce(cargarBancos);
 
@@ -130,61 +207,70 @@ async function cargarBancos() {
     showLoading();
     try {
         const params = {
-            moneda: document.getElementById("filtro_moneda").value,
-            tipocuen: document.getElementById("filtro_tipocuen").value,
-            busqueda: document.getElementById("bus_banco").value.trim(),
-            fecha_inicio: document.getElementById("fecha_inicio").value,
-            fecha_fin: document.getElementById("fecha_fin").value,
-            banco: document.getElementById("filtro_banco").value || ""
+            moneda:       document.getElementById('filtro_moneda').value,
+            tipocuen:     document.getElementById('filtro_tipocuen').value,
+            busqueda:     document.getElementById('bus_banco').value.trim(),
+            fecha_inicio: document.getElementById('fecha_inicio').value,
+            fecha_fin:    document.getElementById('fecha_fin').value,
+            banco:        document.getElementById('filtro_banco').value || ''
         };
 
-        const r = await fetch("/api/bancos", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(params) });
-        if (!r.ok) throw new Error("Error HTTP");
+        const r = await fetch('/api/bancos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        if (!r.ok) throw new Error('Error HTTP');
 
-        const d = await r.json();
-        const fmt = v => (v || 0).toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        const unidad = params.moneda === 'Bs' ? ' Bs.' : ' USD';
+        const d   = await r.json();
+        const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const uni = params.moneda === 'Bs' ? ' Bs.' : ' USD';
 
         // KPIs
-        document.getElementById("t_saldo").textContent = fmt(d.totales?.saldo_total) + unidad;
-        document.getElementById("t_ing").textContent   = fmt(d.totales?.ingresos) + unidad;
-        document.getElementById("t_egr").textContent   = fmt(d.totales?.egresos) + unidad;
-        document.getElementById("t_neto").textContent  = fmt((d.totales?.ingresos || 0) - (d.totales?.egresos || 0)) + unidad;
+        document.getElementById('t_saldo').textContent = fmt(d.totales?.saldo_total) + uni;
+        document.getElementById('t_ing').textContent   = fmt(d.totales?.ingresos)    + uni;
+        document.getElementById('t_egr').textContent   = fmt(d.totales?.egresos)     + uni;
+        document.getElementById('t_neto').textContent  = fmt((d.totales?.ingresos || 0) - (d.totales?.egresos || 0)) + uni;
 
-        // Tabla
-        document.getElementById("tabla_bancos").innerHTML = (d.tabla || []).map(m => `
+        // ✅ Tabla: .desc-concepto garantiza color #374151 siempre
+        document.getElementById('tabla_bancos').innerHTML = (d.tabla || []).map(m => `
             <tr>
-                <td class="ps-3 text-muted">${m.FECHA || '-'}</td>
-                <td><div class="fw-bold">${m.BANCO}</div><div class="text-muted small">${m.CUENTA || '-'}</div></td>
-                <td><span class="badge badge-tipo">${m.TIPO || 'Mov'}</span><div class="mt-1">${m.DESCRIPCION || ''}</div></td>
-                <td class="text-end text-ingreso">${m.DEBE > 0 ? fmt(m.DEBE) : '-'}</td>
-                <td class="text-end text-egreso pe-3">${m.HABER > 0 ? fmt(m.HABER) : '-'}</td>
+                <td class="ps-3 text-muted" style="white-space:nowrap">${m.FECHA || '-'}</td>
+                <td>
+                    <div class="fw-bold text-dark">${m.BANCO || '-'}</div>
+                    <div class="text-muted small">${m.CUENTA || '-'}</div>
+                </td>
+                <td>
+                    <span class="badge badge-tipo">${m.TIPO || 'Mov'}</span>
+                    <div class="desc-concepto">${m.DESCRIPCION || '-'}</div>
+                </td>
+                <td class="text-end text-ingreso">${m.DEBE  > 0 ? fmt(m.DEBE)  : '<span class="text-muted">-</span>'}</td>
+                <td class="text-end text-egreso pe-3">${m.HABER > 0 ? fmt(m.HABER) : '<span class="text-muted">-</span>'}</td>
             </tr>
-        `).join("");
+        `).join('');
 
-        // Gráfico con porcentaje CORRECTO
-        renderBancosChart(d.bancos_chart || []);
+        // Gráfico
+        renderBancosChart(d.bancos_chart || [], uni);
 
         // Lista detallada
-        document.getElementById("lista_detallada").innerHTML = (d.bancos_chart || []).map(b => `
+        document.getElementById('lista_detallada').innerHTML = (d.bancos_chart || []).map(b => `
             <div class="d-flex justify-content-between py-1 border-bottom small">
-                <span>${b.BANCO}</span>
-                <span class="fw-bold">${fmt(b.V)}${unidad}</span>
+                <span class="text-dark">${b.BANCO}</span>
+                <span class="fw-bold" style="color:var(--banco-primary)">${fmt(b.V)}${uni}</span>
             </div>
-        `).join("");
+        `).join('');
 
         // Poblar selects (solo primera vez)
         if (!tiposCuentasPoblados && d.tipos_cuentas?.length) {
-            const sel = document.getElementById("filtro_tipocuen");
-            d.tipos_cuentas.forEach(t => { if(t?.trim()) sel.append(new Option(t.trim(), t.trim())); });
+            const sel = document.getElementById('filtro_tipocuen');
+            d.tipos_cuentas.forEach(t => { if (t?.trim()) sel.append(new Option(t.trim(), t.trim())); });
             tiposCuentasPoblados = true;
         }
         if (!bancosPoblados && d.lista_bancos?.length) {
-            const sel = document.getElementById("filtro_banco");
-            d.lista_bancos.forEach(b => { if(b?.trim()) sel.append(new Option(b.trim(), b.trim())); });
+            const sel = document.getElementById('filtro_banco');
+            d.lista_bancos.forEach(b => { if (b?.trim()) sel.append(new Option(b.trim(), b.trim())); });
             bancosPoblados = true;
         }
-
     } catch (e) {
         console.error(e);
     } finally {
@@ -192,32 +278,28 @@ async function cargarBancos() {
     }
 }
 
-function renderBancosChart(chartData) {
+function renderBancosChart(chartData, uni) {
     if (chartInstance) chartInstance.destroy();
-
-    const labels = chartData.map(x => x.BANCO || 'Sin nombre');
-    const values = chartData.map(x => x.V || 0);
-
     chartInstance = new Chart(document.getElementById('chartBancos'), {
         type: 'doughnut',
-        data: { labels, datasets: [{ data: values, backgroundColor: ['#1e40af','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#1e293b','#334155','#475569','#64748b','#94a3b8'], borderWidth: 2 }] },
+        data: {
+            labels: chartData.map(x => x.BANCO || 'Sin nombre'),
+            datasets: [{
+                data: chartData.map(x => x.V || 0),
+                backgroundColor: ['#1e40af','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#1e293b','#334155','#475569','#64748b','#94a3b8'],
+                borderWidth: 2
+            }]
+        },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
+            responsive: true, maintainAspectRatio: false, cutout: '65%',
             plugins: {
                 legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 }, padding: 16 } },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
-                            // ← CÁLCULO 100% FIABLE (sin variable global)
-                            const total = context.chart.data.datasets[0].data.reduce((sum, val) => sum + (val || 0), 0);
-                            const value = context.raw;
-                            const porcentaje = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-
-                            const montoFmt = value.toLocaleString('es-VE', { minimumFractionDigits: 2 });
-                            const unidad = document.getElementById('filtro_moneda').value === 'USD' ? ' USD' : ' Bs.';
-                            return `${context.label}: ${montoFmt}${unidad}  (${porcentaje}%)`;
+                        label: ctx => {
+                            const total = ctx.chart.data.datasets[0].data.reduce((s, v) => s + (v || 0), 0);
+                            const pct   = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                            return `${ctx.label}: ${ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2 })}${uni}  (${pct}%)`;
                         }
                     }
                 }
@@ -226,13 +308,11 @@ function renderBancosChart(chartData) {
     });
 }
 
-// Carga inicial
-document.addEventListener("DOMContentLoaded", () => {
-    const hoy = new Date();
-    document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
-    const mesAnterior = new Date(hoy); mesAnterior.setMonth(hoy.getMonth() - 1);
-    document.getElementById("fecha_inicio").value = mesAnterior.toISOString().split('T')[0];
-
+document.addEventListener('DOMContentLoaded', () => {
+    const hoy    = new Date();
+    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    document.getElementById('fecha_fin').value    = hoy.toISOString().split('T')[0];
+    document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
     cargarBancos();
 });
 </script>

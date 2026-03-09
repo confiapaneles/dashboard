@@ -4,195 +4,115 @@
 <style>
     :root {
         --cxp-primary: #c0392b;
-        --cxp-danger: #e74c3c;
-        --cxp-warning: #f39c12;
-        --cxp-light: #ffebee;
+        --cxp-danger:  #e74c3c;
+        --cxp-light:   #ffebee;
     }
 
     .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
 
     .filter-card {
-        background: white;
-        border-radius: 12px;
+        background: white; border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 20px;
-        margin-bottom: 25px;
+        padding: 20px; margin-bottom: 25px;
     }
-
-    .filter-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 18px;
-        align-items: flex-end;
+    .filter-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+    .filter-col { flex: 1; min-width: 160px; }
+    .filter-col label { font-size: 0.85rem; color: #555; margin-bottom: 6px; font-weight: 500; display: block; }
+    .filter-col input, .filter-col select {
+        width: 100%; padding: 9px 12px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem;
     }
-
-    .filter-col {
-        flex: 1;
-        min-width: 160px;
-    }
-
-    .filter-col label {
-        font-size: 0.85rem;
-        color: #555;
-        margin-bottom: 6px;
-        font-weight: 500;
-        display: block;
-    }
-
-    .filter-col input,
-    .filter-col select {
-        width: 100%;
-        padding: 9px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.92rem;
-    }
-
-    .filter-col input:focus,
-    .filter-col select:focus {
+    .filter-col input:focus, .filter-col select:focus {
         border-color: var(--cxp-primary);
-        box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.15);
+        box-shadow: 0 0 0 3px rgba(192,57,43,0.15); outline: none;
     }
 
-    .total-kpi {
-        font-size: 2.4rem;
-        font-weight: 800;
-        color: var(--cxp-primary);
-        line-height: 1;
-    }
+    .total-kpi { font-size: 2.4rem; font-weight: 800; color: var(--cxp-primary); line-height: 1; }
 
-    .tab-navigation {
-        margin-bottom: 25px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
+    .tab-navigation { margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 10px; }
     .tab-btn {
-        padding: 11px 26px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        background: #f3f4f6;
-        color: #374151;
-        cursor: pointer;
-        transition: all 0.25s;
+        padding: 11px 26px; border: none; border-radius: 8px;
+        font-weight: 600; background: #f3f4f6; color: #374151;
+        cursor: pointer; transition: all 0.25s;
     }
-
-    .tab-btn.active,
-    .tab-btn:hover {
-        background: var(--cxp-primary);
-        color: white;
-    }
+    .tab-btn.active, .tab-btn:hover { background: var(--cxp-primary); color: white; }
 
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
     .card-kpi {
-        background: white;
-        border-radius: 12px;
+        background: white; border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 20px;
-        height: 100%;
+        padding: 20px; height: 100%;
     }
-
     .chart-title {
-        font-size: 1.18rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 15px;
-        border-left: 5px solid var(--cxp-primary);
-        padding-left: 10px;
+        font-size: 1.05rem; font-weight: 700; color: #1f2937;
+        margin-bottom: 15px; border-left: 5px solid var(--cxp-primary); padding-left: 10px;
     }
-
     .chart-container { position: relative; height: 400px; }
 
     .grupo-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 15px;
-        border-bottom: 1px solid #f0f0f0;
-        transition: background 0.2s;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 10px 14px; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;
     }
-
     .grupo-item:hover { background: var(--cxp-light); }
+    .grupo-nombre { font-size: 0.92rem; font-weight: 600; color: #444; }
+    .grupo-monto  { font-size: 0.98rem; font-weight: 700; color: var(--cxp-primary); }
 
-    .grupo-nombre {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #444;
-    }
-
-    .grupo-monto {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--cxp-primary);
-    }
-
-    .table-responsive {
-        max-height: 65vh;
-        overflow-y: auto;
-        border-radius: 8px;
-    }
-
+    .table-responsive { max-height: 65vh; overflow-y: auto; border-radius: 8px; }
     .table thead th {
-        position: sticky;
-        top: 0;
-        background: #f8f9fa;
-        z-index: 10;
-        font-size: 0.85rem;
-        text-transform: uppercase;
+        position: sticky; top: 0; background: #f8f9fa;
+        z-index: 1100; font-size: 0.83rem; text-transform: uppercase;
         border-bottom: 2px solid #dee2e6;
     }
-
-    .table td {
-        font-size: 0.9rem;
-        vertical-align: middle;
-    }
-
-    /* Fuerza columna Fecha a UNA sola línea SIEMPRE */
+    .table td { font-size: 0.9rem; vertical-align: middle; }
     .table td.fecha-col {
-        white-space: nowrap !important;
-        width: 140px !important;
-        min-width: 140px !important;
-        max-width: 140px !important;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: nowrap !important; width: 140px !important;
+        min-width: 140px !important; max-width: 140px !important;
+        overflow: hidden; text-overflow: ellipsis;
     }
 
-    .text-vencido {
-        color: var(--cxp-danger);
-        font-weight: 600;
-    }
+    .text-vencido { color: var(--cxp-danger); font-weight: 600; }
+    .badge-doc { background-color: #ffebee; color: var(--cxp-primary); font-weight: 500; }
 
-    .badge-doc {
-        background-color: #ffebee;
-        color: var(--cxp-primary);
-        font-weight: 500;
+    /* Indicador búsqueda activa */
+    #bus_cxp.activo { border-color: var(--cxp-primary); background: #fff5f5; font-weight: 500; }
+    .filtro-info { font-size: 0.78rem; color: var(--cxp-primary); margin-top: 3px; display: none; }
+    .filtro-info.visible { display: block; }
+
+    #loadingOverlay {
+        position: fixed; inset: 0; background: rgba(255,255,255,0.80);
+        backdrop-filter: blur(4px); z-index: 9999; display: none;
+        align-items: center; justify-content: center;
+    }
+    .loading-content {
+        text-align: center; background: white; padding: 2.5rem 4rem;
+        border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     }
 </style>
 
 <div class="dashboard-wrapper">
-    <!-- Filtros + Total -->
+
+    <!-- Filtros -->
     <div class="filter-card">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cuentas por Pagar</h4>
             <div class="total-kpi" id="total_cxp">0,00</div>
         </div>
-
         <div class="filter-row">
             <div class="filter-col">
                 <label>Moneda</label>
-                <select id="moneda" class="form-select" onchange="cargarCxP()">
+                <select id="moneda" onchange="cargarCxP()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
             <div class="filter-col" style="flex-grow: 2; min-width: 350px;">
                 <label>Buscar (Proveedor, documento, grupo, responsable...)</label>
-                <input type="text" id="bus_cxp" class="form-control" 
-                       placeholder="Escribe para filtrar..." oninput="filtrarYRecalcular()">
+                <input type="text" id="bus_cxp"
+                    placeholder="Escribe para filtrar tabla y resumen..."
+                    oninput="aplicarBusqueda()">
+                <span class="filtro-info" id="filtro_info_cxp"></span>
             </div>
         </div>
     </div>
@@ -208,7 +128,7 @@
         <div class="row g-4">
             <div class="col-lg-7">
                 <div class="card-kpi">
-                    <div class="chart-title">Vencimiento de Pagos</div>
+                    <div class="chart-title" id="titulo_envej_cxp">Vencimiento de Pagos</div>
                     <div class="chart-container"><canvas id="chartEnvejecimientoCxp"></canvas></div>
                 </div>
             </div>
@@ -224,9 +144,9 @@
     <!-- Detalle -->
     <div id="tab_detalle" class="tab-pane">
         <div class="card-kpi">
-            <div class="chart-title">Cuentas por Pagar (filtradas por búsqueda)</div>
+            <div class="chart-title">Cuentas por Pagar (filtradas)</div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tabla_maestra">
+                <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
                             <th class="ps-3">Grupo</th>
@@ -245,7 +165,7 @@
     </div>
 </div>
 
-<!-- Overlay de carga -->
+<!-- Overlay -->
 <div id="loadingOverlay">
     <div class="loading-content">
         <div class="spinner-border text-danger" role="status"></div>
@@ -253,150 +173,192 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    let chartEnvejCxp = null;
-    let dataCache = null;
+// ─── ESTADO GLOBAL ─────────────────────────────────────────────────────────
+let chartEnvejCxp = null;
+let dataCache     = null;      // datos completos de la API
+let tablaFiltrada = [];        // ✅ siempre refleja el filtro activo
 
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    function showLoading() { loadingOverlay.style.display = 'flex'; }
-    function hideLoading() { loadingOverlay.style.display = 'none'; }
+const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    // Manejo de pestañas con renderizado dinámico
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            
-            this.classList.add('active');
-            const tabId = this.dataset.tab;
-            const tabPane = document.getElementById(tabId);
-            tabPane.classList.add('active');
+const loadingOverlay = document.getElementById('loadingOverlay');
+function showLoading() { loadingOverlay.style.display = 'flex'; }
+function hideLoading() { loadingOverlay.style.display = 'none'; }
 
-            // Renderizar contenido según pestaña activa
-            if (tabId === 'tab_resumen' && dataCache) {
-                renderResumen(dataCache);
-            } else if (tabId === 'tab_detalle' && dataCache?.tabla) {
-                renderTabla(dataCache.tabla);
-            }
-        });
+// ─── PESTAÑAS — renderiza con tablaFiltrada activa ─────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab).classList.add('active');
+
+        // ✅ Siempre renderiza con datos ya filtrados
+        if (this.dataset.tab === 'tab_resumen') renderResumen(tablaFiltrada);
+        if (this.dataset.tab === 'tab_detalle') renderTabla(tablaFiltrada);
     });
+});
 
-    async function cargarCxP() {
-        showLoading();
+// ─── CARGA PRINCIPAL (API) ─────────────────────────────────────────────────
+async function cargarCxP() {
+    showLoading();
+    try {
+        const params = { moneda: document.getElementById('moneda').value };
 
-        const params = {
-            moneda: document.getElementById("moneda").value
-        };
+        const r = await fetch('/api/cartera_cxp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
 
-        try {
-            const r = await fetch("/api/cartera_cxp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(params)
-            });
+        dataCache = await r.json();
 
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        // ✅ Aplicar búsqueda activa sobre los nuevos datos
+        aplicarBusqueda();
 
-            dataCache = await r.json();
+    } catch (e) {
+        console.error('Error cargando CxP:', e);
+    } finally {
+        hideLoading();
+    }
+}
 
-            const f = (v) => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// ─── FILTRO — filtra y actualiza TODO ─────────────────────────────────────
+function aplicarBusqueda() {
+    if (!dataCache?.tabla) return;
 
-            // Total inicial
-            document.getElementById("total_cxp").textContent = f(dataCache.total);
+    const bus     = document.getElementById('bus_cxp').value.toLowerCase().trim();
+    const infoEl  = document.getElementById('filtro_info_cxp');
+    const inputEl = document.getElementById('bus_cxp');
 
-            // Renderizar pestaña activa
-            const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
-            if (activeTab === 'tab_resumen') {
-                renderResumen(dataCache);
-            } else if (activeTab === 'tab_detalle') {
-                renderTabla(dataCache.tabla || []);
-            }
-
-        } catch (e) {
-            console.error("Error cargando CxP:", e);
-        } finally {
-            hideLoading();
-        }
+    if (bus) {
+        tablaFiltrada = dataCache.tabla.filter(row =>
+            [row.GRUPO, row.PROVEEDOR, row.DOCUMENTO, row.VENDEDOR, row.FECHA || '']
+                .some(val => String(val || '').toLowerCase().includes(bus))
+        );
+        inputEl.classList.add('activo');
+        infoEl.textContent = `${tablaFiltrada.length} registros de ${dataCache.tabla.length}`;
+        infoEl.classList.add('visible');
+    } else {
+        tablaFiltrada = [...dataCache.tabla];
+        inputEl.classList.remove('activo');
+        infoEl.classList.remove('visible');
     }
 
-    function renderResumen(d) {
-        const f = (v) => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 });
+    // Actualizar KPI total con suma filtrada
+    const totalFiltrado = tablaFiltrada.reduce((s, r) => s + (r.SALDO || 0), 0);
+    document.getElementById('total_cxp').textContent = fmt(totalFiltrado);
 
-        // Resumen grupos
-        document.getElementById("resumen_grupos").innerHTML = (d.resumen_grupos || []).map(g => `
+    // ✅ Renderizar la pestaña activa con tablaFiltrada
+    const tabActiva = document.querySelector('.tab-btn.active')?.dataset.tab;
+    if (tabActiva === 'tab_resumen') renderResumen(tablaFiltrada);
+    if (tabActiva === 'tab_detalle') renderTabla(tablaFiltrada);
+}
+
+// ─── RESUMEN GENERAL — recalcula desde tablaFiltrada ──────────────────────
+function renderResumen(rows) {
+    const bus = document.getElementById('bus_cxp').value.trim();
+
+    // Envejecimiento
+    const enveje = {
+        'No Vencido': 0, '1-7 Dias': 0, '8-14 Dias': 0,
+        '15-21 Dias': 0, '22-30 Dias': 0, '+30 Dias': 0
+    };
+
+    if (!bus && dataCache?.envejecimiento) {
+        // Sin filtro: usar totales precalculados de la API
+        dataCache.envejecimiento.forEach(x => {
+            if (enveje.hasOwnProperty(x.label)) enveje[x.label] = x.value;
+        });
+    } else {
+        // Con filtro: recalcular desde filas filtradas por días
+        rows.forEach(row => {
+            const dias  = row.DIAS  || 0;
+            const saldo = row.SALDO || 0;
+            if (dias <= 0)       enveje['No Vencido']  += saldo;
+            else if (dias <= 7)  enveje['1-7 Dias']    += saldo;
+            else if (dias <= 14) enveje['8-14 Dias']   += saldo;
+            else if (dias <= 21) enveje['15-21 Dias']  += saldo;
+            else if (dias <= 30) enveje['22-30 Dias']  += saldo;
+            else                 enveje['+30 Dias']    += saldo;
+        });
+    }
+
+    // Grupos recalculados desde filas filtradas
+    const gruposDict = {};
+    rows.forEach(row => {
+        const g = row.GRUPO || 'Sin Grupo';
+        gruposDict[g] = (gruposDict[g] || 0) + (row.SALDO || 0);
+    });
+    const grupos = Object.entries(gruposDict)
+        .filter(([, v]) => Math.abs(v) > 0.01)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => ({ GRUPO: k, MONTO: v }));
+
+    // Título dinámico
+    document.getElementById('titulo_envej_cxp').textContent = bus
+        ? `Vencimiento de Pagos — Filtrado: "${bus}"`
+        : 'Vencimiento de Pagos';
+
+    // Grupos HTML
+    document.getElementById('resumen_grupos').innerHTML = grupos.length
+        ? grupos.map(g => `
             <div class="grupo-item">
                 <span class="grupo-nombre">${g.GRUPO}</span>
-                <span class="grupo-monto">${f(g.MONTO)}</span>
-            </div>
-        `).join("");
+                <span class="grupo-monto">${fmt(g.MONTO)}</span>
+            </div>`).join('')
+        : '<p class="text-muted text-center p-3">Sin datos para el filtro aplicado</p>';
 
-        // Destruir y recrear gráfico
-        if (chartEnvejCxp) chartEnvejCxp.destroy();
-
-        const ctx = document.getElementById('chartEnvejecimientoCxp').getContext('2d');
-        chartEnvejCxp = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: d.envejecimiento.map(x => x.label),
-                datasets: [{
-                    label: 'Deuda por Pagar',
-                    data: d.envejecimiento.map(x => x.value),
-                    backgroundColor: ['#2ecc71', '#f1c40f', '#f39c12', '#e67e22', '#d35400', '#c0392b'],
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
-                    x: { grid: { display: false } }
+    // Gráfico
+    if (chartEnvejCxp) { chartEnvejCxp.destroy(); chartEnvejCxp = null; }
+    const ctx = document.getElementById('chartEnvejecimientoCxp').getContext('2d');
+    chartEnvejCxp = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(enveje),
+            datasets: [{
+                label: 'Deuda por Pagar',
+                data: Object.values(enveje),
+                backgroundColor: ['#2ecc71','#f1c40f','#f39c12','#e67e22','#d35400','#c0392b'],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => fmt(ctx.raw) + ' ' + document.getElementById('moneda').value
+                    }
                 }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                x: { grid: { display: false } }
             }
-        });
-    }
-
-    function renderTabla(rows) {
-        const f = (v) => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 });
-
-        const tbody = document.getElementById("tabla_cxp");
-        tbody.innerHTML = (rows || []).map(row => `
-            <tr>
-                <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO || '-'}</small></td>
-                <td>${row.PROVEEDOR || '-'}</td>
-                <td><small>${row.VENDEDOR || '-'}</small></td>
-                <td><span class="badge badge-doc">${row.DOCUMENTO || '-'}</span></td>
-                <td class="fecha-col">${row.FECHA || '-'}</td>
-                <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS || 0}</td>
-                <td class="text-end fw-bold pe-3">${f(row.SALDO)}</td>
-            </tr>
-        `).join("");
-
-        // Recalcular total visible
-        const totalVisible = rows.reduce((sum, r) => sum + (r.SALDO || 0), 0);
-        document.getElementById("total_cxp").textContent = 
-            totalVisible.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function filtrarYRecalcular() {
-        if (!dataCache?.tabla) return;
-
-        const bus = document.getElementById("bus_cxp").value.toLowerCase().trim();
-
-        const filtrados = bus
-            ? dataCache.tabla.filter(row =>
-                [row.GRUPO, row.PROVEEDOR, row.DOCUMENTO, row.VENDEDOR, row.FECHA || '']
-                    .some(val => String(val).toLowerCase().includes(bus)))
-            : dataCache.tabla;
-
-        renderTabla(filtrados);
-    }
-
-    // Carga inicial
-    document.addEventListener("DOMContentLoaded", () => {
-        cargarCxP();
+        }
     });
+}
+
+// ─── TABLA DETALLE ────────────────────────────────────────────────────────
+function renderTabla(rows) {
+    document.getElementById('tabla_cxp').innerHTML = (rows || []).map(row => `
+        <tr>
+            <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO || '-'}</small></td>
+            <td>${row.PROVEEDOR || '-'}</td>
+            <td><small>${row.VENDEDOR || '-'}</small></td>
+            <td><span class="badge badge-doc">${row.DOCUMENTO || '-'}</span></td>
+            <td class="fecha-col">${row.FECHA || '-'}</td>
+            <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS || 0}</td>
+            <td class="text-end fw-bold pe-3">${fmt(row.SALDO)}</td>
+        </tr>`).join('');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => cargarCxP());
 </script>
 
 {% endblock %}
