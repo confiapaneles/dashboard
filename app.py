@@ -773,17 +773,19 @@ def get_vendedores():
 @login_required
 def get_inventario():
     params = request.json or {}
-    
-    f_prod          = (params.get('producto') or '').strip().upper()
-    valorizar_a     = params.get('valorizar_a', 'costo')
-    
-    # Filtros dinámicos por característica (carac1, carac2, etc.)
+
+    f_prod      = (params.get('producto') or '').strip().upper()
+    valorizar_a = params.get('valorizar_a', 'costo')
+    pagina      = int(params.get('pagina', 1))
+    por_pagina  = int(params.get('por_pagina', 100))
+
     filtros_carac = {}
     for i in '1234':
         key = f'carac{i}'
         if key in params:
             filtros_carac[i] = (params[key] or '').strip().upper()
 
+    # data_tabla ahora guarda TODOS los registros que pasan el filtro (sin límite)
     data_tabla = []
     totales = {
         "articulos": 0,
@@ -791,11 +793,10 @@ def get_inventario():
         "valor_total": 0.0,
         "kilos": 0.0
     }
-    por_marca = defaultdict(float)  # Usaremos CARAC1 como ejemplo para gráfico, pero se puede hacer dinámico después
-    
-    nombres_precios = {"1": "Precio 1", "2": "Precio 2", "3": "Precio 3"}
-    nombres_carac   = {}
-    has_carac       = {"1": False, "2": False, "3": False, "4": False}
+    por_marca           = defaultdict(float)
+    nombres_precios     = {"1": "Precio 1", "2": "Precio 2", "3": "Precio 3"}
+    nombres_carac       = {}
+    has_carac           = {"1": False, "2": False, "3": False, "4": False}
     nombres_encontrados = False
 
     try:
@@ -804,6 +805,8 @@ def get_inventario():
             return jsonify({"error": "Archivo de inventario no encontrado"}), 404
 
         for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
+
+            # Leer nombres de precios y clasificaciones del primer registro
             if not nombres_encontrados:
                 for i in '123':
                     np_key = f'NOMBREP{i}'
@@ -817,10 +820,11 @@ def get_inventario():
                         nombres_carac[i] = nombre
                 nombres_encontrados = True
 
-            desc = str(rec.get('DESCRIPCIO', '')).strip()
-            codigo = str(rec.get('CODIGO', '')).strip()
+            desc   = str(rec.get('DESCRIPCIO', '')).strip()
+            codigo = str(rec.get('CODIGO',     '')).strip()
 
-            if f_prod and f_prod not in desc.upper() and f_prod not in codigo:
+            # Filtro de producto: busca en código Y descripción
+            if f_prod and f_prod not in desc.upper() and f_prod not in codigo.upper():
                 continue
 
             # Filtros dinámicos por característica
@@ -833,18 +837,17 @@ def get_inventario():
             if not pasar:
                 continue
 
-            # Detectar presencia de datos en características
+            # Detectar características con datos
             for i in '1234':
-                val = str(rec.get(f'CARAC{i}', '')).strip()
-                if val:
+                if str(rec.get(f'CARAC{i}', '')).strip():
                     has_carac[i] = True
 
             existencia = safe_float(rec.get('EXISTENCIA'))
-            monto = safe_float(rec.get('MONTO'))
-            kilos = safe_float(rec.get('KILOS'))
-            precio1 = safe_float(rec.get('PRECIO1'))
-            precio2 = safe_float(rec.get('PRECIO2'))
-            precio3 = safe_float(rec.get('PRECIO3'))
+            monto      = safe_float(rec.get('MONTO'))
+            kilos      = safe_float(rec.get('KILOS'))
+            precio1    = safe_float(rec.get('PRECIO1'))
+            precio2    = safe_float(rec.get('PRECIO2'))
+            precio3    = safe_float(rec.get('PRECIO3'))
 
             if valorizar_a == 'precio1':
                 valor_unit = precio1
@@ -856,51 +859,56 @@ def get_inventario():
                 valor_unit = monto / existencia if existencia > 0 else 0.0
 
             valor_total_item = valor_unit * existencia
+            costo_unitario   = monto / existencia if existencia > 0 else 0.0
 
-            totales["articulos"] += 1
-            totales["existencia"] += existencia
+            # Totales siempre (sobre todos los registros filtrados)
+            totales["articulos"]   += 1
+            totales["existencia"]  += existencia
             totales["valor_total"] += valor_total_item
-            totales["kilos"] += kilos
+            totales["kilos"]       += kilos
             por_marca[str(rec.get('CARAC1', 'Sin marca')).strip()] += valor_total_item
 
-            costo_unitario = monto / existencia if existencia > 0 else 0.0
+            # Guardar el item completo — SIN LÍMITE
+            item = {
+                "CODIGO":        codigo,
+                "DESCRIPCION":   desc,
+                "EXISTENCIA":    existencia,
+                "COSTO_UNITARIO": round(costo_unitario, 4),
+                "PRECIO1":       precio1,
+                "PRECIO2":       precio2,
+                "PRECIO3":       precio3,
+                "VALOR_TOTAL":   round(valor_total_item, 2),
+                "TOTAL_EMPAQUE": kilos,
+            }
+            for i in '1234':
+                val = str(rec.get(f'CARAC{i}', '')).strip()
+                if val:
+                    item[f'CARAC{i}'] = val
+            data_tabla.append(item)
 
-            if len(data_tabla) < 1500:
-                item = {
-                    "CODIGO": codigo,
-                    "DESCRIPCION": desc,
-                    "EXISTENCIA": existencia,
-                    "COSTO_UNITARIO": round(costo_unitario, 4),
-                    "PRECIO1": precio1,
-                    "PRECIO2": precio2,
-                    "PRECIO3": precio3,
-                    "VALOR_TOTAL": round(valor_total_item, 2),
-                    "TOTAL_EMPAQUE": kilos,
-                }
-                # Agregar todas las características presentes
-                for i in '1234':
-                    val = str(rec.get(f'CARAC{i}', '')).strip()
-                    if val:
-                        item[f'CARAC{i}'] = val
-                data_tabla.append(item)
+        # ── Paginación server-side ─────────────────────────────────────────
+        total_registros = len(data_tabla)
+        total_paginas   = max(1, -(-total_registros // por_pagina))   # ceil division
+        pagina          = max(1, min(pagina, total_paginas))
+        inicio          = (pagina - 1) * por_pagina
+        fin             = inicio + por_pagina
+        pagina_data     = data_tabla[inicio:fin]
 
-        # Características activas (solo las que tienen datos)
+        # Características activas
         caracteristicas_activas = {}
         for i in '1234':
             if has_carac[i]:
                 caracteristicas_activas[i] = nombres_carac.get(i, f"Clasificación {i}")
 
-        # Listas únicas para cada característica activa
+        # Listas únicas para filtros dinámicos (sobre TODOS los resultados, no solo la página)
         filtros_dinamicos = {}
-        for idx, nombre in caracteristicas_activas.items():
-            valores = sorted(set(
+        for idx in caracteristicas_activas:
+            filtros_dinamicos[f'filtro_carac{idx}'] = sorted(set(
                 str(item.get(f'CARAC{idx}', '')).strip()
                 for item in data_tabla
                 if str(item.get(f'CARAC{idx}', '')).strip()
             ))
-            filtros_dinamicos[f'filtro_carac{idx}'] = valores
 
-        # Gráfico (por ahora usamos CARAC1 como ejemplo; se puede hacer configurable después)
         marcas_chart = sorted(
             [{"MARCA": k, "V": round(v, 2)} for k, v in por_marca.items()],
             key=lambda x: x["V"], reverse=True
@@ -908,17 +916,27 @@ def get_inventario():
 
         return jsonify({
             "totales": {
-                "articulos": totales["articulos"],
-                "existencia": round(totales["existencia"], 2),
+                "articulos":   totales["articulos"],
+                "existencia":  round(totales["existencia"],  2),
                 "valor_total": round(totales["valor_total"], 2),
-                "kilos": round(totales["kilos"], 2)
+                "kilos":       round(totales["kilos"],       2)
             },
-            "tabla": data_tabla,
-            "marcas_chart": marcas_chart,
-            "nombres_precios": nombres_precios,
-            "caracteristicas": caracteristicas_activas,       # {"1": "Marca", "2": "Grupo", ...}
-            "filtros_dinamicos": filtros_dinamicos,           # {"filtro_carac1": [...], "filtro_carac2": [...]}
-            "valorizar_a": valorizar_a
+            # Solo la página solicitada
+            "tabla":        pagina_data,
+            # Metadatos de paginación
+            "paginacion": {
+                "pagina":           pagina,
+                "por_pagina":       por_pagina,
+                "total_registros":  total_registros,
+                "total_paginas":    total_paginas,
+                "tiene_anterior":   pagina > 1,
+                "tiene_siguiente":  pagina < total_paginas,
+            },
+            "marcas_chart":      marcas_chart,
+            "nombres_precios":   nombres_precios,
+            "caracteristicas":   caracteristicas_activas,
+            "filtros_dinamicos": filtros_dinamicos,
+            "valorizar_a":       valorizar_a
         })
 
     except Exception as e:

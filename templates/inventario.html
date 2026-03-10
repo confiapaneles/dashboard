@@ -57,9 +57,7 @@
         font-size: 0.92rem; background: white; cursor: text;
     }
     .ts-wrapper.single.focus .ts-control { border-color: #86b7fe; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
-    .ts-wrapper.single.focus .ts-control,
-    .ts-wrapper.single.has-items .ts-control { font-weight: 500; }
-    .ts-dropdown { border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #dee2e6; font-size: 0.9rem; z-index: 1100 !important; }
+    .ts-dropdown { border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #dee2e6; font-size: 0.9rem; }
     .ts-dropdown .option { padding: 8px 14px; }
     .ts-dropdown .option:hover, .ts-dropdown .option.active { background: #eff6ff; color: #1d4ed8; }
     .ts-dropdown-content { max-height: 240px; }
@@ -67,52 +65,28 @@
 
     .filtro-carac-col label { font-size: 0.82rem; font-weight: 600; color: #495057; margin-bottom: 4px; display: block; }
 
-    /* ── KPI strip ── */
-    .kpi-strip {
-        display: flex; flex-wrap: nowrap; gap: 12px;
-        justify-content: flex-end; align-items: stretch;
-        margin-top: 16px;
+    /* Paginación */
+    .paginacion-bar {
+        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        padding: 10px 4px; font-size: 0.88rem; color: #495057;
     }
-    .kpi-strip .kpi-box {
-        flex: 0 0 auto; min-width: 130px; max-width: 200px;
-        padding: 10px 18px; white-space: nowrap;
+    .paginacion-bar button {
+        padding: 5px 12px; border: 1px solid #dee2e6; border-radius: 6px;
+        background: white; cursor: pointer; font-size: 0.88rem; font-weight: 600;
+        transition: all 0.18s; color: #374151;
     }
-    .kpi-strip .kpi-box small {
-        font-size: 0.75rem; display: block; margin-bottom: 2px;
-        white-space: nowrap; font-weight: 600; color: #6b7280;
+    .paginacion-bar button:hover:not(:disabled) { background: var(--inventario-accent); color: white; border-color: var(--inventario-accent); }
+    .paginacion-bar button:disabled { opacity: 0.4; cursor: default; }
+    .paginacion-bar button.activa { background: var(--inventario-accent); color: white; border-color: var(--inventario-accent); }
+    .paginacion-info { color: #6b7280; font-size: 0.82rem; }
+    .ir-pagina-wrap { display: flex; align-items: center; gap: 6px; }
+    .ir-pagina-wrap input {
+        width: 58px; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 6px;
+        font-size: 0.88rem; text-align: center;
     }
-    .kpi-strip .kpi-box h5 {
-        font-size: 1.25rem; font-weight: 800; margin: 0;
-        white-space: nowrap;
-    }
-
-    /* ── Botón limpiar filtros ── */
-    #btn_limpiar_todo {
-        display: none;
-        font-size: 0.82rem; font-weight: 600;
-        border: 1px solid #fca5a5; background: #fef2f2; color: #dc2626;
-        border-radius: 7px; padding: 5px 14px; cursor: pointer;
-        transition: all 0.2s; white-space: nowrap;
-    }
-    #btn_limpiar_todo:hover { background: #fee2e2; border-color: #f87171; }
-
-    /* ── ✅ FIX-1: Etiqueta de filtro activo en los selects de clasificación ── */
-    .filtro-carac-col .filtro-activo-badge {
-        display: none;
-        font-size: 0.72rem;
-        font-weight: 700;
-        background: #dcfce7;
-        color: #166534;
-        border: 1px solid #86efac;
-        border-radius: 5px;
-        padding: 1px 7px;
-        margin-left: 6px;
-        vertical-align: middle;
-    }
-    .filtro-carac-col.tiene-filtro label .filtro-activo-badge { display: inline; }
-    .filtro-carac-col.tiene-filtro .ts-wrapper.single .ts-control {
-        border-color: #22c55e;
-        background: #f0fdf4;
+    .por-pagina-wrap select {
+        padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 6px;
+        font-size: 0.88rem; background: white; cursor: pointer;
     }
 </style>
 
@@ -122,33 +96,36 @@
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-body p-4">
 
-                    <!-- Título + botón limpiar -->
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                         <h4 class="mb-0 panel-title">
                             <i class="bi bi-box-seam me-2"></i>{{ empresa }} | Panel de Inventario
                         </h4>
-                        <button id="btn_limpiar_todo" onclick="limpiarTodosFiltros()" title="Quitar todos los filtros">
-                            <i class="bi bi-x-circle me-1"></i>Limpiar filtros
-                        </button>
                     </div>
 
-                    <!-- KPIs en una sola línea horizontal -->
-                    <div class="kpi-strip">
-                        <div class="kpi-box text-center">
-                            <small>Stock Físico</small>
-                            <h5 id="t_exi" class="text-dark">0</h5>
+                    <!-- KPIs -->
+                    <div class="row g-3 justify-content-end mb-3">
+                        <div class="col-md-3 col-sm-6 col-12">
+                            <div class="kpi-box text-center p-3">
+                                <small class="text-muted d-block fw-medium">Stock Físico</small>
+                                <h5 id="t_exi" class="fw-bold text-dark mb-0">0</h5>
+                            </div>
                         </div>
-                        <div class="kpi-box text-center">
-                            <small>Artículos</small>
-                            <h5 id="t_art">0</h5>
+                        <div class="col-md-3 col-sm-6 col-12">
+                            <div class="kpi-box text-center p-3">
+                                <small class="text-muted d-block fw-medium">Artículos</small>
+                                <h5 id="t_art" class="fw-bold mb-0">0</h5>
+                            </div>
                         </div>
-                        <div class="kpi-box text-center border border-primary">
-                            <small>Valorización Total</small>
-                            <h5 id="t_val" class="text-primary">0,00</h5>
+                        <div class="col-md-4 col-sm-6 col-12">
+                            <div class="kpi-box text-center p-3 border border-primary">
+                                <small class="text-muted d-block fw-medium">Valorización Total</small>
+                                <h5 id="t_val" class="fw-bold text-primary mb-0">0,00</h5>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Fila de filtros principales -->
+                    <!-- FILTROS PRINCIPALES -->
+                    <!-- inv_prod eliminado — Búsqueda General pasa al backend y filtra todo el DBF -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-3 col-sm-6 col-12">
                             <label class="form-label small fw-semibold">Valorizar por</label>
@@ -156,21 +133,16 @@
                                 <option value="costo">Costo</option>
                             </select>
                         </div>
-                        <div class="col-md-5 col-sm-6 col-12">
-                            <label class="form-label small fw-semibold">Producto</label>
-                            <select id="inv_prod">
-                                <option value="">Todos los productos</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 col-sm-12 col-12">
+                        <div class="col-md-9 col-sm-12 col-12">
                             <label class="form-label small fw-semibold">
                                 <i class="bi bi-search me-1"></i>Búsqueda General
-                                <span id="filtro_gral_count" style="display:none; font-size:0.75rem; color:#6c757d; margin-left:6px;"></span>
+                                <span style="font-size:0.75rem; color:#9ca3af; font-weight:400; margin-left:4px;">— busca por código, descripción o cualquier clasificación en todos los registros</span>
+                                <span id="filtro_gral_count" style="display:none; font-size:0.75rem; color:#6c757d; margin-left:6px; font-weight:700;"></span>
                             </label>
                             <div style="position:relative;">
                                 <input type="text" id="filtro_general"
-                                    placeholder="Filtra la tabla por cualquier campo..."
-                                    oninput="aplicarFiltroGeneral(this.value)"
+                                    placeholder="Ej: 00125, ACEITE, SHAMPOO..."
+                                    oninput="debouncedBusqueda(this.value)"
                                     style="width:100%; padding:7px 34px 7px 12px; border:1px solid #dee2e6; border-radius:6px; font-size:0.92rem; box-sizing:border-box;">
                                 <i class="bi bi-x-lg" id="btn_limpiar_gral"
                                     onclick="limpiarFiltroGeneral()"
@@ -202,12 +174,52 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane fade show active p-3" id="tabla-pane">
+
+                <!-- Barra de paginación SUPERIOR -->
+                <div class="paginacion-bar" id="pag_top">
+                    <button id="btn_ant_top" onclick="irPagina(paginaActual - 1)" disabled>&#8592; Anterior</button>
+                    <div id="btns_paginas_top" style="display:flex; gap:4px;"></div>
+                    <button id="btn_sig_top" onclick="irPagina(paginaActual + 1)" disabled>Siguiente &#8594;</button>
+                    <span class="paginacion-info" id="pag_info_top"></span>
+                    <div class="ir-pagina-wrap">
+                        <span>Ir a:</span>
+                        <input type="number" id="ir_pagina_top" min="1" placeholder="N°"
+                            onkeydown="if(event.key==='Enter') irPagina(parseInt(this.value))">
+                        <button onclick="irPagina(parseInt(document.getElementById('ir_pagina_top').value))">Ir</button>
+                    </div>
+                    <div class="por-pagina-wrap ms-auto">
+                        <span>Mostrar:</span>
+                        <select id="por_pagina_sel" onchange="cambiarPorPagina(this.value)">
+                            <option value="50">50</option>
+                            <option value="100" selected>100</option>
+                            <option value="200">200</option>
+                            <option value="500">500</option>
+                        </select>
+                        <span>por página</span>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-sm mb-0">
                         <thead class="table-light sticky-top" id="tabla-head"></thead>
                         <tbody id="tabla_inv"></tbody>
                     </table>
                 </div>
+
+                <!-- Barra de paginación INFERIOR -->
+                <div class="paginacion-bar" id="pag_bot">
+                    <button id="btn_ant_bot" onclick="irPagina(paginaActual - 1)" disabled>&#8592; Anterior</button>
+                    <div id="btns_paginas_bot" style="display:flex; gap:4px;"></div>
+                    <button id="btn_sig_bot" onclick="irPagina(paginaActual + 1)" disabled>Siguiente &#8594;</button>
+                    <span class="paginacion-info" id="pag_info_bot"></span>
+                    <div class="ir-pagina-wrap">
+                        <span>Ir a:</span>
+                        <input type="number" id="ir_pagina_bot" min="1" placeholder="N°"
+                            onkeydown="if(event.key==='Enter') irPagina(parseInt(this.value))">
+                        <button onclick="irPagina(parseInt(document.getElementById('ir_pagina_bot').value))">Ir</button>
+                    </div>
+                </div>
+
             </div>
             <div class="tab-pane fade p-4" id="grafico-pane">
                 <h5 class="panel-title mb-4" id="titulo-grafico">Gráfico por Clasificación</h5>
@@ -229,35 +241,38 @@
 let chartInstance  = null;
 let preciosSync    = false;
 let tsValorizar    = null;
-let tsProducto     = null;
 let tsCaracs       = {};
+
+// Estado de paginación
+let paginaActual   = 1;
+let totalPaginas   = 1;
+let porPagina      = 100;
+let totalRegistros = 0;
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
 
-function debounce(fn, delay = 400) {
+function debounce(fn, delay = 500) {
     let t;
     return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); };
 }
-const debouncedCargarInv = debounce(cargarInv);
 
-// ── Init Tom Selects fijos ────────────────────────────────────────────────
+// Búsqueda con debounce — reinicia a página 1
+const debouncedBusqueda = debounce((val) => {
+    const btn = document.getElementById('btn_limpiar_gral');
+    btn.style.display = val ? 'block' : 'none';
+    cargarInv(1);
+});
+
+// ── Init Tom Selects ──────────────────────────────────────────────────────
 function initTomSelects() {
     tsValorizar = new TomSelect('#valorizar_a', {
         allowEmptyOption: false,
-        onChange: () => cargarInv()
-    });
-
-    tsProducto = new TomSelect('#inv_prod', {
-        placeholder: 'Buscar producto...',
-        allowEmptyOption: true,
-        maxOptions: 300,
-        onChange: () => { actualizarBtnLimpiarTodo(); cargarInv(); }
+        onChange: () => { preciosSync = false; cargarInv(1); }
     });
 }
 
-// Actualizar opciones de valorizar_a
 function actualizarValorizarA(nombresPrecios) {
     if (!tsValorizar) return;
     const actual = tsValorizar.getValue();
@@ -273,124 +288,48 @@ function actualizarValorizarA(nombresPrecios) {
     tsValorizar.setValue(actual && tsValorizar.options[actual] ? actual : 'costo', true);
 }
 
-// Poblar Tom Select de producto
-function poblarSelectProducto(lista) {
-    if (!tsProducto) return;
-    const actual = tsProducto.getValue();
-    tsProducto.clearOptions();
-    tsProducto.addOption({ value: '', text: 'Todos los productos' });
-    lista.forEach(p => tsProducto.addOption({ value: p, text: p }));
-    tsProducto.refreshOptions(false);
-    tsProducto.setValue(actual && lista.includes(actual) ? actual : '', true);
-}
-
-// ── ✅ FIX-1: Crear TomSelects dinámicos PRESERVANDO el valor activo ──────
 function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
     const container = document.getElementById('filtros-container');
+    container.innerHTML = '';
     container.style.display = 'none';
+    Object.values(tsCaracs).forEach(ts => ts.destroy());
+    tsCaracs = {};
 
-    if (!caracteristicas || !Object.keys(caracteristicas).length) {
-        // Destruir todos y limpiar
-        Object.values(tsCaracs).forEach(ts => ts.destroy());
-        tsCaracs = {};
-        container.innerHTML = '';
-        return;
-    }
-
+    if (!caracteristicas || !Object.keys(caracteristicas).length) return;
     container.style.display = 'flex';
 
     Object.entries(caracteristicas).forEach(([idx, nombre]) => {
-        const valores = (filtrosDinamicos?.[`filtro_carac${idx}`] || []).filter(v => v.trim());
-
-        // ✅ Guardar valor activo ANTES de tocar el DOM
-        const valorActivo = tsCaracs[idx] ? tsCaracs[idx].getValue() : '';
-
-        // Destruir instancia anterior si existe
-        if (tsCaracs[idx]) {
-            tsCaracs[idx].destroy();
-            delete tsCaracs[idx];
-        }
-
-        // Crear o reusar columna del DOM
-        let col = document.getElementById(`col_carac${idx}`);
-        if (!col) {
-            col = document.createElement('div');
-            col.id = `col_carac${idx}`;
-            col.className = 'col-md-3 col-sm-6 col-12 filtro-carac-col';
-            container.appendChild(col);
-        }
-
-        col.innerHTML = `
-            <label>
-                ${nombre}
-                <span class="filtro-activo-badge" id="badge_carac${idx}"></span>
-            </label>
-            <select id="filtro_carac${idx}">
-                <option value="">Todos</option>
-            </select>
-        `;
+        const valores = filtrosDinamicos?.[`filtro_carac${idx}`] || [];
+        const col = document.createElement('div');
+        col.className = 'col-md-3 col-sm-6 col-12 filtro-carac-col';
+        col.innerHTML = `<label>${nombre}</label><select id="filtro_carac${idx}"><option value="">Todos</option></select>`;
+        container.appendChild(col);
 
         const ts = new TomSelect(`#filtro_carac${idx}`, {
             placeholder: `Buscar ${nombre}...`,
-            allowEmptyOption: true,
-            maxOptions: 200,
-            onChange: (val) => {
-                // ✅ Actualizar badge y estilo visual al cambiar
-                actualizarBadgeCarac(idx, val, nombre);
-                actualizarBtnLimpiarTodo();
-                cargarInv();
-            }
+            allowEmptyOption: true, maxOptions: 200,
+            onChange: () => cargarInv(1)
         });
-
-        valores.forEach(v => ts.addOption({ value: v, text: v }));
+        valores.filter(v => v.trim()).forEach(v => ts.addOption({ value: v, text: v }));
         ts.refreshOptions(false);
-
-        // ✅ Restaurar valor activo si todavía existe en la lista
-        const restaurar = valorActivo && valores.includes(valorActivo) ? valorActivo : '';
-        ts.setValue(restaurar, true);
-
-        // ✅ Mostrar badge si hay filtro activo restaurado
-        actualizarBadgeCarac(idx, restaurar, nombre);
-
         tsCaracs[idx] = ts;
     });
-
-    // Eliminar columnas de clasificaciones que ya no existen
-    const idxActivos = Object.keys(caracteristicas);
-    Object.keys(tsCaracs).forEach(idx => {
-        if (!idxActivos.includes(idx)) {
-            tsCaracs[idx].destroy();
-            delete tsCaracs[idx];
-            const col = document.getElementById(`col_carac${idx}`);
-            if (col) col.remove();
-        }
-    });
-}
-
-// ✅ FIX-1: Badge que muestra el filtro activo sobre el label
-function actualizarBadgeCarac(idx, val, nombre) {
-    const col   = document.getElementById(`col_carac${idx}`);
-    const badge = document.getElementById(`badge_carac${idx}`);
-    if (!col || !badge) return;
-
-    if (val) {
-        badge.textContent = `✓ ${val}`;
-        badge.style.display = 'inline';
-        col.classList.add('tiene-filtro');
-    } else {
-        badge.textContent = '';
-        badge.style.display = 'none';
-        col.classList.remove('tiene-filtro');
-    }
 }
 
 // ── Función principal ─────────────────────────────────────────────────────
-async function cargarInv() {
+async function cargarInv(pagina) {
+    if (pagina === undefined) pagina = paginaActual;
+    pagina = Math.max(1, pagina);
     showLoading();
+
     try {
+        const busqueda = document.getElementById('filtro_general').value.trim().toUpperCase();
         const params = {
-            producto:    tsProducto  ? (tsProducto.getValue()  || '') : '',
-            valorizar_a: tsValorizar ? (tsValorizar.getValue()  || 'costo') : 'costo'
+            // Búsqueda general pasa al backend — filtra TODO el DBF
+            producto:    busqueda,
+            valorizar_a: tsValorizar ? (tsValorizar.getValue() || 'costo') : 'costo',
+            pagina:      pagina,
+            por_pagina:  porPagina
         };
         Object.entries(tsCaracs).forEach(([idx, ts]) => {
             const v = ts.getValue();
@@ -405,16 +344,21 @@ async function cargarInv() {
         if (!resp.ok) throw new Error('Error en API');
 
         const d = await resp.json();
+        if (d.error) { console.error(d.error); return; }
+
         const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // Actualizar lista de productos
-        if (d.lista_productos?.length) poblarSelectProducto(d.lista_productos);
+        // Actualizar estado de paginación
+        const pag      = d.paginacion || {};
+        paginaActual   = pag.pagina        || 1;
+        totalPaginas   = pag.total_paginas || 1;
+        porPagina      = pag.por_pagina    || 100;
+        totalRegistros = pag.total_registros || 0;
 
-        // Actualizar valorizar_a
+        // Actualizar valorizar_a (solo primera vez para no perder selección)
         if (d.nombres_precios) {
             actualizarValorizarA(d.nombres_precios);
 
-            // Encabezados de tabla (solo primera vez)
             if (!preciosSync) {
                 const head = document.getElementById('tabla-head');
                 head.innerHTML = '';
@@ -438,10 +382,9 @@ async function cargarInv() {
                         th.textContent = nombre.trim();
                         head.appendChild(th);
                     });
-                // ✅ FIX-2: VALOR TOTAL primero, TOTAL EMPAQUE después
                 [
-                    { t: 'VALOR TOTAL',   c: 'text-end pe-2 text-valor fw-bold', id: 'th-valor-total' },
                     { t: 'TOTAL EMPAQUE', c: 'text-end text-empaque' },
+                    { t: 'VALOR TOTAL',   c: 'text-end pe-3 text-valor fw-bold', id: 'th-valor-total' },
                 ].forEach(col => {
                     const th = document.createElement('th');
                     th.textContent = col.t; th.className = col.c;
@@ -460,10 +403,10 @@ async function cargarInv() {
             }
         }
 
-        // Filtros dinámicos (✅ FIX-1 dentro de actualizarFiltrosCarac)
+        // Filtros dinámicos (solo actualizan opciones, no resetean selección)
         actualizarFiltrosCarac(d.caracteristicas, d.filtros_dinamicos);
 
-        // KPIs
+        // KPIs (sobre TODOS los registros filtrados, no solo la página)
         document.getElementById('t_exi').textContent = Number(d.totales?.existencia || 0).toLocaleString('es-VE');
         document.getElementById('t_art').textContent = Number(d.totales?.articulos  || 0).toLocaleString('es-VE');
         document.getElementById('t_val').textContent = fmt(d.totales?.valor_total   || 0);
@@ -474,8 +417,16 @@ async function cargarInv() {
         const tGraf = document.getElementById('titulo-grafico');
         if (tGraf) tGraf.textContent = `Gráfico por Clasificación (${labelActual})`;
 
-        // Tabla
-        const filtroActual = document.getElementById('filtro_general').value;
+        // Contador de búsqueda
+        const countEl = document.getElementById('filtro_gral_count');
+        if (busqueda && totalRegistros > 0) {
+            countEl.textContent   = `${totalRegistros.toLocaleString()} resultados`;
+            countEl.style.display = 'inline';
+        } else {
+            countEl.style.display = 'none';
+        }
+
+        // Tabla — solo la página actual
         const precioKeys = Object.entries(d.nombres_precios || {})
             .filter(([, n]) => n?.trim())
             .sort((a, b) => Number(a[0]) - Number(b[0]))
@@ -488,9 +439,8 @@ async function cargarInv() {
             h += `<td class="text-end fw-bold">${Number(i.EXISTENCIA || 0).toLocaleString('es-VE')}</td>`;
             h += `<td class="text-end text-costo">${fmt(i.COSTO_UNITARIO)}</td>`;
             precioKeys.forEach(k => { h += `<td class="text-end text-pvp">${fmt(i[`PRECIO${k}`])}</td>`; });
-            // ✅ FIX-2: VALOR TOTAL antes de TOTAL EMPAQUE en las filas también
-            h += `<td class="text-end pe-2 text-valor fw-bold">${fmt(i.VALOR_TOTAL)}</td>`;
             h += `<td class="text-end text-empaque">${fmt(i.TOTAL_EMPAQUE || 0)}</td>`;
+            h += `<td class="text-end pe-3 text-valor fw-bold">${fmt(i.VALOR_TOTAL)}</td>`;
             if (d.caracteristicas) {
                 Object.keys(d.caracteristicas).forEach(idx => {
                     h += `<td class="text-end small text-dynamic">${i[`CARAC${idx}`] || '-'}</td>`;
@@ -506,8 +456,8 @@ async function cargarInv() {
             d.marcas_chart?.map(x => x.V)     || []
         );
 
-        // Reaplicar filtro general si había uno activo
-        if (filtroActual.trim()) aplicarFiltroGeneral(filtroActual);
+        // Renderizar controles de paginación
+        renderPaginacion();
 
     } catch (err) {
         console.error('Error cargando inventario:', err);
@@ -516,6 +466,80 @@ async function cargarInv() {
     }
 }
 
+// ── Paginación ────────────────────────────────────────────────────────────
+function renderPaginacion() {
+    const inicio = (paginaActual - 1) * porPagina + 1;
+    const fin    = Math.min(paginaActual * porPagina, totalRegistros);
+    const info   = `Mostrando ${inicio.toLocaleString()}–${fin.toLocaleString()} de ${totalRegistros.toLocaleString()} registros`;
+
+    ['top', 'bot'].forEach(sufijo => {
+        document.getElementById(`btn_ant_${sufijo}`).disabled = paginaActual <= 1;
+        document.getElementById(`btn_sig_${sufijo}`).disabled = paginaActual >= totalPaginas;
+        document.getElementById(`pag_info_${sufijo}`).textContent = info;
+
+        // Botones de páginas (máximo 7 visibles)
+        const cont = document.getElementById(`btns_paginas_${sufijo}`);
+        cont.innerHTML = '';
+        const rango = paginasVisibles(paginaActual, totalPaginas);
+        rango.forEach(p => {
+            if (p === '...') {
+                const sp = document.createElement('span');
+                sp.textContent = '…';
+                sp.style.cssText = 'padding: 4px 6px; color:#9ca3af;';
+                cont.appendChild(sp);
+            } else {
+                const btn = document.createElement('button');
+                btn.textContent = p;
+                if (p === paginaActual) btn.classList.add('activa');
+                btn.onclick = () => irPagina(p);
+                cont.appendChild(btn);
+            }
+        });
+    });
+}
+
+function paginasVisibles(actual, total) {
+    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+    const paginas = [];
+    if (actual <= 4) {
+        for (let i = 1; i <= 5; i++) paginas.push(i);
+        paginas.push('...'); paginas.push(total);
+    } else if (actual >= total - 3) {
+        paginas.push(1); paginas.push('...');
+        for (let i = total - 4; i <= total; i++) paginas.push(i);
+    } else {
+        paginas.push(1); paginas.push('...');
+        for (let i = actual - 1; i <= actual + 1; i++) paginas.push(i);
+        paginas.push('...'); paginas.push(total);
+    }
+    return paginas;
+}
+
+function irPagina(p) {
+    p = parseInt(p);
+    if (isNaN(p) || p < 1 || p > totalPaginas || p === paginaActual) return;
+    cargarInv(p);
+    // Scroll al top de la tabla
+    document.getElementById('tabla-pane')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cambiarPorPagina(val) {
+    porPagina  = parseInt(val);
+    preciosSync = false;   // rehacer encabezados si cambió valorización
+    cargarInv(1);
+}
+
+// ── Limpiar búsqueda ──────────────────────────────────────────────────────
+function limpiarFiltroGeneral() {
+    const input = document.getElementById('filtro_general');
+    input.value = '';
+    document.getElementById('btn_limpiar_gral').style.display = 'none';
+    document.getElementById('filtro_gral_count').style.display = 'none';
+    cargarInv(1);
+    input.focus();
+}
+
+// ── Gráfico ───────────────────────────────────────────────────────────────
 function renderInvChart(id, labels, values) {
     const canvas = document.getElementById(id);
     if (!canvas) return;
@@ -551,62 +575,8 @@ function renderInvChart(id, labels, values) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initTomSelects();
-    cargarInv();
+    cargarInv(1);
 });
-
-// ── Filtro general en tiempo real ─────────────────────────────────────────
-function aplicarFiltroGeneral(texto) {
-    const btn   = document.getElementById('btn_limpiar_gral');
-    const count = document.getElementById('filtro_gral_count');
-    btn.style.display = texto ? 'block' : 'none';
-
-    const filtro  = texto.trim().toUpperCase();
-    const filas  = document.querySelectorAll('#tabla_inv tr');
-    let visibles = 0;
-
-    filas.forEach(tr => {
-        if (!filtro) { tr.style.display = ''; visibles++; return; }
-        const coincide = tr.textContent.toUpperCase().includes(filtro);
-        tr.style.display = coincide ? '' : 'none';
-        if (coincide) visibles++;
-    });
-
-    if (filtro && filas.length > 0) {
-        count.textContent = `${visibles} de ${filas.length}`;
-        count.style.display = 'inline';
-    } else {
-        count.style.display = 'none';
-    }
-    actualizarBtnLimpiarTodo();
-}
-
-function limpiarFiltroGeneral() {
-    const input = document.getElementById('filtro_general');
-    input.value = '';
-    aplicarFiltroGeneral('');
-    input.focus();
-}
-
-// ── ✅ Botón "Limpiar todos los filtros" ──────────────────────────────────
-function limpiarTodosFiltros() {
-    if (tsProducto) tsProducto.setValue('', true);
-    Object.entries(tsCaracs).forEach(([idx, ts]) => {
-        ts.setValue('', true);
-        actualizarBadgeCarac(idx, '', '');
-    });
-    const gral = document.getElementById('filtro_general');
-    if (gral) { gral.value = ''; aplicarFiltroGeneral(''); }
-    actualizarBtnLimpiarTodo();
-    cargarInv();
-}
-
-function actualizarBtnLimpiarTodo() {
-    const hayProducto  = !!(tsProducto && tsProducto.getValue());
-    const hayCarac     = Object.values(tsCaracs).some(ts => ts.getValue());
-    const hayBusqueda  = !!(document.getElementById('filtro_general')?.value?.trim());
-    const btn = document.getElementById('btn_limpiar_todo');
-    if (btn) btn.style.display = (hayProducto || hayCarac || hayBusqueda) ? 'inline-flex' : 'none';
-}
 </script>
 
 {% endblock %}
