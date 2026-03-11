@@ -10,7 +10,7 @@ import json
 
 
 app = Flask(__name__)
-app.secret_key = 'clave_secreta_muy_segura_confia_2026'
+app.secret_key = 'e4nYQh3kdttR7XqV2sSK'
 
 
 # ─── CONFIGURACIÓN DE RUTAS ────────────────────────────────────────────────
@@ -242,6 +242,108 @@ def bancos_page():
     return render_template('bancos.html', empresa=current_user.empresa)
 
 # ─── ENDPOINTS DE API ──────────────────────────────────────────────────────
+
+
+"""
+Endpoint de sincronización — agregar en app.py
+===============================================
+También necesitas agregar en las Variables de Entorno de Render:
+    SYNC_SECRET = "cambia_esta_clave_secreta_muy_larga"
+    (debe ser igual al SYNC_SECRET en sync_dbf.py)
+"""
+
+
+
+# Directorio destino (ya lo tienes definido en tu app.py)
+# DBF_DIR = "/var/data/dbf"
+
+
+@app.route('/api/sync-dbf', methods=['POST'])
+def sync_dbf():
+    """
+    Recibe un archivo DBF desde el script Windows y lo guarda en:
+        /var/data/dbf/<empresa>/<archivo.DBF>
+
+    Headers requeridos:
+        X-Sync-Secret: <clave secreta>
+
+    Query param requerido:
+        ?empresa=NOMBRE_EMPRESA   (debe coincidir con la carpeta/login)
+
+    Body:
+        multipart/form-data con campo 'file'
+    """
+
+    # ── 1. Verificar clave secreta ─────────────────────────────────────────
+    secret_esperado = os.environ.get('SYNC_SECRET', '')
+    secret_recibido = request.headers.get('X-Sync-Secret', '')
+
+    if not secret_esperado:
+        return jsonify({"ok": False, "error": "SYNC_SECRET no configurado en el servidor"}), 500
+
+    if secret_recibido != secret_esperado:
+        return jsonify({"ok": False, "error": "No autorizado"}), 403
+
+    # ── 2. Verificar empresa ───────────────────────────────────────────────
+    empresa = request.args.get('empresa', '').strip()
+    if not empresa:
+        return jsonify({"ok": False, "error": "Parámetro 'empresa' requerido"}), 400
+
+    # Sanitizar: solo alfanuméricos, guion y guion bajo
+    empresa_segura = "".join(c for c in empresa if c.isalnum() or c in ('_', '-'))
+    if not empresa_segura:
+        return jsonify({"ok": False, "error": "Nombre de empresa inválido"}), 400
+
+    # ── 3. Verificar archivo ───────────────────────────────────────────────
+    if 'file' not in request.files:
+        return jsonify({"ok": False, "error": "No se recibió ningún archivo"}), 400
+
+    archivo = request.files['file']
+    nombre  = archivo.filename
+
+    if not nombre:
+        return jsonify({"ok": False, "error": "Nombre de archivo vacío"}), 400
+
+    # Sanitizar nombre (evitar path traversal)
+    nombre_seguro = os.path.basename(nombre)
+    ext = os.path.splitext(nombre_seguro)[1].lower()
+    if ext not in ('.dbf', '.dbt', '.cdx', '.fpt'):
+        return jsonify({"ok": False, "error": f"Extensión no permitida: {ext}"}), 400
+
+    # ── 4. Crear carpeta destino ───────────────────────────────────────────
+    # Estructura: /var/data/dbf/EMPRESA/archivo.DBF
+    destino_dir = os.path.join(DBF_DIR, empresa_segura)
+    os.makedirs(destino_dir, exist_ok=True)
+
+    ruta_destino = os.path.join(destino_dir, nombre_seguro)
+
+    # ── 5. Escritura atómica (tmp → rename) ───────────────────────────────
+    # Evita que la app lea un archivo a medio escribir
+    ruta_tmp = ruta_destino + ".tmp"
+    try:
+        archivo.save(ruta_tmp)
+        os.replace(ruta_tmp, ruta_destino)   # atómico en Linux
+    except Exception as e:
+        if os.path.exists(ruta_tmp):
+            try:
+                os.remove(ruta_tmp)
+            except Exception:
+                pass
+        import traceback
+        print(f"[sync-dbf] ERROR guardando {empresa_segura}/{nombre_seguro}:")
+        print(traceback.format_exc())
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+    tamanio = os.path.getsize(ruta_destino)
+    print(f"[sync-dbf] ✓ {empresa_segura}/{nombre_seguro} ({tamanio:,} bytes)")
+
+    return jsonify({
+        "ok":      True,
+        "empresa": empresa_segura,
+        "archivo": nombre_seguro,
+        "bytes":   tamanio,
+        "ruta":    ruta_destino
+    })
 
 @app.route('/api/cartera_cxc', methods=['POST'])
 @login_required
