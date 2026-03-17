@@ -318,31 +318,99 @@
             margin-top: 14px;
         }
         .security-badge svg { color: #22c55e; }
+
+        /* Logo SVG real */
+        .logo-svg {
+            width: 90px;
+            height: 90px;
+            margin-bottom: 16px;
+            animation: logo-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            filter: drop-shadow(0 4px 20px rgba(26,58,107,0.5));
+        }
+
+        @keyframes logo-in {
+            from { opacity: 0; transform: scale(0.5) rotate(-20deg); }
+            to   { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        /* Letras IA — contenedor con efecto matrix */
+        .ia-wrapper {
+            display: inline-flex;
+            gap: 2px;
+            position: relative;
+        }
+
+        .ia-letter {
+            display: inline-block;
+            color: #6ab49a;
+            position: relative;
+            cursor: default;
+            transition: color 0.15s;
+        }
+
+        /* Canvas matrix detrás del texto IA */
+        #ia-canvas {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .ia-wrapper:hover #ia-canvas { opacity: 1; }
+        .ia-wrapper:hover .ia-letter { color: #a8d8c0; }
+
+        /* Subrayado animado en las letras IA */
+        .ia-letter::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0; right: 0;
+            height: 2px;
+            background: #6ab49a;
+            border-radius: 1px;
+            transform: scaleX(0);
+            animation: ia-underline 0.4s 1.2s ease forwards;
+            transform-origin: left;
+        }
+        @keyframes ia-underline {
+            to { transform: scaleX(1); }
+        }
+
+        /* Glitch cada N segundos */
+        .ia-letter.glitch {
+            animation: ia-glitch 0.3s ease;
+        }
+        @keyframes ia-glitch {
+            0%   { transform: translateX(0) skewX(0deg); color: #6ab49a; }
+            20%  { transform: translateX(-3px) skewX(-8deg); color: #4fffb0; }
+            40%  { transform: translateX(3px) skewX(8deg); color: #00ff88; }
+            60%  { transform: translateX(-2px) skewX(-4deg); color: #6ab49a; }
+            80%  { transform: translateX(1px) skewX(2deg); color: #8effc8; }
+            100% { transform: translateX(0) skewX(0deg); color: #6ab49a; }
+        }
     </style>
 </head>
 <body>
 
 <div class="wrap">
 
-    <!-- Logo animado -->
+    <!-- Logo oficial CONFIA -->
     <div class="logo-area">
-        <div class="logo-mark">
-            <!-- Icono: gráfico de barras ascendentes (alude a datos/paneles) -->
-            <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3"  y="22" width="7" height="10" rx="2"/>
-                <rect x="14" y="14" width="7" height="18" rx="2"/>
-                <rect x="25" y="6"  width="7" height="26" rx="2"/>
-                <path d="M5 20 L16 12 L27 5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="5"  cy="20" r="2.2" fill="white" opacity="0.7"/>
-                <circle cx="16" cy="12" r="2.2" fill="white" opacity="0.7"/>
-                <circle cx="27" cy="5"  r="2.2" fill="white" opacity="0.7"/>
-            </svg>
-        </div>
+        <svg class="logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 151.42,38.72 A 80,80 0 1 0 151.42,161.28 L 129.57,135.24 A 46,46 0 1 1 129.57,64.76 Z" fill="#1a3a6b"/>
+            <path d="M 139.85,52.51 A 62,62 0 1 0 139.85,147.49 L 132.14,138.30 A 50,50 0 1 1 132.14,61.70 Z" fill="#6ab49a"/>
+        </svg>
 
         <div class="brand-name">
-            <span>C</span><span>O</span><span>N</span><span>F</span><span>I</span><span>A</span>
+            <span>C</span><span>O</span><span>N</span><span>F</span><span class="ia-wrapper" id="ia-wrapper">
+                    <canvas id="ia-canvas" width="60" height="28"></canvas>
+                    <span class="ia-letter" id="ia-i">I</span><span class="ia-letter" id="ia-a">A</span>
+                </span>
         </div>
-        <div class="brand-tagline">Plataforma de Inteligencia Comercial</div>
+        <div class="brand-tagline">Plataforma de Inteligencia Artificial</div>
     </div>
 
     <!-- Card de login -->
@@ -423,5 +491,75 @@
 
 </div>
 
+<script>
+// ── Matrix rain en el canvas de las letras IA ────────────────────────────
+(function() {
+    const canvas  = document.getElementById('ia-canvas');
+    const ctx     = canvas.getContext('2d');
+    const wrapper = document.getElementById('ia-wrapper');
+    const chars   = '01アイウエオカキクケコIAデータ知能人工'.split('');
+    const cols    = Math.floor(canvas.width / 8);
+    const drops   = Array(cols).fill(0);
+    let   animId  = null;
+
+    function drawMatrix() {
+        ctx.fillStyle = 'rgba(10,12,16,0.18)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#6ab49a';
+        ctx.font = '7px monospace';
+        drops.forEach((y, i) => {
+            const ch = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillStyle = y < 2 ? '#aaffcc' : '#6ab49a';
+            ctx.fillText(ch, i * 8, y * 8);
+            if (y * 8 > canvas.height && Math.random() > 0.85) drops[i] = 0;
+            else drops[i]++;
+        });
+        animId = requestAnimationFrame(drawMatrix);
+    }
+
+    wrapper.addEventListener('mouseenter', () => {
+        if (!animId) drawMatrix();
+    });
+    wrapper.addEventListener('mouseleave', () => {
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    // ── Glitch periódico ────────────────────────────────────────────────
+    const letters = [document.getElementById('ia-i'), document.getElementById('ia-a')];
+
+    function triggerGlitch() {
+        letters.forEach(el => {
+            el.classList.add('glitch');
+            el.addEventListener('animationend', () => el.classList.remove('glitch'), { once: true });
+        });
+        // Programar el siguiente glitch entre 3 y 7 seg
+        setTimeout(triggerGlitch, 3000 + Math.random() * 4000);
+    }
+
+    // Primer glitch: 1.5 seg después de cargar
+    setTimeout(triggerGlitch, 1500);
+
+    // ── Efecto "construirse" al cargar: scramble → reveal ───────────────
+    const CHARS_POOL = '01#@$%&アイIA';
+    function scrambleLetter(el, finalChar, duration) {
+        const start    = Date.now();
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - start;
+            if (elapsed >= duration) {
+                el.textContent = finalChar;
+                clearInterval(interval);
+            } else {
+                el.textContent = CHARS_POOL[Math.floor(Math.random() * CHARS_POOL.length)];
+            }
+        }, 40);
+    }
+
+    setTimeout(() => {
+        scrambleLetter(document.getElementById('ia-i'), 'I', 600);
+        setTimeout(() => scrambleLetter(document.getElementById('ia-a'), 'A', 600), 120);
+    }, 900);
+})();
+</script>
 </body>
 </html>
