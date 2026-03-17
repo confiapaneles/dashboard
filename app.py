@@ -6,59 +6,35 @@ from collections import defaultdict
 from datetime import datetime
 import pandas as pd
 import json
-#"import google.genai as genai
-
 
 app = Flask(__name__)
 app.secret_key = 'e4nYQh3kdttR7XqV2sSK'
 
-
-# ─── CONFIGURACIÓN DE RUTAS ────────────────────────────────────────────────
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# DBF_DIR = os.path.join(BASE_DIR, "dbf")
-
-# Ruta absoluta al disco persistente (Render lo monta aquí)
 PERSISTENT_ROOT = "/var/data"
-
-# Carpeta principal para todos tus DBF (puedes usar subcarpetas como ahora)
 DBF_DIR = os.path.join(PERSISTENT_ROOT, "dbf")
-
-# Asegúrate de que exista (ejecútalo al inicio de tu app, por ejemplo en app.py)
 os.makedirs(DBF_DIR, exist_ok=True)
 
 
 def get_dbf_path(archivo):
-    """
-    Devuelve la ruta completa al archivo .DBF según la empresa del usuario actual
-    """
     if not current_user.is_authenticated:
-        # Fallback para login o casos sin usuario
         return os.path.join(DBF_DIR, archivo)
-    
     empresa = current_user.empresa.strip().upper()
     if not empresa or empresa == "NONE" or empresa == "CONFIA":
-        # Empresas sin carpeta propia o fallback
         return os.path.join(DBF_DIR, archivo)
-    
-    # Ruta por empresa
     empresa_folder = os.path.join(DBF_DIR, empresa)
     if not os.path.exists(empresa_folder):
         print(f"¡ALERTA! No existe la carpeta para la empresa: {empresa}")
-        return os.path.join(DBF_DIR, archivo)  # fallback
-    
+        return os.path.join(DBF_DIR, archivo)
     return os.path.join(empresa_folder, archivo)
 
 
 def obtener_configuracion():
-    """Lee la configuración base del sistema"""
     try:
         path = get_dbf_path('tablero_configura.dbf')
         if not os.path.exists(path):
             return {"empresa": "CONFIA", "almacenes": [], "precios": []}
-
         table = DBF(path, encoding='latin1')
         df_conf = pd.DataFrame(iter(table))
-
         if not df_conf.empty:
             conf = df_conf.iloc[0].to_dict()
             almacenes = [
@@ -67,7 +43,6 @@ def obtener_configuracion():
                 str(conf.get('ALMACEN3', '')).strip(),
             ]
             almacenes = [a for a in almacenes if a and a != 'None']
-
             return {
                 "empresa": str(conf.get('EMPRESA', 'CONFIA')).strip().upper(),
                 "almacenes": almacenes,
@@ -75,23 +50,23 @@ def obtener_configuracion():
             }
     except Exception as e:
         print(f"Error leyendo configuración: {e}")
-
     return {"empresa": "CONFIA", "almacenes": [], "precios": []}
 
 def obtener_nombre_empresa_global():
     conf = obtener_configuracion()
     return conf.get('empresa', 'CONFIA')
 
-# ─── CONFIGURACIÓN DE AUTENTICACIÓN ────────────────────────────────────────
+# ─── AUTENTICACIÓN ─────────────────────────────────────────────────────────
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, email, empresa, acceso):
+    def __init__(self, email, empresa, acceso, nombre_empresa=None):
         self.id = email
-        self.empresa = empresa
+        self.empresa = empresa          # nombre de la carpeta (para rutas de archivos)
         self.acceso = acceso
+        self.nombre_empresa = nombre_empresa or empresa  # nombre completo para mostrar en paneles
 
     def tiene_permiso(self, posicion):
         try:
@@ -104,7 +79,6 @@ def load_user(email):
     empresa = session.get('empresa')
     if not empresa:
         return None
-    
     path = os.path.join(DBF_DIR, empresa, 'tablero_usuarios.DBF')
     if os.path.exists(path):
         try:
@@ -113,7 +87,8 @@ def load_user(email):
                     return User(
                         email=email,
                         empresa=empresa,
-                        acceso=str(rec.get('ACCESO', '0000000')).strip()
+                        acceso=str(rec.get('ACCESO', '0000000')).strip(),
+                        nombre_empresa=session.get('nombre_empresa', empresa)
                     )
         except Exception:
             pass
@@ -141,15 +116,13 @@ def index():
 def login():
     error = None
     nombre_logo = "SISTEMA EXPLORADOR"
-
     empresas = [d for d in os.listdir(DBF_DIR) if os.path.isdir(os.path.join(DBF_DIR, d))]
     empresas.sort()
-
     selected_empresa = None
 
     if request.method == 'POST':
-        correo_input = request.form['correo']
-        clave_input = request.form['clave']
+        correo_input     = request.form['correo']
+        clave_input      = request.form['clave']
         selected_empresa = request.form.get('empresa', '').strip().upper()
 
         if not selected_empresa or selected_empresa not in empresas:
@@ -163,13 +136,20 @@ def login():
                                 str(u['CLAVE']).strip() == clave_input):
                             empresa_usuario = selected_empresa
 
+                            # ── Leer nombre completo del campo EMPRESA ──────
+                            nombre_empresa = str(u.get('EMPRESA', selected_empresa)).strip()
+                            if not nombre_empresa or nombre_empresa.lower() in ('none', ''):
+                                nombre_empresa = selected_empresa
+
                             user_obj = User(
                                 email=correo_input,
                                 empresa=empresa_usuario,
-                                acceso=str(u['ACCESO'])
+                                acceso=str(u['ACCESO']),
+                                nombre_empresa=nombre_empresa
                             )
                             login_user(user_obj)
-                            session['empresa'] = empresa_usuario
+                            session['empresa']        = empresa_usuario
+                            session['nombre_empresa'] = nombre_empresa  # persiste en sesión
                             return redirect(url_for('ventas_page'))
                     error = "Credenciales incorrectas"
                 except Exception as e:
@@ -177,12 +157,14 @@ def login():
             else:
                 error = "Base de datos de usuarios no encontrada para esta empresa"
 
-    return render_template('login.html', error=error, nombre_logo=nombre_logo, empresas=empresas, selected_empresa=selected_empresa)
+    return render_template('login.html', error=error, nombre_logo=nombre_logo,
+                           empresas=empresas, selected_empresa=selected_empresa)
 
 @app.route('/logout')
 @login_required
 def logout():
     session.pop('empresa', None)
+    session.pop('nombre_empresa', None)
     logout_user()
     return redirect(url_for('login'))
 
@@ -190,145 +172,107 @@ def logout():
 @app.route('/ventas')
 @login_required
 def ventas_page():
-    return render_template('ventas.html', empresa=current_user.empresa)
+    return render_template('ventas.html', empresa=current_user.nombre_empresa)
 
 @app.route('/ventas/cobros-facturas')
 @login_required
 def ventas_cobros_facturas_page():
     if not current_user.tiene_permiso(1):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('ventas_cobros_facturas.html', empresa=current_user.empresa)
+    return render_template('ventas_cobros_facturas.html', empresa=current_user.nombre_empresa)
 
 @app.route('/compras')
 @login_required
 def compras_page():
     if not current_user.tiene_permiso(2):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('compras.html', empresa=current_user.empresa)
+    return render_template('compras.html', empresa=current_user.nombre_empresa)
 
 @app.route('/inventario')
 @login_required
 def inventario_page():
     if not current_user.tiene_permiso(6):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('inventario.html', empresa=current_user.empresa)
+    return render_template('inventario.html', empresa=current_user.nombre_empresa)
 
 @app.route('/cobros')
 @login_required
 def cobros_page():
     if not current_user.tiene_permiso(3):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('cobros.html', empresa=current_user.empresa)
+    return render_template('cobros.html', empresa=current_user.nombre_empresa)
 
 @app.route('/cxc')
 @login_required
 def cxc_page():
     if not current_user.tiene_permiso(3):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('cxc.html', empresa=current_user.empresa)
+    return render_template('cxc.html', empresa=current_user.nombre_empresa)
 
 @app.route('/cxp')
 @login_required
 def cxp_page():
     if not current_user.tiene_permiso(5):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('cxp.html', empresa=current_user.empresa)
+    return render_template('cxp.html', empresa=current_user.nombre_empresa)
 
 @app.route('/bancos')
 @login_required
 def bancos_page():
     if not current_user.tiene_permiso(7):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('bancos.html', empresa=current_user.empresa)
+    return render_template('bancos.html', empresa=current_user.nombre_empresa)
 
 # ─── ENDPOINTS DE API ──────────────────────────────────────────────────────
 
 
+
 """
-Endpoint de sincronización — agregar en app.py
-===============================================
-También necesitas agregar en las Variables de Entorno de Render:
-    SYNC_SECRET = "cambia_esta_clave_secreta_muy_larga"
-    (debe ser igual al SYNC_SECRET en sync_dbf.py)
+Endpoint de sincronización — recibe archivos DBF desde el cliente Windows
 """
-
-
-
-# Directorio destino (ya lo tienes definido en tu app.py)
-# DBF_DIR = "/var/data/dbf"
-
 
 @app.route('/api/sync-dbf', methods=['POST'])
 def sync_dbf():
-    """
-    Recibe un archivo DBF desde el script Windows y lo guarda en:
-        /var/data/dbf/<empresa>/<archivo.DBF>
-
-    Headers requeridos:
-        X-Sync-Secret: <clave secreta>
-
-    Query param requerido:
-        ?empresa=NOMBRE_EMPRESA   (debe coincidir con la carpeta/login)
-
-    Body:
-        multipart/form-data con campo 'file'
-    """
-
-    # ── 1. Verificar clave secreta ─────────────────────────────────────────
     secret_esperado = os.environ.get('SYNC_SECRET', '')
     secret_recibido = request.headers.get('X-Sync-Secret', '')
 
     if not secret_esperado:
         return jsonify({"ok": False, "error": "SYNC_SECRET no configurado en el servidor"}), 500
-
     if secret_recibido != secret_esperado:
         return jsonify({"ok": False, "error": "No autorizado"}), 403
 
-    # ── 2. Verificar empresa ───────────────────────────────────────────────
     empresa = request.args.get('empresa', '').strip()
     if not empresa:
         return jsonify({"ok": False, "error": "Parámetro 'empresa' requerido"}), 400
 
-    # Sanitizar: solo alfanuméricos, guion y guion bajo
     empresa_segura = "".join(c for c in empresa if c.isalnum() or c in ('_', '-'))
     if not empresa_segura:
         return jsonify({"ok": False, "error": "Nombre de empresa inválido"}), 400
 
-    # ── 3. Verificar archivo ───────────────────────────────────────────────
     if 'file' not in request.files:
         return jsonify({"ok": False, "error": "No se recibió ningún archivo"}), 400
 
     archivo = request.files['file']
     nombre  = archivo.filename
-
     if not nombre:
         return jsonify({"ok": False, "error": "Nombre de archivo vacío"}), 400
 
-    # Sanitizar nombre (evitar path traversal)
     nombre_seguro = os.path.basename(nombre)
     ext = os.path.splitext(nombre_seguro)[1].lower()
     if ext not in ('.dbf', '.dbt', '.cdx', '.fpt'):
         return jsonify({"ok": False, "error": f"Extensión no permitida: {ext}"}), 400
 
-    # ── 4. Crear carpeta destino ───────────────────────────────────────────
-    # Estructura: /var/data/dbf/EMPRESA/archivo.DBF
-    destino_dir = os.path.join(DBF_DIR, empresa_segura)
+    destino_dir  = os.path.join(DBF_DIR, empresa_segura)
     os.makedirs(destino_dir, exist_ok=True)
-
     ruta_destino = os.path.join(destino_dir, nombre_seguro)
-
-    # ── 5. Escritura atómica (tmp → rename) ───────────────────────────────
-    # Evita que la app lea un archivo a medio escribir
-    ruta_tmp = ruta_destino + ".tmp"
+    ruta_tmp     = ruta_destino + ".tmp"
     try:
         archivo.save(ruta_tmp)
-        os.replace(ruta_tmp, ruta_destino)   # atómico en Linux
+        os.replace(ruta_tmp, ruta_destino)
     except Exception as e:
         if os.path.exists(ruta_tmp):
-            try:
-                os.remove(ruta_tmp)
-            except Exception:
-                pass
+            try: os.remove(ruta_tmp)
+            except Exception: pass
         import traceback
         print(f"[sync-dbf] ERROR guardando {empresa_segura}/{nombre_seguro}:")
         print(traceback.format_exc())
@@ -336,14 +280,8 @@ def sync_dbf():
 
     tamanio = os.path.getsize(ruta_destino)
     print(f"[sync-dbf] ✓ {empresa_segura}/{nombre_seguro} ({tamanio:,} bytes)")
-
-    return jsonify({
-        "ok":      True,
-        "empresa": empresa_segura,
-        "archivo": nombre_seguro,
-        "bytes":   tamanio,
-        "ruta":    ruta_destino
-    })
+    return jsonify({"ok": True, "empresa": empresa_segura, "archivo": nombre_seguro,
+                    "bytes": tamanio, "ruta": ruta_destino})
 
 @app.route('/api/cartera_cxc', methods=['POST'])
 @login_required
@@ -417,17 +355,16 @@ def get_cartera_cxc():
 @login_required
 def get_ventas():
     params = request.json
-    moneda            = params.get('moneda', 'Bs')
-    top_n             = int(params.get('top_n', 10))
-    fecha_inicio      = params.get('fecha_inicio', '')
-    fecha_fin         = params.get('fecha_fin', '')
-    vendedor          = params.get('vendedor', '').strip()
-    busqueda_cliente  = params.get('busqueda_cliente', '').strip().upper()
+    moneda = params.get('moneda', 'Bs')
+    top_n = int(params.get('top_n', 10))
+    fecha_inicio = params.get('fecha_inicio', '')
+    fecha_fin = params.get('fecha_fin', '')
+    vendedor = params.get('vendedor', '').strip()
+    busqueda_cliente = params.get('busqueda_cliente', '').strip().upper()
     busqueda_producto = params.get('busqueda_producto', '').strip().upper()
-    caja_filtro       = (params.get('filtro_caja') or '').strip().upper()   # match exacto, vacío = todas
-    status_filtro     = params.get('status', 'TODOS')
+    busqueda_caja = params.get('busqueda_caja', '').strip().upper()
+    status_filtro = params.get('status', 'TODOS')  # TODOS, Contado, Crédito
 
-    # Cargar nombres completos desde inventario
     nombres_completos = {}
     try:
         path_inv = get_dbf_path('tablero_inventario.DBF')
@@ -437,55 +374,47 @@ def get_ventas():
     except Exception as e:
         print(f"Error cargando inventario: {e}")
 
-    # ── Contadores ─────────────────────────────────────────────────────────
-    ventas_tipo    = {"Contado": 0.0, "Crédito": 0.0}
-    por_zona       = defaultdict(float)
-    por_cliente    = defaultdict(float)
-    por_producto   = defaultdict(float)
-    por_vendedor   = defaultdict(float)
+    # Inicialización de contadores y agregados
+    ventas_tipo = {"Contado": 0.0, "Crédito": 0.0}
+    por_zona = defaultdict(float)
+    por_cliente = defaultdict(float)
+    por_producto = defaultdict(float)
+    por_vendedor = defaultdict(float)
     prods_por_vend = defaultdict(lambda: defaultdict(float))
-    por_dia_hist   = defaultdict(lambda: {"monto": 0.0, "facturas": 0})
-
-    all_vendedores  = set()
-    all_zonas       = set()
-    all_clientes    = set()
-    all_productos   = set()
-    all_cajas       = set()   # ← recolectada ANTES del filtro de caja
+    
+    all_vendedores = set()
+    all_zonas = set()
+    all_clientes = set()
+    all_productos = set()
     clientes_unicos = set()
 
-    facturas_unicas         = set()
+    # Contadores de facturas únicas
+    facturas_unicas = set()
     facturas_contado_unicas = set()
     facturas_credito_unicas = set()
 
     fact_cont_monto = 0.0
     fact_cred_monto = 0.0
-    total_igtf      = 0.0
-    total_gral      = 0.0
-    facturas_lista  = []
+    total_gral = 0.0
 
-    detalle_producto = {
-        "cantidad_total": 0.0,
-        "monto_total":    0.0,
-        "facturas_unicas": set(),
-        "detalles": []
-    } if busqueda_producto else None
-    detalles_temp = []
+    # Listado completo de facturas para la pestaña "Facturas del Período"
+    facturas_lista = []
 
     try:
         path_fac = get_dbf_path('tablero_facturas.DBF')
         if os.path.exists(path_fac):
             for rec in DBF(path_fac, encoding='latin-1'):
                 fecha_reg = parse_fecha(rec.get('FECHA'))
-
+                
                 if fecha_inicio and fecha_reg < fecha_inicio: continue
-                if fecha_fin    and fecha_reg > fecha_fin:    continue
+                if fecha_fin and fecha_reg > fecha_fin: continue
 
                 vend = str(rec.get('VENDEDOR') or rec.get('CODVEN') or 'SIN VENDEDOR').strip()
                 all_vendedores.add(vend)
                 if vendedor and vendedor != 'TODOS' and vendedor != vend:
                     continue
 
-                zona    = str(rec.get('ZONA', 'SIN ZONA')).strip().upper()
+                zona = str(rec.get('ZONA', 'SIN ZONA')).strip().upper()
                 all_zonas.add(zona)
 
                 cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
@@ -493,142 +422,171 @@ def get_ventas():
                 if busqueda_cliente and busqueda_cliente not in cliente:
                     continue
 
-                cod_pro  = str(rec.get('CODIGOPRO', '')).strip()
+                cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
                 all_productos.add(producto)
                 if busqueda_producto and busqueda_producto not in producto:
                     continue
 
-                # ── Caja: recolectar SIEMPRE antes de filtrar ──────────────
                 caja = str(rec.get('CAJA', '')).strip().upper()
-                if caja:
-                    all_cajas.add(caja)
-
-                # Filtro exacto de caja (igual al patrón de cobros.html)
-                if caja_filtro and caja != caja_filtro:
+                if busqueda_caja and busqueda_caja not in caja:
                     continue
 
-                m_raw  = safe_float(rec.get('MONTO'))
+                m_raw = safe_float(rec.get('MONTO'))
                 factor = safe_float(rec.get('FACTOR')) or 1.0
-                monto  = m_raw if moneda == 'Bs' else (m_raw / factor)
-
-                igtf_raw = safe_float(rec.get('IGTF', 0))
-                igtf     = igtf_raw if moneda == 'Bs' else (igtf_raw / factor)
-                total_igtf += igtf
-
-                tipo_fact  = str(rec.get('TIPO', '')).strip()
+                monto = m_raw if moneda == 'Bs' else (m_raw / factor)
+                
+                tipo_fact = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo_fact == '1' else "Crédito"
 
                 if status_filtro != "TODOS" and tipo_texto != status_filtro:
                     continue
 
+                # Contar facturas únicas
                 nro_factura = str(rec.get('CODIGO', '')).strip()
                 if nro_factura:
                     facturas_unicas.add(nro_factura)
+
                     if tipo_fact == '1':
                         facturas_contado_unicas.add(nro_factura)
-                        fact_cont_monto        += monto
+                        fact_cont_monto += monto
                         ventas_tipo["Contado"] += monto
                     else:
                         facturas_credito_unicas.add(nro_factura)
-                        fact_cred_monto        += monto
+                        fact_cred_monto += monto
                         ventas_tipo["Crédito"] += monto
 
-                total_gral             += monto
-                por_zona[zona]         += monto
-                por_cliente[cliente]   += monto
+                total_gral += monto
+                por_zona[zona] += monto
+                por_cliente[cliente] += monto
                 por_producto[producto] += monto
-                por_vendedor[vend]     += monto
+                por_vendedor[vend] += monto
                 prods_por_vend[vend][producto] += monto
+
                 clientes_unicos.add(cliente)
 
-                # Histórico por día (para gráfico temporal)
-                por_dia_hist[fecha_reg]["monto"]    += monto
-                por_dia_hist[fecha_reg]["facturas"] += 1
-
+                # Agregar a lista de facturas
                 facturas_lista.append({
-                    "FECHA":     fecha_reg,
-                    "CLIENTE":   cliente,
-                    "VENDEDOR":  vend,
-                    "ZONA":      zona,
-                    "CAJA":      caja,
+                    "FECHA": fecha_reg,
+                    "CLIENTE": cliente,
+                    "VENDEDOR": vend,
+                    "ZONA": zona,
+                    "CAJA": caja,
                     "DOCUMENTO": nro_factura,
-                    "TIPO":      tipo_texto,
-                    "MONTO":     round(monto, 2)
+                    "TIPO": tipo_texto,
+                    "MONTO": round(monto, 2)
                 })
 
-                if busqueda_producto:
-                    cant = safe_float(rec.get('CANTIDAD'))
-                    detalle_producto["cantidad_total"] += cant
-                    detalle_producto["monto_total"]    += monto
-                    if nro_factura:
-                        detalle_producto["facturas_unicas"].add(nro_factura)
-                    detalles_temp.append({
-                        "FECHA":    fecha_reg,
-                        "FACTURA":  nro_factura,
-                        "CAJA":     caja,
-                        "CLIENTE":  cliente,
-                        "VENDEDOR": vend,
-                        "CANTIDAD": round(cant, 2),
-                        "MONTO":    round(monto, 2)
-                    })
-
-        if busqueda_producto:
-            detalles_temp.sort(key=lambda x: x["FECHA"], reverse=True)
-            detalle_producto["detalles"]        = detalles_temp[:10]
-            detalle_producto["facturas_unicas"] = len(detalle_producto["facturas_unicas"])
-
+        # Formateo de tops
         def format_top(dico):
             return sorted(
                 [{"label": k, "value": round(v, 2)} for k, v in dico.items()],
-                key=lambda x: x['value'], reverse=True
+                key=lambda x: x['value'], 
+                reverse=True
             )[:top_n]
 
-        top_vendedores    = format_top(por_vendedor)
+        top_vendedores = format_top(por_vendedor)
+        
         detalles_vendedor = {}
         for v in top_vendedores:
             v_name = v['label']
-            top_p  = sorted(prods_por_vend[v_name].items(), key=lambda x: x[1], reverse=True)[:10]
-            detalles_vendedor[v_name] = [{"label": p, "value": round(m, 2)} for p, m in top_p]
+            top_p = sorted(
+                prods_por_vend[v_name].items(), 
+                key=lambda x: x[1], 
+                reverse=True
+            )[:10]
+            detalles_vendedor[v_name] = [
+                {"label": p, "value": round(m, 2)} 
+                for p, m in top_p
+            ]
 
-        historico_ventas = sorted(
-            [{"fecha": f, "monto": round(v["monto"], 2), "facturas": v["facturas"]}
-             for f, v in por_dia_hist.items()],
-            key=lambda x: x["fecha"]
-        )
+        # ─── DETALLES POR PRODUCTO ───────────────────────────────────────────────
+        detalle_producto = None
+        if busqueda_producto:
+            detalle_producto = {
+                "cantidad_total": 0.0,
+                "monto_total": 0.0,
+                "facturas_unicas": 0,
+                "detalles": []
+            }
+            facturas_unicas_prod = set()
 
+            # Segunda pasada solo para el producto buscado
+            for rec in DBF(path_fac, encoding='latin-1'):
+                fecha_reg = parse_fecha(rec.get('FECHA'))
+                if fecha_inicio and fecha_reg < fecha_inicio: continue
+                if fecha_fin and fecha_reg > fecha_fin: continue
+
+                vend = str(rec.get('VENDEDOR') or rec.get('CODVEN') or 'SIN VENDEDOR').strip()
+                if vendedor and vendedor != 'TODOS' and vendedor != vend: continue
+
+                cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
+                if busqueda_cliente and busqueda_cliente not in cliente: continue
+
+                cod_pro = str(rec.get('CODIGOPRO', '')).strip()
+                producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
+                if busqueda_producto not in producto: continue
+
+                caja = str(rec.get('CAJA', '')).strip().upper()
+                if busqueda_caja and busqueda_caja not in caja: continue
+
+                m_raw = safe_float(rec.get('MONTO'))
+                factor = safe_float(rec.get('FACTOR')) or 1.0
+                monto = m_raw if moneda == 'Bs' else (m_raw / factor)
+                cant = safe_float(rec.get('CANTIDAD'))
+
+                detalle_producto["cantidad_total"] += cant
+                detalle_producto["monto_total"] += monto
+
+                nro_factura = str(rec.get('CODIGO', '')).strip()
+                if nro_factura:
+                    facturas_unicas_prod.add(nro_factura)
+
+                detalle_producto["detalles"].append({
+                    "FECHA": fecha_reg,
+                    "FACTURA": nro_factura,
+                    "CAJA": caja,
+                    "CLIENTE": cliente,
+                    "VENDEDOR": vend,
+                    "CANTIDAD": round(cant, 2),
+                    "MONTO": round(monto, 2)
+                })
+
+            detalle_producto["facturas_unicas"] = len(facturas_unicas_prod)
+
+        # Respuesta final
         return jsonify({
-            "status":    "success",
+            "status": "success",
             "total_gral": round(total_gral, 2),
             "resumen_tipo": {k: round(v, 2) for k, v in ventas_tipo.items()},
             "general": {
-                "conteo_clientes":         len(clientes_unicos),
-                "total_facturas_unicas":   len(facturas_unicas),
+                "conteo_clientes": len(clientes_unicos),
+                "total_facturas_unicas": len(facturas_unicas),
                 "facturas_contado_unicas": len(facturas_contado_unicas),
-                "fact_cont_monto":         round(fact_cont_monto, 2),
+                "fact_cont_monto": round(fact_cont_monto, 2),
                 "facturas_credito_unicas": len(facturas_credito_unicas),
-                "fact_cred_monto":         round(fact_cred_monto, 2),
-                "total_igtf":              round(total_igtf, 2),
+                "fact_cred_monto": round(fact_cred_monto, 2)
             },
-            "zonas":             format_top(por_zona),
-            "clientes":          format_top(por_cliente),
-            "productos":         format_top(por_producto),
-            "vendedores":        top_vendedores,
+            "zonas": format_top(por_zona),
+            "clientes": format_top(por_cliente),
+            "productos": format_top(por_producto),
+            "vendedores": top_vendedores,
             "detalles_vendedor": detalles_vendedor,
-            "lista_vendedores":  sorted(list(all_vendedores)),
-            "lista_zonas":       sorted(list(all_zonas)),
-            "lista_clientes":    sorted(list(all_clientes)),
-            "lista_productos":   sorted(list(all_productos)),
-            "lista_cajas":       sorted([c for c in all_cajas if c]),  # ← NUEVO
-            "facturas":          facturas_lista[:1000],
-            "detalle_producto":  detalle_producto,
-            "historico_ventas":  historico_ventas,   # ← para gráfico temporal
+            "lista_vendedores": sorted(list(all_vendedores)),
+            "lista_zonas": sorted(list(all_zonas)),
+            "lista_clientes": sorted(list(all_clientes)),
+            "lista_productos": sorted(list(all_productos)),
+            "facturas": facturas_lista[:1000],
+            "detalle_producto": detalle_producto  # ← ahora sí se incluye
         })
 
     except Exception as e:
         import traceback
         print(traceback.format_exc())
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
     
 # Asumiendo que tienes estas funciones ya definidas en tu proyecto:
 # from tu_modulo import DBF, parse_fecha, safe_float, get_dbf_path, login_required
@@ -637,56 +595,52 @@ def get_ventas():
 @login_required
 def get_cobros_facturas():
     params = request.json or {}
+    
+    fecha_inicio = params.get('fecha_inicio', '')
+    fecha_fin    = params.get('fecha_fin', '')
+    moneda       = params.get('moneda', 'Bs')
+    forma_pago   = (params.get('forma_pago') or 'TODAS').strip().upper()
+    vendedor_filtro = (params.get('vendedor') or 'TODOS').strip().upper()
+    top_n        = int(params.get('top_n', 10))
 
-    fecha_inicio    = params.get('fecha_inicio', '')
-    fecha_fin       = params.get('fecha_fin', '')
-    moneda          = params.get('moneda', 'Bs')
-    forma_pago      = (params.get('forma_pago') or 'TODAS').strip().upper()
-    vendedor_filtro = (params.get('vendedor')   or 'TODOS').strip().upper()
-    caja_filtro     = (params.get('caja')       or 'TODAS').strip().upper()
-    top_n           = int(params.get('top_n', 10))
-
+    # Normalización mejorada de forma de pago (ajusta según tu base real)
     def normalizar_forma(raw):
         if not raw or str(raw).strip() == '':
             return 'SIN FORMA'
-        f = str(raw).strip().upper().replace('.', '').replace(' ', '').replace('-', '')
+        f = str(raw).strip().upper().replace('.', '').replace(' ', '').replace('-','')
         mapping = {
-            'TDEBITO':       'T.DEBITO',
+            'TDEBITO': 'T.DEBITO',
             'TARJETADEBITO': 'T.DEBITO',
-            'DEBITO':        'T.DEBITO',
-            'TCREDITO':      'T.CREDITO',
-            'TARJETACREDITO':'T.CREDITO',
-            'CREDITO':       'T.CREDITO',
+            'DEBITO': 'T.DEBITO',
+            'TCREDITO': 'T.CREDITO',
+            'TARJETACREDITO': 'T.CREDITO',
+            'CREDITO': 'T.CREDITO',
             'TRANSFERENCIA': 'TRANSFERENCIA',
-            'TRANSF':        'TRANSFERENCIA',
-            'ZELLE':         'DIVISAS',
-            'PAYPAL':        'DIVISAS',
-            'BINANCE':       'DIVISAS',
-            'DIVISAS':       'DIVISAS',
-            'EFECTIVO':      'EFECTIVO',
-            'EFE':           'EFECTIVO',
-            'CHEQUE':        'CHEQUE',
-            'CHQ':           'CHEQUE',
-            'DEPOSITO':      'DEPOSITO',
-            'DEP':           'DEPOSITO',
-            'POS':           'POS / TARJETA',
-            'TARJETA':       'POS / TARJETA',
-            'POSTARI':       'POS / TARJETA',
+            'TRANSF': 'TRANSFERENCIA',
+            'ZELLE': 'DIVISAS',
+            'PAYPAL': 'DIVISAS',
+            'BINANCE': 'DIVISAS',
+            'DIVISAS': 'DIVISAS',
+            'EFECTIVO': 'EFECTIVO',
+            'EFE': 'EFECTIVO',
+            'CHEQUE': 'CHEQUE',
+            'CHQ': 'CHEQUE',
+            'DEPOSITO': 'DEPOSITO',
+            'DEP': 'DEPOSITO',
         }
         for clave, valor in mapping.items():
             if clave in f:
                 return valor
-        return str(raw).strip().upper()
+        return f  # si no coincide, se mantiene lo normalizado
 
     total_cobrado = 0.0
-    por_forma     = defaultdict(float)
-    por_vendedor  = defaultdict(float)
-    por_caja      = defaultdict(float)
-    data_tabla    = []
+    por_forma = defaultdict(float)
+    por_vendedor = defaultdict(float)
+    por_caja = defaultdict(float)
 
+    data_tabla = []
     all_vendedores = set()
-    all_formas     = set()
-    all_cajas      = set()   # ✅ recolectada ANTES de aplicar filtro de caja
+    all_formas = set()
 
     try:
         path = get_dbf_path('tablero_cobro_factura.DBF')
@@ -696,39 +650,33 @@ def get_cobros_facturas():
         for rec in DBF(path, encoding='latin-1'):
             fecha_reg = parse_fecha(rec.get('FECHA'))
             if fecha_inicio and fecha_reg < fecha_inicio: continue
-            if fecha_fin    and fecha_reg > fecha_fin:    continue
+            if fecha_fin   and fecha_reg > fecha_fin:    continue
 
-            # ── Vendedor ──────────────────────────────────────
-            vendedor_raw  = str(rec.get('VENDEDOR', 'S/V')).strip()
-            vendedor_norm = ' '.join(vendedor_raw.upper().split())
+            # Vendedor - normalización estricta
+            vendedor_raw = str(rec.get('VENDEDOR', 'S/V')).strip()
+            vendedor = vendedor_raw.upper()
+            vendedor_norm = ' '.join(vendedor.split())  # elimina espacios múltiples
             all_vendedores.add(vendedor_norm)
 
-            # ── Forma de pago ─────────────────────────────────
-            forma_raw = str(rec.get('FORMAPAGO', 'S/I')).strip()
-            forma     = normalizar_forma(forma_raw)
-            all_formas.add(forma)
-
-            # ── Caja — recolectar SIEMPRE antes de filtrar ────
-            caja = str(rec.get('CAJA', 'S/C')).strip().upper()
-            all_cajas.add(caja)
-
-            # ── Aplicar filtros ───────────────────────────────
             if vendedor_filtro != 'TODOS' and vendedor_norm != vendedor_filtro:
                 continue
+
+            # Forma de pago
+            forma_raw = str(rec.get('FORMAPAGO', 'S/I')).strip()
+            forma = normalizar_forma(forma_raw)
+            all_formas.add(forma)
+
             if forma_pago != 'TODAS' and forma != forma_pago:
                 continue
-            if caja_filtro != 'TODAS' and caja != caja_filtro:
-                continue
 
-            # ── Monto ─────────────────────────────────────────
             monto_raw = safe_float(rec.get('MONTO'))
-            tasa      = safe_float(rec.get('TASADOLAR')) or 1.0
-            monto     = monto_raw if moneda == 'Bs' else round(monto_raw / tasa, 2)
+            tasa = safe_float(rec.get('TASADOLAR')) or 1.0
+            monto = monto_raw if moneda == 'Bs' else round(monto_raw / tasa, 2)
 
-            total_cobrado   += monto
+            total_cobrado += monto
             por_forma[forma] += monto
             por_vendedor[vendedor_norm] += monto
-            por_caja[caja]  += monto
+            por_caja[str(rec.get('CAJA', 'S/C')).strip().upper()] += monto
 
             if len(data_tabla) < 1000:
                 data_tabla.append({
@@ -736,34 +684,40 @@ def get_cobros_facturas():
                     "FECHA":     fecha_reg,
                     "CLIENTE":   str(rec.get('CLIENTE', 'S/C')).strip(),
                     "VENDEDOR":  vendedor_norm,
-                    "CAJA":      caja,
+                    "CAJA":      str(rec.get('CAJA', 'S/C')).strip(),
                     "FORMAPAGO": forma,
                     "MONTO":     round(monto, 2),
                 })
 
         def format_top(dic):
             return sorted(
-                [{"label": k or 'Sin dato', "value": round(v, 2)} for k, v in dic.items()],
+                [{"label": k or 'Sin dato', "value": round(v, 2)} for k,v in dic.items()],
                 key=lambda x: x['value'], reverse=True
             )[:top_n]
 
-        return jsonify({
-            "status":          "success",
-            "total_general":   round(total_cobrado, 2),
-            "formas_pago":     format_top(por_forma),
-            "vendedores":      format_top(por_vendedor),
-            "cajas":           format_top(por_caja),
-            "tabla":           data_tabla,
+        response = {
+            "status": "success",
+            "total_general": round(total_cobrado, 2),
+            "formas_pago": format_top(por_forma),
+            "vendedores": format_top(por_vendedor),
+            "cajas": format_top(por_caja),
+            "tabla": data_tabla,
             "lista_vendedores": sorted(list(all_vendedores)),
-            "lista_formas":    sorted(list(all_formas)),
-            "lista_cajas":     sorted(list(all_cajas)),   # ✅ nuevo — pobla el select de caja
-        })
+            "lista_formas": sorted(list(all_formas))
+        }
+
+        # Para depuración (quitar en producción)
+        print("Formas encontradas:", sorted(list(all_formas)))
+        print("Vendedores encontrados:", sorted(list(all_vendedores)))
+        print(f"Filtro vendedor: {vendedor_filtro} | Forma: {forma_pago}")
+
+        return jsonify(response)
 
     except Exception as e:
         import traceback
         print("Error en /api/cobros-facturas:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-    
+
 
 @app.route('/api/bancos', methods=['POST'])
 @login_required
@@ -875,19 +829,17 @@ def get_vendedores():
 @login_required
 def get_inventario():
     params = request.json or {}
-
-    f_prod      = (params.get('producto') or '').strip().upper()
-    valorizar_a = params.get('valorizar_a', 'costo')
-    pagina      = int(params.get('pagina', 1))
-    por_pagina  = int(params.get('por_pagina', 100))
-
+    
+    f_prod          = (params.get('producto') or '').strip().upper()
+    valorizar_a     = params.get('valorizar_a', 'costo')
+    
+    # Filtros dinámicos por característica (carac1, carac2, etc.)
     filtros_carac = {}
     for i in '1234':
         key = f'carac{i}'
         if key in params:
             filtros_carac[i] = (params[key] or '').strip().upper()
 
-    # data_tabla ahora guarda TODOS los registros que pasan el filtro (sin límite)
     data_tabla = []
     totales = {
         "articulos": 0,
@@ -895,10 +847,11 @@ def get_inventario():
         "valor_total": 0.0,
         "kilos": 0.0
     }
-    por_marca           = defaultdict(float)
-    nombres_precios     = {"1": "Precio 1", "2": "Precio 2", "3": "Precio 3"}
-    nombres_carac       = {}
-    has_carac           = {"1": False, "2": False, "3": False, "4": False}
+    por_marca = defaultdict(float)  # Usaremos CARAC1 como ejemplo para gráfico, pero se puede hacer dinámico después
+    
+    nombres_precios = {"1": "Precio 1", "2": "Precio 2", "3": "Precio 3"}
+    nombres_carac   = {}
+    has_carac       = {"1": False, "2": False, "3": False, "4": False}
     nombres_encontrados = False
 
     try:
@@ -907,8 +860,6 @@ def get_inventario():
             return jsonify({"error": "Archivo de inventario no encontrado"}), 404
 
         for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
-
-            # Leer nombres de precios y clasificaciones del primer registro
             if not nombres_encontrados:
                 for i in '123':
                     np_key = f'NOMBREP{i}'
@@ -922,11 +873,10 @@ def get_inventario():
                         nombres_carac[i] = nombre
                 nombres_encontrados = True
 
-            desc   = str(rec.get('DESCRIPCIO', '')).strip()
-            codigo = str(rec.get('CODIGO',     '')).strip()
+            desc = str(rec.get('DESCRIPCIO', '')).strip()
+            codigo = str(rec.get('CODIGO', '')).strip()
 
-            # Filtro de producto: busca en código Y descripción
-            if f_prod and f_prod not in desc.upper() and f_prod not in codigo.upper():
+            if f_prod and f_prod not in desc.upper() and f_prod not in codigo:
                 continue
 
             # Filtros dinámicos por característica
@@ -939,17 +889,18 @@ def get_inventario():
             if not pasar:
                 continue
 
-            # Detectar características con datos
+            # Detectar presencia de datos en características
             for i in '1234':
-                if str(rec.get(f'CARAC{i}', '')).strip():
+                val = str(rec.get(f'CARAC{i}', '')).strip()
+                if val:
                     has_carac[i] = True
 
             existencia = safe_float(rec.get('EXISTENCIA'))
-            monto      = safe_float(rec.get('MONTO'))
-            kilos      = safe_float(rec.get('KILOS'))
-            precio1    = safe_float(rec.get('PRECIO1'))
-            precio2    = safe_float(rec.get('PRECIO2'))
-            precio3    = safe_float(rec.get('PRECIO3'))
+            monto = safe_float(rec.get('MONTO'))
+            kilos = safe_float(rec.get('KILOS'))
+            precio1 = safe_float(rec.get('PRECIO1'))
+            precio2 = safe_float(rec.get('PRECIO2'))
+            precio3 = safe_float(rec.get('PRECIO3'))
 
             if valorizar_a == 'precio1':
                 valor_unit = precio1
@@ -961,56 +912,51 @@ def get_inventario():
                 valor_unit = monto / existencia if existencia > 0 else 0.0
 
             valor_total_item = valor_unit * existencia
-            costo_unitario   = monto / existencia if existencia > 0 else 0.0
 
-            # Totales siempre (sobre todos los registros filtrados)
-            totales["articulos"]   += 1
-            totales["existencia"]  += existencia
+            totales["articulos"] += 1
+            totales["existencia"] += existencia
             totales["valor_total"] += valor_total_item
-            totales["kilos"]       += kilos
+            totales["kilos"] += kilos
             por_marca[str(rec.get('CARAC1', 'Sin marca')).strip()] += valor_total_item
 
-            # Guardar el item completo — SIN LÍMITE
-            item = {
-                "CODIGO":        codigo,
-                "DESCRIPCION":   desc,
-                "EXISTENCIA":    existencia,
-                "COSTO_UNITARIO": round(costo_unitario, 4),
-                "PRECIO1":       precio1,
-                "PRECIO2":       precio2,
-                "PRECIO3":       precio3,
-                "VALOR_TOTAL":   round(valor_total_item, 2),
-                "TOTAL_EMPAQUE": kilos,
-            }
-            for i in '1234':
-                val = str(rec.get(f'CARAC{i}', '')).strip()
-                if val:
-                    item[f'CARAC{i}'] = val
-            data_tabla.append(item)
+            costo_unitario = monto / existencia if existencia > 0 else 0.0
 
-        # ── Paginación server-side ─────────────────────────────────────────
-        total_registros = len(data_tabla)
-        total_paginas   = max(1, -(-total_registros // por_pagina))   # ceil division
-        pagina          = max(1, min(pagina, total_paginas))
-        inicio          = (pagina - 1) * por_pagina
-        fin             = inicio + por_pagina
-        pagina_data     = data_tabla[inicio:fin]
+            if len(data_tabla) < 1500:
+                item = {
+                    "CODIGO": codigo,
+                    "DESCRIPCION": desc,
+                    "EXISTENCIA": existencia,
+                    "COSTO_UNITARIO": round(costo_unitario, 4),
+                    "PRECIO1": precio1,
+                    "PRECIO2": precio2,
+                    "PRECIO3": precio3,
+                    "VALOR_TOTAL": round(valor_total_item, 2),
+                    "TOTAL_EMPAQUE": kilos,
+                }
+                # Agregar todas las características presentes
+                for i in '1234':
+                    val = str(rec.get(f'CARAC{i}', '')).strip()
+                    if val:
+                        item[f'CARAC{i}'] = val
+                data_tabla.append(item)
 
-        # Características activas
+        # Características activas (solo las que tienen datos)
         caracteristicas_activas = {}
         for i in '1234':
             if has_carac[i]:
                 caracteristicas_activas[i] = nombres_carac.get(i, f"Clasificación {i}")
 
-        # Listas únicas para filtros dinámicos (sobre TODOS los resultados, no solo la página)
+        # Listas únicas para cada característica activa
         filtros_dinamicos = {}
-        for idx in caracteristicas_activas:
-            filtros_dinamicos[f'filtro_carac{idx}'] = sorted(set(
+        for idx, nombre in caracteristicas_activas.items():
+            valores = sorted(set(
                 str(item.get(f'CARAC{idx}', '')).strip()
                 for item in data_tabla
                 if str(item.get(f'CARAC{idx}', '')).strip()
             ))
+            filtros_dinamicos[f'filtro_carac{idx}'] = valores
 
+        # Gráfico (por ahora usamos CARAC1 como ejemplo; se puede hacer configurable después)
         marcas_chart = sorted(
             [{"MARCA": k, "V": round(v, 2)} for k, v in por_marca.items()],
             key=lambda x: x["V"], reverse=True
@@ -1018,27 +964,17 @@ def get_inventario():
 
         return jsonify({
             "totales": {
-                "articulos":   totales["articulos"],
-                "existencia":  round(totales["existencia"],  2),
+                "articulos": totales["articulos"],
+                "existencia": round(totales["existencia"], 2),
                 "valor_total": round(totales["valor_total"], 2),
-                "kilos":       round(totales["kilos"],       2)
+                "kilos": round(totales["kilos"], 2)
             },
-            # Solo la página solicitada
-            "tabla":        pagina_data,
-            # Metadatos de paginación
-            "paginacion": {
-                "pagina":           pagina,
-                "por_pagina":       por_pagina,
-                "total_registros":  total_registros,
-                "total_paginas":    total_paginas,
-                "tiene_anterior":   pagina > 1,
-                "tiene_siguiente":  pagina < total_paginas,
-            },
-            "marcas_chart":      marcas_chart,
-            "nombres_precios":   nombres_precios,
-            "caracteristicas":   caracteristicas_activas,
-            "filtros_dinamicos": filtros_dinamicos,
-            "valorizar_a":       valorizar_a
+            "tabla": data_tabla,
+            "marcas_chart": marcas_chart,
+            "nombres_precios": nombres_precios,
+            "caracteristicas": caracteristicas_activas,       # {"1": "Marca", "2": "Grupo", ...}
+            "filtros_dinamicos": filtros_dinamicos,           # {"filtro_carac1": [...], "filtro_carac2": [...]}
+            "valorizar_a": valorizar_a
         })
 
     except Exception as e:
@@ -1242,123 +1178,69 @@ def get_cobros():
 @app.route('/api/compras', methods=['POST'])
 @login_required
 def get_compras():
-    params       = request.json or {}
-    moneda       = params.get('moneda', 'Bs')
-    top_n        = int(params.get('top_n', 15))
-    f_inicio     = params.get('fecha_inicio', '')
-    f_fin        = params.get('fecha_fin', '')
-    # ✅ Filtros desde TomSelect — match exacto si viene valor, vacío = todos
-    f_prov       = (params.get('proveedor') or '').strip().upper()
-    f_prod       = (params.get('producto')  or '').strip().upper()
-    prod_criterio = params.get('prod_criterio', 'monto')
-
-    totales_compra      = {"Contado": 0.0, "Crédito": 0.0, "Otros": 0.0}
-    por_proveedor       = defaultdict(float)
-    por_producto_monto  = defaultdict(float)
-    por_producto_unid   = defaultdict(float)
-    por_marca           = defaultdict(float)
-
-    # ✅ Listas para poblar TomSelects
-    all_proveedores = set()
-    all_productos   = set()
-
-    total_gral = 0.0
-
-    # ✅ Detalle del producto seleccionado (qué proveedor, cuándo, cuánto)
-    detalle_producto = {
-        "cantidad_total":    0.0,
-        "monto_total":       0.0,
-        "proveedores_unicos": set(),
-        "detalles":          []
-    } if f_prod else None
-
-    detalles_temp = []
+    params = request.json
+    moneda = params.get('moneda', 'Bs')
+    top_n = int(params.get('top_n', 10))
+    f_inicio = params.get('fecha_inicio', '')
+    f_fin = params.get('fecha_fin', '')
+    f_prov = params.get('proveedor', '').upper().strip()
+    f_prod = params.get('producto', '').upper().strip()
+    
+    totales_compra = {"Contado": 0, "Crédito": 0, "Otros": 0}
+    por_proveedor = defaultdict(float)
+    por_producto_monto = defaultdict(float)
+    por_producto_unid = defaultdict(float)
+    por_marca = defaultdict(float)
+    sugerencias_prov = set()
+    sugerencias_prod = set()
+    total_gral = 0
 
     try:
         path = get_dbf_path('tablero_compras.DBF')
         if os.path.exists(path):
             for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
-                prov_reg  = str(rec.get('PROVEEDOR', 'S/P')).strip().upper()
-                prod_reg  = str(rec.get('NOMBREPRO', 'S/P')).strip().upper()
+                prov_reg = str(rec.get('PROVEEDOR', 'S/P')).strip()
+                prod_reg = str(rec.get('NOMBREPRO', 'S/P')).strip()
                 fecha_reg = parse_fecha(rec.get('FECHA'))
+                sugerencias_prov.add(prov_reg)
+                sugerencias_prod.add(prod_reg)
 
-                # Recolectar listas ANTES de filtrar
-                all_proveedores.add(prov_reg)
-                all_productos.add(prod_reg)
+                if f_prov and f_prov not in prov_reg: continue
+                if f_prod and f_prod not in prod_reg: continue
+                if f_inicio and fecha_reg < f_inicio: continue
+                if f_fin and fecha_reg > f_fin: continue
 
-                # ── Filtros activos ──────────────────────────────────────
-                # Proveedor: match exacto si viene del TomSelect
-                if f_prov and f_prov != prov_reg:
-                    continue
-                # Producto: búsqueda parcial (puede ser substring)
-                if f_prod and f_prod not in prod_reg:
-                    continue
-                if f_inicio and fecha_reg < f_inicio:
-                    continue
-                if f_fin and fecha_reg > f_fin:
-                    continue
-
-                m_raw  = safe_float(rec.get('MONTO'))
+                m_raw = safe_float(rec.get('MONTO'))
                 factor = safe_float(rec.get('FACTOR')) or 1.0
-                monto  = m_raw if moneda == 'Bs' else (m_raw / factor)
-                cant   = safe_float(rec.get('CANTIDAD'))
-                tipo   = str(rec.get('TIPO', '')).strip()
+                monto = m_raw if moneda == 'Bs' else (m_raw / factor)
+                cant = safe_float(rec.get('CANTIDAD'))
+                tipo = str(rec.get('TIPO', '')).strip()
 
-                tipo_texto = "Contado" if tipo == '1' else ("Crédito" if tipo == '2' else "Otros")
-                totales_compra[tipo_texto] += monto
+                if tipo == '1': totales_compra["Contado"] += monto
+                elif tipo == '2': totales_compra["Crédito"] += monto
+                else: totales_compra["Otros"] += monto
+
                 total_gral += monto
-
-                por_proveedor[prov_reg]      += monto
+                por_proveedor[prov_reg] += monto
                 por_producto_monto[prod_reg] += monto
-                por_producto_unid[prod_reg]  += cant
+                por_producto_unid[prod_reg] += cant
                 por_marca[str(rec.get('CLASI1', 'SIN MARCA')).strip()] += monto
 
-                # ✅ Acumular detalle si hay producto seleccionado
-                if f_prod and detalle_producto is not None:
-                    detalle_producto["cantidad_total"] += cant
-                    detalle_producto["monto_total"]    += monto
-                    detalle_producto["proveedores_unicos"].add(prov_reg)
-                    nro_doc = str(rec.get('CODIGO', '')).strip()
-                    detalles_temp.append({
-                        "FECHA":     fecha_reg,
-                        "DOCUMENTO": nro_doc,
-                        "PROVEEDOR": prov_reg,
-                        "TIPO":      tipo_texto,
-                        "CANTIDAD":  round(cant, 2),
-                        "MONTO":     round(monto, 2),
-                    })
-
-        # Ordenar detalles del producto por fecha desc, tomar top 200
-        if f_prod and detalle_producto is not None:
-            detalles_temp.sort(key=lambda x: x["FECHA"], reverse=True)
-            detalle_producto["detalles"]          = detalles_temp[:200]
-            detalle_producto["proveedores_unicos"] = len(detalle_producto["proveedores_unicos"])
-            detalle_producto["monto_total"]        = round(detalle_producto["monto_total"], 2)
-            detalle_producto["cantidad_total"]     = round(detalle_producto["cantidad_total"], 2)
-
         def format_top(dico, label_key):
-            return sorted(
-                [{label_key: k, "V": round(v, 2)} for k, v in dico.items() if v > 0],
-                key=lambda x: x["V"], reverse=True
-            )[:top_n]
+            items = sorted(dico.items(), key=lambda x: x[1], reverse=True)[:top_n]
+            return [{label_key: k, "V": round(v, 2)} for k, v in items if v > 0]
 
         return jsonify({
-            "totales":          {k: round(v, 2) for k, v in totales_compra.items()},
-            "total_general":    round(total_gral, 2),
-            "proveedores":      format_top(por_proveedor,      "PROVEEDOR"),
-            "productos_monto":  format_top(por_producto_monto, "PRODUCTO"),
-            "productos_unid":   format_top(por_producto_unid,  "PRODUCTO"),
-            "marcas":           format_top(por_marca,          "MARCA"),
-            # ✅ Listas para TomSelects
-            "lista_proveedores": sorted([p for p in all_proveedores if p and p != 'S/P']),
-            "lista_productos":   sorted([p for p in all_productos   if p and p != 'S/P']),
-            # ✅ Detalle del producto seleccionado
-            "detalle_producto":  detalle_producto,
+            "totales": totales_compra,
+            "total_general": round(total_gral, 2),
+            "proveedores": format_top(por_proveedor, "PROVEEDOR"),
+            "productos_monto": format_top(por_producto_monto, "PRODUCTO"),
+            "productos_unid": format_top(por_producto_unid, "PRODUCTO"),
+            "marcas": format_top(por_marca, "MARCA"),
+            "sugerencias_prov": sorted(list(sugerencias_prov)),
+            "sugerencias_prod": sorted(list(sugerencias_prod))
         })
-
     except Exception as e:
-        import traceback
-        print("Error en /api/compras:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
     
 @app.route('/api/cobranzas', methods=['POST'])
@@ -1431,5 +1313,8 @@ def api_cobranzas():
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-port = int(os.environ.get('PORT', 5000))
-app.run(debug=False, host='0.0.0.0', port=port)
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
