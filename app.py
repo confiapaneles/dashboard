@@ -638,13 +638,15 @@ def get_cobros_facturas():
         return f  # si no coincide, se mantiene lo normalizado
 
     total_cobrado = 0.0
-    por_forma = defaultdict(float)
+    por_forma    = defaultdict(float)
     por_vendedor = defaultdict(float)
-    por_caja = defaultdict(float)
+    por_caja     = defaultdict(float)
 
-    data_tabla = []
+    data_tabla     = []
     all_vendedores = set()
-    all_formas = set()
+    all_formas     = set()
+    all_cajas      = set()   # recolectada ANTES del filtro de caja
+    caja_filtro    = (params.get('caja') or 'TODAS').strip().upper()
 
     try:
         path = get_dbf_path('tablero_cobro_factura.DBF')
@@ -656,10 +658,9 @@ def get_cobros_facturas():
             if fecha_inicio and fecha_reg < fecha_inicio: continue
             if fecha_fin   and fecha_reg > fecha_fin:    continue
 
-            # Vendedor - normalización estricta
-            vendedor_raw = str(rec.get('VENDEDOR', 'S/V')).strip()
-            vendedor = vendedor_raw.upper()
-            vendedor_norm = ' '.join(vendedor.split())  # elimina espacios múltiples
+            # Vendedor
+            vendedor_raw  = str(rec.get('VENDEDOR', 'S/V')).strip()
+            vendedor_norm = ' '.join(vendedor_raw.upper().split())
             all_vendedores.add(vendedor_norm)
 
             if vendedor_filtro != 'TODOS' and vendedor_norm != vendedor_filtro:
@@ -667,20 +668,28 @@ def get_cobros_facturas():
 
             # Forma de pago
             forma_raw = str(rec.get('FORMAPAGO', 'S/I')).strip()
-            forma = normalizar_forma(forma_raw)
+            forma     = normalizar_forma(forma_raw)
             all_formas.add(forma)
 
             if forma_pago != 'TODAS' and forma != forma_pago:
                 continue
 
-            monto_raw = safe_float(rec.get('MONTO'))
-            tasa = safe_float(rec.get('TASADOLAR')) or 1.0
-            monto = monto_raw if moneda == 'Bs' else round(monto_raw / tasa, 2)
+            # Caja — recolectar SIEMPRE antes de filtrar
+            caja = str(rec.get('CAJA', 'S/C')).strip().upper()
+            if caja and caja != 'S/C':
+                all_cajas.add(caja)
 
-            total_cobrado += monto
-            por_forma[forma] += monto
+            if caja_filtro != 'TODAS' and caja != caja_filtro:
+                continue
+
+            monto_raw = safe_float(rec.get('MONTO'))
+            tasa      = safe_float(rec.get('TASADOLAR')) or 1.0
+            monto     = monto_raw if moneda == 'Bs' else round(monto_raw / tasa, 2)
+
+            total_cobrado      += monto
+            por_forma[forma]   += monto
             por_vendedor[vendedor_norm] += monto
-            por_caja[str(rec.get('CAJA', 'S/C')).strip().upper()] += monto
+            por_caja[caja]     += monto
 
             if len(data_tabla) < 1000:
                 data_tabla.append({
@@ -699,23 +708,17 @@ def get_cobros_facturas():
                 key=lambda x: x['value'], reverse=True
             )[:top_n]
 
-        response = {
-            "status": "success",
-            "total_general": round(total_cobrado, 2),
-            "formas_pago": format_top(por_forma),
-            "vendedores": format_top(por_vendedor),
-            "cajas": format_top(por_caja),
-            "tabla": data_tabla,
+        return jsonify({
+            "status":          "success",
+            "total_general":   round(total_cobrado, 2),
+            "formas_pago":     format_top(por_forma),
+            "vendedores":      format_top(por_vendedor),
+            "cajas":           format_top(por_caja),
+            "tabla":           data_tabla,
             "lista_vendedores": sorted(list(all_vendedores)),
-            "lista_formas": sorted(list(all_formas))
-        }
-
-        # Para depuración (quitar en producción)
-        print("Formas encontradas:", sorted(list(all_formas)))
-        print("Vendedores encontrados:", sorted(list(all_vendedores)))
-        print(f"Filtro vendedor: {vendedor_filtro} | Forma: {forma_pago}")
-
-        return jsonify(response)
+            "lista_formas":    sorted(list(all_formas)),
+            "lista_cajas":     sorted(list(all_cajas)),   # ← pobla Tom Select de caja
+        })
 
     except Exception as e:
         import traceback
