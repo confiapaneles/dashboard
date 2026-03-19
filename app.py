@@ -383,9 +383,10 @@ def get_ventas():
     prods_por_vend = defaultdict(lambda: defaultdict(float))
     
     all_vendedores = set()
-    all_zonas = set()
-    all_clientes = set()
-    all_productos = set()
+    all_zonas      = set()
+    all_clientes   = set()
+    all_productos  = set()
+    all_cajas      = set()   # recolectada ANTES del filtro de caja
     clientes_unicos = set()
 
     # Contadores de facturas únicas
@@ -429,6 +430,8 @@ def get_ventas():
                     continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
+                if caja:
+                    all_cajas.add(caja)   # siempre recolectar, sin importar el filtro
                 if caja_filtro and caja != caja_filtro:
                     continue
 
@@ -576,6 +579,7 @@ def get_ventas():
             "lista_zonas": sorted(list(all_zonas)),
             "lista_clientes": sorted(list(all_clientes)),
             "lista_productos": sorted(list(all_productos)),
+            "lista_cajas": sorted([c for c in all_cajas if c]),
             "facturas": facturas_lista[:1000],
             "detalle_producto": detalle_producto  # ← ahora sí se incluye
         })
@@ -1312,6 +1316,8 @@ def api_cobranzas():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
