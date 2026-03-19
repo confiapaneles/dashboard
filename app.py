@@ -362,7 +362,7 @@ def get_ventas():
     vendedor = params.get('vendedor', '').strip()
     busqueda_cliente = params.get('busqueda_cliente', '').strip().upper()
     busqueda_producto = params.get('busqueda_producto', '').strip().upper()
-    busqueda_caja = params.get('busqueda_caja', '').strip().upper()
+    caja_filtro   = (params.get('filtro_caja') or '').strip().upper()   # match exacto, vacío = todas
     status_filtro = params.get('status', 'TODOS')  # TODOS, Contado, Crédito
 
     nombres_completos = {}
@@ -429,7 +429,7 @@ def get_ventas():
                     continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
-                if busqueda_caja and busqueda_caja not in caja:
+                if caja_filtro and caja != caja_filtro:
                     continue
 
                 m_raw = safe_float(rec.get('MONTO'))
@@ -528,7 +528,7 @@ def get_ventas():
                 if busqueda_producto not in producto: continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
-                if busqueda_caja and busqueda_caja not in caja: continue
+                if caja_filtro and caja != caja_filtro: continue
 
                 m_raw = safe_float(rec.get('MONTO'))
                 factor = safe_float(rec.get('FACTOR')) or 1.0
@@ -1312,8 +1312,6 @@ def api_cobranzas():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
