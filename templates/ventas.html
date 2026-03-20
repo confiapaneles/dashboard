@@ -637,9 +637,79 @@ async function cargarDatos() {
         document.getElementById("val_fact_cred_cant").textContent = d.general?.facturas_credito_unicas || 0;
         document.getElementById("val_fact_cred_monto").textContent = fmt(d.general?.fact_cred_monto || 0) + ' ' + monedaStr;
 
-        // Gráficos
-        renderChartWithPercent("chartTotales", "pie", "Ventas", 
-            Object.keys(d.resumen_tipo || {}), Object.values(d.resumen_tipo || {}), generarColores(2));
+        // Gráfico Resumen General — barras Contado/Crédito + línea histórico diario
+        const histDatos = d.historico_ventas || [];
+        const histLabels = histDatos.map(x => x.fecha);
+        const histMontos = histDatos.map(x => x.monto);
+
+        if (chartsInst["chartTotales"]) chartsInst["chartTotales"].destroy();
+        const ctxTot = document.getElementById("chartTotales");
+        if (ctxTot) {
+            chartsInst["chartTotales"] = new Chart(ctxTot.getContext('2d'), {
+                data: {
+                    labels: histLabels,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Ventas del día',
+                            data: histMontos,
+                            backgroundColor: 'rgba(52,152,219,0.55)',
+                            borderColor: '#3498db',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            type: 'line',
+                            label: 'Tendencia',
+                            data: histMontos,
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39,174,96,0.08)',
+                            borderWidth: 2.5,
+                            pointRadius: histMontos.length > 60 ? 0 : 3,
+                            pointHoverRadius: 5,
+                            fill: true,
+                            tension: 0.35,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const f = ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    return `${ctx.dataset.label}: ${f} ${monedaStr}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                maxTicksLimit: 12,
+                                font: { size: 10 },
+                                maxRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f0f0f0' },
+                            ticks: {
+                                font: { size: 10 },
+                                callback: v => v.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
         renderChartWithPercent("chartZonas", "bar", "Monto", 
             (d.zonas || []).map(x => x.label), (d.zonas || []).map(x => x.value), generarColores(d.zonas?.length || 0));

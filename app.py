@@ -388,6 +388,7 @@ def get_ventas():
     all_productos  = set()
     all_cajas      = set()   # recolectada ANTES del filtro de caja
     clientes_unicos = set()
+    por_dia_hist   = defaultdict(lambda: {"monto": 0.0, "facturas": 0})
 
     # Contadores de facturas únicas
     facturas_unicas = set()
@@ -467,6 +468,8 @@ def get_ventas():
                 por_producto[producto] += monto
                 por_vendedor[vend] += monto
                 prods_por_vend[vend][producto] += monto
+                por_dia_hist[fecha_reg]["monto"]    += monto
+                por_dia_hist[fecha_reg]["facturas"] += 1
 
                 clientes_unicos.add(cliente)
 
@@ -484,6 +487,13 @@ def get_ventas():
                             "MONTO":     0.0
                         }
                     facturas_dict[nro_factura]["MONTO"] += monto
+
+        # Histórico de ventas por día para el gráfico de barras+línea
+        historico_ventas = sorted(
+            [{"fecha": f, "monto": round(v["monto"], 2), "facturas": v["facturas"]}
+             for f, v in por_dia_hist.items()],
+            key=lambda x: x["fecha"]
+        )
 
         # Convertir dict de facturas agrupadas a lista ordenada por fecha desc
         facturas_lista = sorted(
@@ -592,7 +602,8 @@ def get_ventas():
             "lista_productos": sorted(list(all_productos)),
             "lista_cajas": sorted([c for c in all_cajas if c]),
             "facturas": facturas_lista[:1000],
-            "detalle_producto": detalle_producto  # ← ahora sí se incluye
+            "detalle_producto": detalle_producto,
+            "historico_ventas": historico_ventas
         })
 
     except Exception as e:
