@@ -94,7 +94,7 @@
                             <div style="position:relative;">
                                 <input type="text" id="filtro_general"
                                     placeholder="Busca por código, descripción, marca, grupo, proveedor..."
-                                    oninput="aplicarFiltroGeneral(this.value)"
+                                    oninput="debouncedBusqueda(this.value)"
                                     style="width:100%; padding:9px 36px 9px 14px; border:1px solid #dee2e6; border-radius:8px; font-size:0.95rem; box-sizing:border-box;">
                                 <i class="bi bi-x-lg" id="btn_limpiar_gral"
                                     onclick="limpiarFiltroGeneral()"
@@ -213,6 +213,19 @@ function debounce(fn, delay = 400) {
 }
 const debouncedCargarInv = debounce(() => { paginaActual = 1; cargarInv(); });
 
+// Búsqueda general — va al backend para manejar 20k+ registros
+function debouncedBusqueda(valor) {
+    const btn = document.getElementById('btn_limpiar_gral');
+    const count = document.getElementById('filtro_gral_count');
+    if (btn) btn.style.display = valor ? 'block' : 'none';
+    if (count) count.style.display = 'none';
+    clearTimeout(window._busquedaTimer);
+    window._busquedaTimer = setTimeout(() => {
+        paginaActual = 1;
+        cargarInv();
+    }, 500);
+}
+
 // ── Init Tom Selects fijos ────────────────────────────────────────────────
 function initTomSelects() {
     tsValorizar = new TomSelect('#valorizar_a', {
@@ -324,7 +337,11 @@ function renderPaginacion() {
 function limpiarTodosFiltros() {
     Object.values(tsCaracs).forEach(ts => ts.setValue('', true));
     const inp = document.getElementById('filtro_general');
-    if (inp) { inp.value = ''; aplicarFiltroGeneral(''); }
+    if (inp) inp.value = '';
+    const btn = document.getElementById('btn_limpiar_gral');
+    if (btn) btn.style.display = 'none';
+    const count = document.getElementById('filtro_gral_count');
+    if (count) count.style.display = 'none';
     const badge = document.getElementById('filtros_activos_badge');
     if (badge) badge.textContent = '';
     paginaActual = 1;
@@ -352,9 +369,10 @@ function actualizarBotonLimpiar() {
 async function cargarInv() {
     showLoading();
     try {
+        const busquedaGral = (document.getElementById('filtro_general')?.value || '').trim().toUpperCase();
         const params = {
-            producto:    '',  // filtrado por búsqueda general en el frontend
-            valorizar_a: tsValorizar ? (tsValorizar.getValue()  || 'costo') : 'costo',
+            producto:    busquedaGral,   // se filtra en el backend para manejar 20k+ registros
+            valorizar_a: tsValorizar ? (tsValorizar.getValue() || 'costo') : 'costo',
             pagina:      paginaActual,
             por_pagina:  POR_PAGINA
         };
@@ -379,6 +397,17 @@ async function cargarInv() {
             totalPaginas   = d.paginacion.total_paginas;
             totalRegistros = d.paginacion.total_registros;
             renderPaginacion();
+            // Actualizar contador búsqueda general
+            const busqVal = (document.getElementById('filtro_general')?.value || '').trim();
+            const countEl = document.getElementById('filtro_gral_count');
+            if (countEl) {
+                if (busqVal) {
+                    countEl.textContent = `${totalRegistros.toLocaleString('es-VE')} resultados`;
+                    countEl.style.display = 'inline';
+                } else {
+                    countEl.style.display = 'none';
+                }
+            }
         }
 
         // Actualizar lista de productos conservando selección
@@ -447,7 +476,6 @@ async function cargarInv() {
         if (tGraf) tGraf.textContent = `Gráfico por Clasificación (${labelActual})`;
 
         // Tabla
-        const filtroActual = document.getElementById('filtro_general').value;
         const precioKeys = Object.entries(d.nombres_precios || {})
             .filter(([, n]) => n?.trim())
             .sort((a, b) => Number(a[0]) - Number(b[0]))
@@ -476,7 +504,7 @@ async function cargarInv() {
             d.marcas_chart?.map(x => x.V)     || []
         );
 
-        if (filtroActual.trim()) aplicarFiltroGeneral(filtroActual);
+        actualizarBotonLimpiar();
 
     } catch (err) {
         console.error('Error cargando inventario:', err);
@@ -558,9 +586,14 @@ function aplicarFiltroGeneral(texto) {
 
 function limpiarFiltroGeneral() {
     const input = document.getElementById('filtro_general');
-    input.value = '';
-    aplicarFiltroGeneral('');
-    input.focus();
+    if (input) { input.value = ''; }
+    const btn   = document.getElementById('btn_limpiar_gral');
+    const count = document.getElementById('filtro_gral_count');
+    if (btn)   btn.style.display = 'none';
+    if (count) count.style.display = 'none';
+    paginaActual = 1;
+    cargarInv();
+    if (input) input.focus();
 }
 </script>
 
