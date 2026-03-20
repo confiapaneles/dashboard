@@ -112,6 +112,16 @@
                     <!-- FILTROS DINÁMICOS (clasificaciones) -->
                     <div class="row g-3 mb-3" id="filtros-container" style="display:none;"></div>
 
+                    <!-- Botón limpiar todos los filtros -->
+                    <div class="row mb-2" id="row-limpiar-filtros" style="display:none;">
+                        <div class="col-12">
+                            <button onclick="limpiarTodosFiltros()" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-x-circle me-1"></i>Limpiar todos los filtros
+                            </button>
+                            <span id="filtros_activos_badge" class="ms-2 text-muted small"></span>
+                        </div>
+                    </div>
+
                     <!-- KPIs -->
                     <div class="row g-3 justify-content-end">
                         <div class="col-md-3 col-sm-6 col-12">
@@ -161,15 +171,12 @@
                     </table>
                 </div>
                 <!-- Paginación -->
-                <div id="paginacion_inv" class="d-flex align-items-center justify-content-between mt-3 px-1" style="display:none!important;">
-                    <span id="pag_info" class="text-muted small">Página 1 de 1</span>
-                    <div class="d-flex gap-2">
-                        <button id="btn_pag_prev" class="btn btn-sm btn-outline-secondary" disabled>
-                            ← Anterior
-                        </button>
-                        <button id="btn_pag_next" class="btn btn-sm btn-outline-secondary" disabled>
-                            Siguiente →
-                        </button>
+                <div id="paginacion_inv" class="d-flex align-items-center justify-content-between mt-3 px-1" style="display:none;">
+                    <span id="pag_info" class="text-muted small fw-semibold">Página 1 de 1</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <button id="btn_pag_prev" class="btn btn-sm btn-outline-secondary" disabled>← Anterior</button>
+                        <span id="pag_num" class="badge bg-light text-dark border px-3 py-2" style="font-size:0.82rem;"></span>
+                        <button id="btn_pag_next" class="btn btn-sm btn-outline-secondary" disabled>Siguiente →</button>
                     </div>
                 </div>
             </div>
@@ -319,18 +326,58 @@ function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
 
 // ── Paginación UI ─────────────────────────────────────────────────────────
 function renderPaginacion() {
-    const cont = document.getElementById('paginacion_inv');
-    if (!cont) return;
-
-    const info = document.getElementById('pag_info');
-    if (info) info.textContent = `Página ${paginaActual} de ${totalPaginas}  (${totalRegistros.toLocaleString('es-VE')} registros)`;
-
+    const cont    = document.getElementById('paginacion_inv');
+    const info    = document.getElementById('pag_info');
+    const num     = document.getElementById('pag_num');
     const btnPrev = document.getElementById('btn_pag_prev');
     const btnNext = document.getElementById('btn_pag_next');
+
+    if (info) info.textContent = `${totalRegistros.toLocaleString('es-VE')} registros en total`;
+    if (num)  num.textContent  = `${paginaActual} / ${totalPaginas}`;
     if (btnPrev) btnPrev.disabled = paginaActual <= 1;
     if (btnNext) btnNext.disabled = paginaActual >= totalPaginas;
 
-    cont.style.display = totalPaginas > 1 ? 'flex' : 'none';
+    // Mostrar siempre si hay datos, ocultar si no hay nada
+    if (cont) cont.style.display = totalRegistros > 0 ? 'flex' : 'none';
+}
+
+// ── Limpiar todos los filtros ─────────────────────────────────────────────
+function limpiarTodosFiltros() {
+    // Limpiar producto
+    if (tsProducto) tsProducto.setValue('', true);
+    // Limpiar clasificaciones
+    Object.values(tsCaracs).forEach(ts => ts.setValue('', true));
+    // Limpiar búsqueda general
+    const inp = document.getElementById('filtro_general');
+    if (inp) { inp.value = ''; aplicarFiltroGeneral(''); }
+    // Recargar desde página 1
+    paginaActual = 1;
+    cargarInv();
+}
+
+// Actualizar visibilidad del botón limpiar según filtros activos
+function actualizarBotónLimpiar() {
+    const prod     = tsProducto ? tsProducto.getValue() : '';
+    const caracs   = Object.values(tsCaracs).some(ts => ts.getValue() !== '');
+    const general  = (document.getElementById('filtro_general')?.value || '').trim();
+    const hayFiltros = prod || caracs || general;
+
+    const row   = document.getElementById('row-limpiar-filtros');
+    const badge = document.getElementById('filtros_activos_badge');
+    if (row) row.style.display = hayFiltros ? '' : 'none';
+
+    if (badge && hayFiltros) {
+        const activos = [];
+        if (prod)    activos.push(`Producto: ${prod}`);
+        Object.entries(tsCaracs).forEach(([idx, ts]) => {
+            const v = ts.getValue();
+            if (v) activos.push(v);
+        });
+        if (general) activos.push(`"${general}"`);
+        badge.textContent = `Filtros activos: ${activos.join(' · ')}`;
+    } else if (badge) {
+        badge.textContent = '';
+    }
 }
 
 // ── Función principal ─────────────────────────────────────────────────────
@@ -752,6 +799,7 @@ async function cargarInv() {
 
         // Reaplicar filtro general si había uno activo
         if (filtroActual.trim()) aplicarFiltroGeneral(filtroActual);
+        actualizarBotónLimpiar();
 
     } catch (err) {
         console.error('Error cargando inventario:', err);
