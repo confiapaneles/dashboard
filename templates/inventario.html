@@ -86,25 +86,19 @@
                                 <option value="costo">Costo</option>
                             </select>
                         </div>
-                        <div class="col-md-5 col-sm-6 col-12">
-                            <label class="form-label small fw-semibold">Producto</label>
-                            <select id="inv_prod">
-                                <option value="">Todos los productos</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 col-sm-12 col-12">
+                        <div class="col-md-9 col-sm-12 col-12">
                             <label class="form-label small fw-semibold">
                                 <i class="bi bi-search me-1"></i>Búsqueda General
                                 <span id="filtro_gral_count" style="display:none; font-size:0.75rem; color:#6c757d; margin-left:6px;"></span>
                             </label>
                             <div style="position:relative;">
                                 <input type="text" id="filtro_general"
-                                    placeholder="Filtra la tabla por cualquier campo..."
+                                    placeholder="Busca por código, descripción, marca, grupo, proveedor..."
                                     oninput="aplicarFiltroGeneral(this.value)"
-                                    style="width:100%; padding:7px 34px 7px 12px; border:1px solid #dee2e6; border-radius:6px; font-size:0.92rem; box-sizing:border-box;">
+                                    style="width:100%; padding:9px 36px 9px 14px; border:1px solid #dee2e6; border-radius:8px; font-size:0.95rem; box-sizing:border-box;">
                                 <i class="bi bi-x-lg" id="btn_limpiar_gral"
                                     onclick="limpiarFiltroGeneral()"
-                                    style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#adb5bd; font-size:0.85rem;"></i>
+                                    style="display:none; position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#adb5bd; font-size:0.9rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -225,13 +219,7 @@ function initTomSelects() {
         allowEmptyOption: false,
         onChange: () => { paginaActual = 1; cargarInv(); }
     });
-
-    tsProducto = new TomSelect('#inv_prod', {
-        placeholder: 'Buscar producto...',
-        allowEmptyOption: true,
-        maxOptions: 300,
-        onChange: () => { paginaActual = 1; cargarInv(); }
-    });
+    // tsProducto eliminado — se usa Búsqueda General en su lugar
 }
 
 // Actualizar opciones de valorizar_a
@@ -250,17 +238,8 @@ function actualizarValorizarA(nombresPrecios) {
     tsValorizar.setValue(actual && tsValorizar.options[actual] ? actual : 'costo', true);
 }
 
-// Poblar Tom Select de producto — conservando valor actual
-function poblarSelectProducto(lista) {
-    if (!tsProducto) return;
-    const actual = tsProducto.getValue();
-    tsProducto.clearOptions();
-    tsProducto.addOption({ value: '', text: 'Todos los productos' });
-    lista.forEach(p => tsProducto.addOption({ value: p, text: p }));
-    tsProducto.refreshOptions(false);
-    // Conservar el valor si sigue existiendo
-    tsProducto.setValue(actual && lista.includes(actual) ? actual : '', true);
-}
+// poblarSelectProducto — eliminado (se usa Búsqueda General)
+function poblarSelectProducto(lista) { /* no-op */ }
 
 // Crear/actualizar Tom Selects dinámicos SIN destruir los que ya existen
 function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
@@ -343,24 +322,26 @@ function renderPaginacion() {
 
 // ── Limpiar todos los filtros ─────────────────────────────────────────────
 function limpiarTodosFiltros() {
-    // Limpiar producto
-    if (tsProducto) tsProducto.setValue('', true);
     // Limpiar clasificaciones
     Object.values(tsCaracs).forEach(ts => ts.setValue('', true));
     // Limpiar búsqueda general
     const inp = document.getElementById('filtro_general');
     if (inp) { inp.value = ''; aplicarFiltroGeneral(''); }
+    // Ocultar botón limpiar
+    const row = document.getElementById('row-limpiar-filtros');
+    if (row) row.style.display = 'none';
+    const badge = document.getElementById('filtros_activos_badge');
+    if (badge) badge.textContent = '';
     // Recargar desde página 1
     paginaActual = 1;
     cargarInv();
 }
 
 // Actualizar visibilidad del botón limpiar según filtros activos
-function actualizarBotónLimpiar() {
-    const prod     = tsProducto ? tsProducto.getValue() : '';
-    const caracs   = Object.values(tsCaracs).some(ts => ts.getValue() !== '');
-    const general  = (document.getElementById('filtro_general')?.value || '').trim();
-    const hayFiltros = prod || caracs || general;
+function actualizarBotonLimpiar() {
+    const caracs  = Object.values(tsCaracs).some(ts => ts.getValue() !== '');
+    const general = (document.getElementById('filtro_general')?.value || '').trim();
+    const hayFiltros = caracs || general;
 
     const row   = document.getElementById('row-limpiar-filtros');
     const badge = document.getElementById('filtros_activos_badge');
@@ -368,8 +349,7 @@ function actualizarBotónLimpiar() {
 
     if (badge && hayFiltros) {
         const activos = [];
-        if (prod)    activos.push(`Producto: ${prod}`);
-        Object.entries(tsCaracs).forEach(([idx, ts]) => {
+        Object.entries(tsCaracs).forEach(([, ts]) => {
             const v = ts.getValue();
             if (v) activos.push(v);
         });
@@ -385,7 +365,7 @@ async function cargarInv() {
     showLoading();
     try {
         const params = {
-            producto:    tsProducto  ? (tsProducto.getValue()  || '') : '',
+            producto:    '',  // filtrado por búsqueda general en el frontend
             valorizar_a: tsValorizar ? (tsValorizar.getValue()  || 'costo') : 'costo',
             pagina:      paginaActual,
             por_pagina:  POR_PAGINA
