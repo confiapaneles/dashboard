@@ -241,6 +241,30 @@
         .tab-btn { padding: 9px 18px; font-size: 0.85rem; }
     }
 
+    /* Selector tipo gráfico */
+    .chart-type-selector {
+        display: flex;
+        gap: 4px;
+        background: #f3f4f6;
+        border-radius: 10px;
+        padding: 4px;
+    }
+    .chart-type-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 7px;
+        background: transparent;
+        color: #9ca3af;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .chart-type-btn:hover { background: white; color: #374151; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .chart-type-btn.active { background: white; color: var(--accent, #3498db); box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+
     /* Overlay de carga - RESTAURADO */
     #loadingOverlay {
         position: fixed;
@@ -345,7 +369,36 @@
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="card-chart">
-                    <div class="chart-title">Condición de Venta (Contado vs Crédito)</div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="chart-title mb-0">Ventas en el período</div>
+                        <!-- Selector de tipo de gráfico -->
+                        <div class="chart-type-selector" id="chartTypeSel">
+                            <button class="chart-type-btn" data-type="bar" title="Barras por día">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/>
+                                </svg>
+                            </button>
+                            <button class="chart-type-btn" data-type="barline" title="Barras + línea tendencia" TEMP_MARK>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="13" width="3" height="8"/><rect x="9" y="9" width="3" height="12"/><rect x="15" y="11" width="3" height="10"/>
+                                    <polyline points="2,8 7,5 13,7 21,3" stroke-width="2"/>
+                                </svg>
+                            </button>
+                            <button class="chart-type-btn" data-type="line" title="Línea en el tiempo">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3,17 7,11 12,14 17,6 21,9"/>
+                                    <circle cx="3" cy="17" r="1.5" fill="currentColor"/><circle cx="7" cy="11" r="1.5" fill="currentColor"/>
+                                    <circle cx="12" cy="14" r="1.5" fill="currentColor"/><circle cx="17" cy="6" r="1.5" fill="currentColor"/>
+                                    <circle cx="21" cy="9" r="1.5" fill="currentColor"/>
+                                </svg>
+                            </button>
+                            <button class="chart-type-btn active" data-type="pie" title="Torta Contado vs Crédito">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div class="chart-container"><canvas id="chartTotales"></canvas></div>
                 </div>
             </div>
@@ -639,77 +692,7 @@ async function cargarDatos() {
 
         // Gráfico Resumen General — barras Contado/Crédito + línea histórico diario
         const histDatos = d.historico_ventas || [];
-        const histLabels = histDatos.map(x => x.fecha);
-        const histMontos = histDatos.map(x => x.monto);
-
-        if (chartsInst["chartTotales"]) chartsInst["chartTotales"].destroy();
-        const ctxTot = document.getElementById("chartTotales");
-        if (ctxTot) {
-            chartsInst["chartTotales"] = new Chart(ctxTot.getContext('2d'), {
-                data: {
-                    labels: histLabels,
-                    datasets: [
-                        {
-                            type: 'bar',
-                            label: 'Ventas del día',
-                            data: histMontos,
-                            backgroundColor: 'rgba(52,152,219,0.55)',
-                            borderColor: '#3498db',
-                            borderWidth: 1,
-                            borderRadius: 4,
-                            yAxisID: 'y'
-                        },
-                        {
-                            type: 'line',
-                            label: 'Tendencia',
-                            data: histMontos,
-                            borderColor: '#27ae60',
-                            backgroundColor: 'rgba(39,174,96,0.08)',
-                            borderWidth: 2.5,
-                            pointRadius: histMontos.length > 60 ? 0 : 3,
-                            pointHoverRadius: 5,
-                            fill: true,
-                            tension: 0.35,
-                            yAxisID: 'y'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { display: true, position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => {
-                                    const f = ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                    return `${ctx.dataset.label}: ${f} ${monedaStr}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                maxTicksLimit: 12,
-                                font: { size: 10 },
-                                maxRotation: 45
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#f0f0f0' },
-                            ticks: {
-                                font: { size: 10 },
-                                callback: v => v.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-                            }
-                        }
-                    }
-                }
-            });
-        }
+        renderChartTotales(tipoGraficoActual, histDatos, d.resumen_tipo, monedaStr);
 
         renderChartWithPercent("chartZonas", "bar", "Monto", 
             (d.zonas || []).map(x => x.label), (d.zonas || []).map(x => x.value), generarColores(d.zonas?.length || 0));
@@ -936,6 +919,112 @@ function poblarSelectCaja(lista) {
         tsCaja.setValue('', true);
     }
 }
+
+// ─── GRÁFICO RESUMEN GENERAL con selector de tipo ────────────────────────
+let tipoGraficoActual = 'pie';
+let ultimosHistorico  = [];
+let ultimoResumenTipo = {};
+let ultimaMonedaStr   = 'Bs';
+
+function renderChartTotales(tipo, histDatos, resumenTipo, monedaStr) {
+    tipoGraficoActual = tipo;
+    ultimosHistorico  = histDatos  || ultimosHistorico;
+    ultimoResumenTipo = resumenTipo || ultimoResumenTipo;
+    ultimaMonedaStr   = monedaStr  || ultimaMonedaStr;
+
+    if (chartsInst["chartTotales"]) chartsInst["chartTotales"].destroy();
+    const ctx = document.getElementById("chartTotales");
+    if (!ctx) return;
+
+    const fmt2 = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    if (tipo === 'pie') {
+        // Torta: Contado vs Crédito
+        const labels = Object.keys(ultimoResumenTipo);
+        const values = Object.values(ultimoResumenTipo);
+        const total  = values.reduce((s, v) => s + v, 0);
+        chartsInst["chartTotales"] = new Chart(ctx.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels,
+                datasets: [{ data: values, backgroundColor: ['#3498db', '#e74c3c'], borderWidth: 2, borderColor: '#fff' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom' },
+                    tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt2(ctx.raw)} ${ultimaMonedaStr} (${total > 0 ? ((ctx.raw/total)*100).toFixed(1) : 0}%)` } }
+                }
+            }
+        });
+        return;
+    }
+
+    // Bar, Line, BarLine — usan el histórico diario
+    const labels  = ultimosHistorico.map(x => x.fecha);
+    const montos  = ultimosHistorico.map(x => x.monto);
+
+    let datasets = [];
+    if (tipo === 'bar') {
+        datasets = [{
+            type: 'bar', label: 'Ventas del día', data: montos,
+            backgroundColor: 'rgba(52,152,219,0.6)', borderColor: '#3498db',
+            borderWidth: 1, borderRadius: 4
+        }];
+    } else if (tipo === 'line') {
+        datasets = [{
+            type: 'line', label: 'Ventas', data: montos,
+            borderColor: '#3498db', backgroundColor: 'rgba(52,152,219,0.08)',
+            borderWidth: 2.5, pointRadius: montos.length > 60 ? 0 : 3,
+            pointHoverRadius: 5, fill: true, tension: 0.35
+        }];
+    } else { // barline
+        datasets = [
+            {
+                type: 'bar', label: 'Ventas del día', data: montos,
+                backgroundColor: 'rgba(52,152,219,0.55)', borderColor: '#3498db',
+                borderWidth: 1, borderRadius: 4
+            },
+            {
+                type: 'line', label: 'Tendencia', data: montos,
+                borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,0.07)',
+                borderWidth: 2.5, pointRadius: montos.length > 60 ? 0 : 3,
+                pointHoverRadius: 5, fill: true, tension: 0.35
+            }
+        ];
+    }
+
+    chartsInst["chartTotales"] = new Chart(ctx.getContext('2d'), {
+        data: { labels, datasets },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: tipo === 'barline', position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt2(c.raw)} ${ultimaMonedaStr}` } }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 12, font: { size: 10 }, maxRotation: 45 }
+                },
+                y: {
+                    beginAtZero: true, grid: { color: '#f0f0f0' },
+                    ticks: { font: { size: 10 }, callback: v => v.toLocaleString('es-VE', { minimumFractionDigits: 0 }) }
+                }
+            }
+        }
+    });
+}
+
+// Listener del selector de tipo de gráfico
+document.getElementById('chartTypeSel')?.querySelectorAll('.chart-type-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        renderChartTotales(this.dataset.type);
+    });
+});
 
 document.addEventListener("DOMContentLoaded", async () => {
     const hoy = new Date();
