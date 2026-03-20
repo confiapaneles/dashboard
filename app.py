@@ -399,7 +399,9 @@ def get_ventas():
     total_gral = 0.0
 
     # Listado completo de facturas para la pestaña "Facturas del Período"
+    # Usamos dict para agrupar ítems de la misma factura en una sola fila
     facturas_lista = []
+    facturas_dict  = {}
 
     try:
         path_fac = get_dbf_path('tablero_facturas.DBF')
@@ -468,17 +470,26 @@ def get_ventas():
 
                 clientes_unicos.add(cliente)
 
-                # Agregar a lista de facturas
-                facturas_lista.append({
-                    "FECHA": fecha_reg,
-                    "CLIENTE": cliente,
-                    "VENDEDOR": vend,
-                    "ZONA": zona,
-                    "CAJA": caja,
-                    "DOCUMENTO": nro_factura,
-                    "TIPO": tipo_texto,
-                    "MONTO": round(monto, 2)
-                })
+                # Agregar/acumular en lista de facturas (agrupado por número de factura)
+                if nro_factura:
+                    if nro_factura not in facturas_dict:
+                        facturas_dict[nro_factura] = {
+                            "FECHA":     fecha_reg,
+                            "CLIENTE":   cliente,
+                            "VENDEDOR":  vend,
+                            "ZONA":      zona,
+                            "CAJA":      caja,
+                            "DOCUMENTO": nro_factura,
+                            "TIPO":      tipo_texto,
+                            "MONTO":     0.0
+                        }
+                    facturas_dict[nro_factura]["MONTO"] += monto
+
+        # Convertir dict de facturas agrupadas a lista ordenada por fecha desc
+        facturas_lista = sorted(
+            [dict(f, MONTO=round(f["MONTO"], 2)) for f in facturas_dict.values()],
+            key=lambda x: x["FECHA"], reverse=True
+        )
 
         # Formateo de tops
         def format_top(dico):
@@ -1114,6 +1125,8 @@ def get_cobros():
         if not os.path.exists(path):
             return jsonify({"error": "Archivo de cobros no encontrado"}), 404
 
+        ultima_tasa_valida = 1.0  # propagación de tasa cuando TASA_DOLAR=0
+
         for rec in DBF(path, encoding='latin-1'):
             fecha_reg = parse_fecha(rec.get('FECHA'))
             
@@ -1125,10 +1138,10 @@ def get_cobros():
                 continue
 
             caja = str(rec.get('CAJA', 'S/C')).strip().upper()
-            cajas_unicas.add(caja)   # ← recolectamos todas
+            cajas_unicas.add(caja)
 
             if caja_filtro != 'TODAS' and caja != caja_filtro:
-                continue   # ← filtro por caja
+                continue
 
             forma_raw = str(rec.get('FORMA_PAGO', 'S/I')).strip().upper()
             forma = forma_normalizar.get(forma_raw, forma_raw)
@@ -1137,7 +1150,11 @@ def get_cobros():
                 continue
 
             m_raw = safe_float(rec.get('MONTO'))
-            tasa = safe_float(rec.get('TASA_DOLAR')) or 1.0
+            # Propagar última tasa válida — cuando TASA_DOLAR=0 usamos la más reciente
+            tasa_rec = safe_float(rec.get('TASA_DOLAR'))
+            if tasa_rec > 0:
+                ultima_tasa_valida = tasa_rec
+            tasa = ultima_tasa_valida
             monto = m_raw if moneda == 'Bs' else (m_raw / tasa)
 
             cobrador = str(rec.get('COBRADOR', 'S/C')).strip()
@@ -1309,6 +1326,7 @@ def api_cobranzas():
     por_dia = defaultdict(float)
     cajas_unicas = set()
     formas_orden = []
+    ultima_tasa_valida = 1.0  # propagación de tasa
 
     try:
         path = get_dbf_path('tablero_cobros_cxc.DBF')  # ajusta el nombre si es diferente
@@ -1327,7 +1345,10 @@ def api_cobranzas():
                 continue
 
             monto_raw = safe_float(rec.get('MONTO'))
-            tasa = safe_float(rec.get('TASA_DOLAR') or 1.0)
+            tasa_rec = safe_float(rec.get('TASA_DOLAR'))
+            if tasa_rec > 0:
+                ultima_tasa_valida = tasa_rec
+            tasa = ultima_tasa_valida
             monto = monto_raw if moneda == 'Bs' else round(monto_raw / tasa, 2)
 
             # Se suma tal cual → negativos restan (contabilidad neta)
