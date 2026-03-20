@@ -914,11 +914,11 @@ def get_inventario():
             if f_prod and f_prod not in desc.upper() and f_prod not in codigo:
                 continue
 
-            # Filtros dinámicos por característica
+            # Filtros dinámicos por característica (match exacto desde Tom Select)
             pasar = True
             for idx, filtro_val in filtros_carac.items():
                 carac_val = str(rec.get(f'CARAC{idx}', '')).strip().upper()
-                if filtro_val and filtro_val not in carac_val:
+                if filtro_val and filtro_val != carac_val:
                     pasar = False
                     break
             if not pasar:
@@ -1413,9 +1413,6 @@ def api_cobranzas():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-
-
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
