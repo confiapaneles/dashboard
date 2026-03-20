@@ -423,6 +423,10 @@
                             <div class="kpi-value kpi-small" id="val_fact_cred_cant">0</div>
                             <div class="kpi-monto" id="val_fact_cred_monto">0,00</div>
                         </div>
+                        <div class="kpi-item">
+                            <div class="kpi-label">IGTF</div>
+                            <div class="kpi-monto" style="color:#e67e22;" id="val_total_igtf">0,00</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -689,6 +693,7 @@ async function cargarDatos() {
         document.getElementById("val_fact_cont_monto").textContent = fmt(d.general?.fact_cont_monto || 0) + ' ' + monedaStr;
         document.getElementById("val_fact_cred_cant").textContent = d.general?.facturas_credito_unicas || 0;
         document.getElementById("val_fact_cred_monto").textContent = fmt(d.general?.fact_cred_monto || 0) + ' ' + monedaStr;
+        document.getElementById("val_total_igtf").textContent = fmt(d.general?.total_igtf || 0) + ' ' + monedaStr;
 
         // Gráfico Resumen General — barras Contado/Crédito + línea histórico diario
         const histDatos = d.historico_ventas || [];

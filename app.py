@@ -397,6 +397,7 @@ def get_ventas():
 
     fact_cont_monto = 0.0
     fact_cred_monto = 0.0
+    total_igtf    = 0.0
     total_gral = 0.0
 
     # Listado completo de facturas para la pestaña "Facturas del Período"
@@ -438,10 +439,13 @@ def get_ventas():
                 if caja_filtro and caja != caja_filtro:
                     continue
 
-                m_raw = safe_float(rec.get('MONTO'))
-                factor = safe_float(rec.get('FACTOR')) or 1.0
-                monto = m_raw if moneda == 'Bs' else (m_raw / factor)
-                
+                m_raw    = safe_float(rec.get('MONTO'))
+                factor   = safe_float(rec.get('FACTOR')) or 1.0
+                monto    = m_raw if moneda == 'Bs' else (m_raw / factor)
+                igtf_raw = safe_float(rec.get('IGTF', 0))
+                igtf     = igtf_raw if moneda == 'Bs' else (igtf_raw / factor)
+                total_igtf += igtf
+
                 tipo_fact = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo_fact == '1' else "Crédito"
 
@@ -589,7 +593,8 @@ def get_ventas():
                 "facturas_contado_unicas": len(facturas_contado_unicas),
                 "fact_cont_monto": round(fact_cont_monto, 2),
                 "facturas_credito_unicas": len(facturas_credito_unicas),
-                "fact_cred_monto": round(fact_cred_monto, 2)
+                "fact_cred_monto": round(fact_cred_monto, 2),
+                "total_igtf": round(total_igtf, 2)
             },
             "zonas": format_top(por_zona),
             "clientes": format_top(por_cliente),
