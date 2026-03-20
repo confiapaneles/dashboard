@@ -106,13 +106,13 @@
                     <!-- FILTROS DINÁMICOS (clasificaciones) -->
                     <div class="row g-3 mb-3" id="filtros-container" style="display:none;"></div>
 
-                    <!-- Botón limpiar todos los filtros -->
-                    <div class="row mb-2" id="row-limpiar-filtros" style="display:none;">
-                        <div class="col-12">
+                    <!-- Botón limpiar SIEMPRE visible -->
+                    <div class="row mb-2">
+                        <div class="col-12 d-flex align-items-center gap-3">
                             <button onclick="limpiarTodosFiltros()" class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-x-circle me-1"></i>Limpiar todos los filtros
+                                <i class="bi bi-x-circle me-1"></i>Limpiar filtros
                             </button>
-                            <span id="filtros_activos_badge" class="ms-2 text-muted small"></span>
+                            <span id="filtros_activos_badge" class="text-muted small"></span>
                         </div>
                     </div>
 
@@ -322,17 +322,11 @@ function renderPaginacion() {
 
 // ── Limpiar todos los filtros ─────────────────────────────────────────────
 function limpiarTodosFiltros() {
-    // Limpiar clasificaciones
     Object.values(tsCaracs).forEach(ts => ts.setValue('', true));
-    // Limpiar búsqueda general
     const inp = document.getElementById('filtro_general');
     if (inp) { inp.value = ''; aplicarFiltroGeneral(''); }
-    // Ocultar botón limpiar
-    const row = document.getElementById('row-limpiar-filtros');
-    if (row) row.style.display = 'none';
     const badge = document.getElementById('filtros_activos_badge');
     if (badge) badge.textContent = '';
-    // Recargar desde página 1
     paginaActual = 1;
     cargarInv();
 }
@@ -341,23 +335,17 @@ function limpiarTodosFiltros() {
 function actualizarBotonLimpiar() {
     const caracs  = Object.values(tsCaracs).some(ts => ts.getValue() !== '');
     const general = (document.getElementById('filtro_general')?.value || '').trim();
-    const hayFiltros = caracs || general;
+    const badge   = document.getElementById('filtros_activos_badge');
+    if (!badge) return;
 
-    const row   = document.getElementById('row-limpiar-filtros');
-    const badge = document.getElementById('filtros_activos_badge');
-    if (row) row.style.display = hayFiltros ? '' : 'none';
+    const activos = [];
+    Object.entries(tsCaracs).forEach(([, ts]) => {
+        const v = ts.getValue();
+        if (v) activos.push(v);
+    });
+    if (general) activos.push(`"${general}"`);
 
-    if (badge && hayFiltros) {
-        const activos = [];
-        Object.entries(tsCaracs).forEach(([, ts]) => {
-            const v = ts.getValue();
-            if (v) activos.push(v);
-        });
-        if (general) activos.push(`"${general}"`);
-        badge.textContent = `Filtros activos: ${activos.join(' · ')}`;
-    } else if (badge) {
-        badge.textContent = '';
-    }
+    badge.textContent = activos.length ? `Activos: ${activos.join(' · ')}` : '';
 }
 
 // ── Función principal ─────────────────────────────────────────────────────
