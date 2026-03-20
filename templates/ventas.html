@@ -338,11 +338,15 @@
             </div>
             <div class="filter-col text-col">
                 <label>Cliente</label>
-                <input type="text" id="busqueda_cliente" placeholder="Nombre o código..." oninput="debouncedCargarDatos()">
+                <select id="select_cliente">
+                    <option value="">Todos los clientes</option>
+                </select>
             </div>
             <div class="filter-col text-col">
                 <label>Producto</label>
-                <input type="text" id="busqueda_producto" placeholder="Código o descripción..." oninput="debouncedCargarDatos()">
+                <select id="select_producto">
+                    <option value="">Todos los productos</option>
+                </select>
             </div>
             <div class="filter-col text-col">
                 <label>Caja</label>
@@ -582,8 +586,12 @@
 <script>
 let chartsInst = {};
 let vendedoresCargados = false;
-let tsCaja = null;
-let cajasSeleccionada = '';
+let tsCaja      = null;
+let tsProducto  = null;
+let tsCliente   = null;
+let cajasSeleccionada    = '';
+let productoSeleccionado = '';
+let clienteSeleccionado  = '';
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 
@@ -652,8 +660,8 @@ async function cargarDatos() {
         top_n: document.getElementById("top_n").value,
         fecha_inicio: document.getElementById("fecha_inicio").value,
         fecha_fin: document.getElementById("fecha_fin").value,
-        busqueda_cliente: document.getElementById("busqueda_cliente").value.trim().toUpperCase(),
-        busqueda_producto: document.getElementById("busqueda_producto").value.trim().toUpperCase(),
+        busqueda_cliente: clienteSeleccionado,
+        busqueda_producto: productoSeleccionado,
         filtro_caja: cajasSeleccionada,
         vendedor: document.getElementById("filtro_vendedor").value || "TODOS",
         status: document.getElementById("filtro_status").value
@@ -676,8 +684,10 @@ async function cargarDatos() {
             return;
         }
 
-        // Poblar select de cajas con los datos del API
-        if (d.lista_cajas?.length) poblarSelectCaja(d.lista_cajas);
+        // Poblar selects con datos del API
+        if (d.lista_cajas?.length)      poblarSelectCaja(d.lista_cajas);
+        if (d.lista_productos?.length)  poblarSelectProducto(d.lista_productos);
+        if (d.lista_clientes?.length)   poblarSelectCliente(d.lista_clientes);
 
         const monedaStr = params.moneda;
         const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -769,7 +779,7 @@ async function cargarDatos() {
         }
 
         // Detalles por Producto - renderizado dinámico
-        renderDetallesProducto(d, monedaStr, params.busqueda_producto.trim());
+        renderDetallesProducto(d, monedaStr, productoSeleccionado);
 
     } catch (err) {
         console.error("Error al cargar datos de ventas:", err);
@@ -909,6 +919,56 @@ function initTomSelectCaja() {
     });
 }
 
+function initTomSelectProducto() {
+    tsProducto = new TomSelect('#select_producto', {
+        placeholder: 'Código o descripción...',
+        allowEmptyOption: true,
+        maxOptions: 500,
+        searchField: ['text', 'value'],
+        onChange: function(valor) {
+            productoSeleccionado = valor ? valor.toUpperCase() : '';
+            cargarDatos();
+        }
+    });
+}
+
+function poblarSelectProducto(lista) {
+    if (!tsProducto) return;
+    const actual = productoSeleccionado;
+    tsProducto.clearOptions();
+    tsProducto.addOption({ value: '', text: 'Todos los productos' });
+    (lista || []).forEach(p => {
+        if (p) tsProducto.addOption({ value: p, text: p });
+    });
+    tsProducto.refreshOptions(false);
+    tsProducto.setValue(actual && lista && lista.includes(actual) ? actual : '', true);
+}
+
+function initTomSelectCliente() {
+    tsCliente = new TomSelect('#select_cliente', {
+        placeholder: 'Nombre o código...',
+        allowEmptyOption: true,
+        maxOptions: 500,
+        searchField: ['text', 'value'],
+        onChange: function(valor) {
+            clienteSeleccionado = valor ? valor.toUpperCase() : '';
+            cargarDatos();
+        }
+    });
+}
+
+function poblarSelectCliente(lista) {
+    if (!tsCliente) return;
+    const actual = clienteSeleccionado;
+    tsCliente.clearOptions();
+    tsCliente.addOption({ value: '', text: 'Todos los clientes' });
+    (lista || []).forEach(c => {
+        if (c) tsCliente.addOption({ value: c, text: c });
+    });
+    tsCliente.refreshOptions(false);
+    tsCliente.setValue(actual && lista && lista.includes(actual) ? actual : '', true);
+}
+
 function poblarSelectCaja(lista) {
     if (!tsCaja) return;
     const actual = cajasSeleccionada;
@@ -1040,6 +1100,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("fecha_inicio").value = inicioMes.toISOString().split('T')[0];
 
     initTomSelectCaja();
+    initTomSelectProducto();
+    initTomSelectCliente();
     await cargarListaVendedores();
     await cargarDatos();
 });
