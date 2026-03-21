@@ -592,6 +592,8 @@ let tsCliente   = null;
 let cajasSeleccionada    = '';
 let productoSeleccionado = '';
 let clienteSeleccionado  = '';
+let ultimosDatosVentas   = null;   // guarda la última respuesta del API
+let ultimaMonedaVentas   = 'Bs';   // guarda la última moneda usada
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 
@@ -642,7 +644,8 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
         // Renderizar contenido específico de la pestaña activa
         if (tabId === 'p_det_prod') {
-            renderDetallesProducto();  // ← fuerza render al cambiar pestaña
+            // Pasar los datos actuales para que el filtro activo funcione de inmediato
+            renderDetallesProducto(ultimosDatosVentas, ultimaMonedaVentas, productoSeleccionado);
         }
     });
 });
@@ -690,6 +693,8 @@ async function cargarDatos() {
         if (d.lista_clientes?.length)   poblarSelectCliente(d.lista_clientes);
 
         const monedaStr = params.moneda;
+        ultimosDatosVentas = d;        // guardar para usar al cambiar de pestaña
+        ultimaMonedaVentas = monedaStr;
         const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         // Total general
