@@ -429,9 +429,14 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                all_productos.add(producto)
-                if busqueda_producto and busqueda_producto not in producto:
-                    continue
+                # Guardar "CODIGO — NOMBRE" para que Tom Select permita buscar por código
+                prod_label = (f"{cod_pro} — {producto}" if cod_pro else producto)
+                all_productos.add(prod_label)
+                # Buscar en nombre, código, o el string combinado
+                if busqueda_producto:
+                    bp = busqueda_producto.upper()
+                    if bp not in prod_label and bp not in producto and bp not in cod_pro.upper():
+                        continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja:
@@ -553,7 +558,9 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                if busqueda_producto not in producto: continue
+                bp = busqueda_producto.upper()
+                prod_label = (f"{cod_pro} — {producto}" if cod_pro else producto)
+                if bp not in prod_label and bp not in producto and bp not in cod_pro.upper(): continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja_filtro and caja != caja_filtro: continue
@@ -1413,6 +1420,9 @@ def api_cobranzas():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
