@@ -431,8 +431,9 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                all_productos.add(producto)
-                if busqueda_producto and busqueda_producto not in producto:
+                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
+                all_productos.add(prod_label)
+                if busqueda_producto and busqueda_producto not in prod_label:
                     continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
@@ -555,7 +556,8 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                if busqueda_producto not in producto: continue
+                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
+                if busqueda_producto not in prod_label: continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja_filtro and caja != caja_filtro: continue
