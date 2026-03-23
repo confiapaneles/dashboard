@@ -1277,7 +1277,7 @@ def get_compras():
                 if prov_reg and prov_reg != 'S/P': all_proveedores.add(prov_reg)
                 if prod_reg and prod_reg != 'S/P': all_productos.add(prod_reg)
 
-                # Aplicar filtros — match exacto
+                # Aplicar filtros — match exacto.
                 if f_prov and f_prov != prov_reg: continue
                 if f_prod and f_prod != prod_reg: continue
                 if f_inicio and fecha_reg < f_inicio: continue
