@@ -94,7 +94,7 @@ def load_user(email):
             pass
     return None
 
-# ─── FUNCIONES DE APOYO ─────────────────────────────────────────────
+# ─── FUNCIONES DE APOYO ────────────────────────────────────────────────────
 def parse_fecha(fecha_obj):
     if hasattr(fecha_obj, 'strftime'):
         return fecha_obj.strftime('%Y-%m-%d')
@@ -429,12 +429,9 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
-                all_productos.add(prod_label)
-                if busqueda_producto:
-                    bp = busqueda_producto.upper()
-                    if bp not in prod_label and bp not in producto and bp not in cod_pro.upper():
-                        continue
+                all_productos.add(producto)
+                if busqueda_producto and busqueda_producto not in producto:
+                    continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja:
@@ -556,9 +553,7 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                bp = busqueda_producto.upper()
-                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
-                if bp not in prod_label and bp not in producto and bp not in cod_pro.upper(): continue
+                if busqueda_producto not in producto: continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja_filtro and caja != caja_filtro: continue
@@ -1418,9 +1413,6 @@ def api_cobranzas():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-
-
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
