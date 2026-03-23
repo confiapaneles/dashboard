@@ -429,10 +429,8 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                # Guardar "CODIGO — NOMBRE" para que Tom Select permita buscar por código
-                prod_label = (f"{cod_pro} — {producto}" if cod_pro else producto)
+                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
                 all_productos.add(prod_label)
-                # Buscar en nombre, código, o el string combinado
                 if busqueda_producto:
                     bp = busqueda_producto.upper()
                     if bp not in prod_label and bp not in producto and bp not in cod_pro.upper():
@@ -559,7 +557,7 @@ def get_ventas():
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
                 bp = busqueda_producto.upper()
-                prod_label = (f"{cod_pro} — {producto}" if cod_pro else producto)
+                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
                 if bp not in prod_label and bp not in producto and bp not in cod_pro.upper(): continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
