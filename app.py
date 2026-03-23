@@ -94,7 +94,7 @@ def load_user(email):
             pass
     return None
 
-# ─── FUNCIONES DE APOYO ────────────────────────────────────────────────────
+# ─── FUNCIONES DE APOYO ─────────────────────────────────────────────
 def parse_fecha(fecha_obj):
     if hasattr(fecha_obj, 'strftime'):
         return fecha_obj.strftime('%Y-%m-%d')
