@@ -429,9 +429,12 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                all_productos.add(producto)
-                if busqueda_producto and busqueda_producto not in producto:
-                    continue
+                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
+                all_productos.add(prod_label)
+                if busqueda_producto:
+                    bp = busqueda_producto.upper()
+                    if bp not in prod_label and bp not in producto and bp not in cod_pro.upper():
+                        continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja:
@@ -553,7 +556,9 @@ def get_ventas():
 
                 cod_pro = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
-                if busqueda_producto not in producto: continue
+                bp = busqueda_producto.upper()
+                prod_label = (cod_pro + " - " + producto) if cod_pro else producto
+                if bp not in prod_label and bp not in producto and bp not in cod_pro.upper(): continue
 
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja_filtro and caja != caja_filtro: continue
@@ -864,10 +869,11 @@ def get_vendedores():
 def get_inventario():
     params = request.json or {}
     
-    f_prod          = (params.get('producto') or '').strip().upper()
-    valorizar_a     = params.get('valorizar_a', 'costo')
-    
-    # Filtros dinámicos por característica (carac1, carac2, etc.)
+    f_prod      = (params.get('producto') or '').strip().upper()
+    valorizar_a = params.get('valorizar_a', 'costo')
+    pagina      = int(params.get('pagina', 1))
+    por_pagina  = int(params.get('por_pagina', 100))
+
     filtros_carac = {}
     for i in '1234':
         key = f'carac{i}'
@@ -913,11 +919,11 @@ def get_inventario():
             if f_prod and f_prod not in desc.upper() and f_prod not in codigo:
                 continue
 
-            # Filtros dinámicos por característica
+            # Filtros dinámicos por característica (match exacto desde Tom Select)
             pasar = True
             for idx, filtro_val in filtros_carac.items():
                 carac_val = str(rec.get(f'CARAC{idx}', '')).strip().upper()
-                if filtro_val and filtro_val not in carac_val:
+                if filtro_val and filtro_val != carac_val:
                     pasar = False
                     break
             if not pasar:
@@ -955,24 +961,23 @@ def get_inventario():
 
             costo_unitario = monto / existencia if existencia > 0 else 0.0
 
-            if len(data_tabla) < 1500:
-                item = {
-                    "CODIGO": codigo,
-                    "DESCRIPCION": desc,
-                    "EXISTENCIA": existencia,
-                    "COSTO_UNITARIO": round(costo_unitario, 4),
-                    "PRECIO1": precio1,
-                    "PRECIO2": precio2,
-                    "PRECIO3": precio3,
-                    "VALOR_TOTAL": round(valor_total_item, 2),
-                    "TOTAL_EMPAQUE": kilos,
-                }
-                # Agregar todas las características presentes
-                for i in '1234':
-                    val = str(rec.get(f'CARAC{i}', '')).strip()
-                    if val:
-                        item[f'CARAC{i}'] = val
-                data_tabla.append(item)
+            item = {
+                "CODIGO": codigo,
+                "DESCRIPCION": desc,
+                "EXISTENCIA": existencia,
+                "COSTO_UNITARIO": round(costo_unitario, 4),
+                "PRECIO1": precio1,
+                "PRECIO2": precio2,
+                "PRECIO3": precio3,
+                "VALOR_TOTAL": round(valor_total_item, 2),
+                "TOTAL_EMPAQUE": kilos,
+            }
+            # Agregar todas las características presentes
+            for i in '1234':
+                val = str(rec.get(f'CARAC{i}', '')).strip()
+                if val:
+                    item[f'CARAC{i}'] = val
+            data_tabla.append(item)
 
         # Características activas (solo las que tienen datos)
         caracteristicas_activas = {}
@@ -996,6 +1001,13 @@ def get_inventario():
             key=lambda x: x["V"], reverse=True
         )[:10]
 
+        # ── Paginación ───────────────────────────────────────────────────────
+        total_registros = len(data_tabla)
+        total_paginas   = max(1, (total_registros + por_pagina - 1) // por_pagina)
+        pagina          = max(1, min(pagina, total_paginas))
+        inicio          = (pagina - 1) * por_pagina
+        pagina_data     = data_tabla[inicio:inicio + por_pagina]
+
         return jsonify({
             "totales": {
                 "articulos": totales["articulos"],
@@ -1003,7 +1015,13 @@ def get_inventario():
                 "valor_total": round(totales["valor_total"], 2),
                 "kilos": round(totales["kilos"], 2)
             },
-            "tabla": data_tabla,
+            "tabla": pagina_data,
+            "paginacion": {
+                "pagina":          pagina,
+                "por_pagina":      por_pagina,
+                "total_registros": total_registros,
+                "total_paginas":   total_paginas,
+            },
             "marcas_chart": marcas_chart,
             "nombres_precios": nombres_precios,
             "caracteristicas": caracteristicas_activas,       # {"1": "Marca", "2": "Grupo", ...}
