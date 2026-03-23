@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from dbfread import DBF
@@ -313,19 +314,20 @@ def get_cartera_cxc():
                     continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
-                tasa_dolar = 36.0
-                saldo = saldo_raw if moneda == 'Bs' else round(saldo_raw / tasa_dolar, 2)
+                factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
+                saldo     = saldo_raw if moneda == 'Bs' else (round(saldo_raw / factor, 2) if factor > 0 else saldo_raw)
 
                 total_gral += saldo
                 nombre_grupo = str(rec.get('GRUPO', 'SIN GRUPO')).strip()
                 resumen_grupos_dict[nombre_grupo] += saldo
 
-                enveje["No Vencido"]  += safe_float(rec.get('NOVENCIDO'))
-                enveje["1-7 Dias"]    += safe_float(rec.get('VENCIDO1'))
-                enveje["8-14 Dias"]   += safe_float(rec.get('VENCIDO2'))
-                enveje["15-21 Dias"]  += safe_float(rec.get('VENCIDO3'))
-                enveje["22-30 Dias"]  += safe_float(rec.get('VENCIDO4'))
-                enveje["+30 Dias"]    += safe_float(rec.get('VENCIDO5'))
+                def conv(v): return v if moneda == 'Bs' else (round(v / factor, 2) if factor > 0 else v)
+                enveje["No Vencido"]  += conv(safe_float(rec.get('NOVENCIDO')))
+                enveje["1-7 Dias"]    += conv(safe_float(rec.get('VENCIDO1')))
+                enveje["8-14 Dias"]   += conv(safe_float(rec.get('VENCIDO2')))
+                enveje["15-21 Dias"]  += conv(safe_float(rec.get('VENCIDO3')))
+                enveje["22-30 Dias"]  += conv(safe_float(rec.get('VENCIDO4')))
+                enveje["+30 Dias"]    += conv(safe_float(rec.get('VENCIDO5')))
                 data_tabla.append({
                     "GRUPO": nombre_grupo,
                     "CLIENTE": str(rec.get('CLIENTE', '')).strip(),
@@ -1071,19 +1073,21 @@ def get_cartera_cxp():
                         continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
-                tasa_dolar = 36.0
-                saldo = saldo_raw if moneda == 'Bs' else round(saldo_raw / tasa_dolar, 2)
+                factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
+                saldo     = saldo_raw if moneda == 'Bs' else (round(saldo_raw / factor, 2) if factor > 0 else saldo_raw)
 
                 total_gral += saldo
                 grupo = str(rec.get('GRUPO', 'SIN GRUPO')).strip()
                 resumen_grupos_dict[grupo] += saldo
 
-                enveje["No Vencido"]  += safe_float(rec.get('NOVENCIDO'))
-                enveje["1-7 Dias"]    += safe_float(rec.get('VENCIDO1'))
-                enveje["8-14 Dias"]   += safe_float(rec.get('VENCIDO2'))
-                enveje["15-21 Dias"]  += safe_float(rec.get('VENCIDO3'))
-                enveje["22-30 Dias"]  += safe_float(rec.get('VENCIDO4'))
-                enveje["+30 Dias"]    += safe_float(rec.get('VENCIDO5'))
+                # Envejecimiento: aplicar la misma conversion de moneda
+                def conv(v): return v if moneda == 'Bs' else (round(v / factor, 2) if factor > 0 else v)
+                enveje["No Vencido"]  += conv(safe_float(rec.get('NOVENCIDO')))
+                enveje["1-7 Dias"]    += conv(safe_float(rec.get('VENCIDO1')))
+                enveje["8-14 Dias"]   += conv(safe_float(rec.get('VENCIDO2')))
+                enveje["15-21 Dias"]  += conv(safe_float(rec.get('VENCIDO3')))
+                enveje["22-30 Dias"]  += conv(safe_float(rec.get('VENCIDO4')))
+                enveje["+30 Dias"]    += conv(safe_float(rec.get('VENCIDO5')))
                 data_tabla.append({
                     "GRUPO": grupo,
                     "PROVEEDOR": prov,
@@ -1413,6 +1417,9 @@ def api_cobranzas():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
