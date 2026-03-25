@@ -1,0 +1,420 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+<style>
+    :root { --mov-primary: #2ecc71; --mov-dark: #27ae60; --mov-light: #e8f8f5; }
+
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
+
+    .filter-card {
+        background: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px; margin-bottom: 20px;
+    }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+    .filter-col { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+    .filter-col label { font-size: 0.8rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; }
+    .filter-col input, .filter-col select {
+        padding: 8px 12px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem; background: white; outline: none;
+    }
+    .filter-col input:focus, .filter-col select:focus {
+        border-color: var(--mov-primary); box-shadow: 0 0 0 3px rgba(46,204,113,0.15);
+    }
+
+    /* Tom Select overrides verde */
+    .ts-wrapper.single .ts-control {
+        padding: 8px 12px; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 0.92rem; background: white; cursor: text;
+    }
+    .ts-wrapper.single.focus .ts-control {
+        border-color: var(--mov-primary); box-shadow: 0 0 0 3px rgba(46,204,113,0.15);
+    }
+    .ts-dropdown { border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #d1d5db; font-size: 0.9rem; }
+    .ts-dropdown .option { padding: 9px 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 460px; }
+    .ts-dropdown .option:hover, .ts-dropdown .option.active { background: var(--mov-light); color: var(--mov-dark); }
+    .ts-dropdown-content { max-height: 260px; }
+    .ts-wrapper { width: 100%; }
+
+    /* Encabezado con info del producto */
+    .producto-header {
+        background: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px; margin-bottom: 20px;
+        display: none;
+        border-left: 5px solid var(--mov-primary);
+    }
+    .producto-header.visible { display: block; }
+    .prod-titulo { font-size: 1.1rem; font-weight: 800; color: #1f2937; margin-bottom: 4px; }
+    .prod-codigo { font-size: 0.85rem; color: #6b7280; font-weight: 600; letter-spacing: 0.5px; }
+
+    .kpi-strip {
+        display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px;
+    }
+    .kpi-card {
+        background: #f8fafc; border: 1px solid #e2e8f0;
+        border-radius: 10px; padding: 14px 20px;
+        flex: 1; min-width: 140px; text-align: center;
+    }
+    .kpi-card .kpi-label { font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .kpi-card .kpi-val   { font-size: 1.5rem; font-weight: 800; margin-top: 4px; color: #1e293b; }
+    .kpi-card.entrada .kpi-val { color: #10b981; }
+    .kpi-card.salida  .kpi-val { color: #ef4444; }
+    .kpi-card.minmax  .kpi-val { color: var(--mov-dark); }
+
+    /* Tabla */
+    .card-tabla {
+        background: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+    }
+    .chart-title {
+        font-size: 1.05rem; font-weight: 700; color: #1f2937;
+        margin-bottom: 15px; border-left: 5px solid var(--mov-primary); padding-left: 10px;
+    }
+    .table-responsive { max-height: 65vh; overflow-y: auto; border-radius: 8px; }
+    .table thead th {
+        position: sticky; top: 0; background: #f8f9fa;
+        z-index: 10; font-size: 0.8rem; text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6; padding: 10px 12px;
+        white-space: nowrap;
+    }
+    .table td { font-size: 0.88rem; vertical-align: middle; padding: 8px 12px; }
+    .fecha-col { white-space: nowrap !important; width: 105px; min-width: 105px; }
+    .num-col   { text-align: right; font-weight: 600; white-space: nowrap; }
+    .entrada-val { color: #10b981; }
+    .salida-val  { color: #ef4444; }
+    .saldo-val   { color: #1e40af; font-weight: 700; }
+
+    .badge-tipo-e { background: #d1fae5; color: #065f46; font-size: 0.72rem; padding: 3px 8px; border-radius: 5px; }
+    .badge-tipo-s { background: #fee2e2; color: #991b1b; font-size: 0.72rem; padding: 3px 8px; border-radius: 5px; }
+    .badge-tipo-o { background: #e0e7ff; color: #3730a3; font-size: 0.72rem; padding: 3px 8px; border-radius: 5px; }
+
+    .no-data { color: #6b7280; font-style: italic; padding: 60px 20px; text-align: center; font-size: 1rem; }
+    .no-data .no-data-icon { font-size: 3rem; display: block; margin-bottom: 12px; }
+
+    .btn-limpiar {
+        padding: 8px 16px; background: #fee2e2; color: #dc2626;
+        border: 1px solid #fca5a5; border-radius: 8px;
+        font-size: 0.82rem; font-weight: 600; cursor: pointer;
+        white-space: nowrap; transition: all 0.2s; align-self: flex-end;
+        display: none;
+    }
+    .btn-limpiar:hover { background: #fecaca; }
+
+    #loadingOverlay {
+        position: fixed; inset: 0; background: rgba(255,255,255,0.80);
+        backdrop-filter: blur(4px); z-index: 9999; display: none;
+        align-items: center; justify-content: center;
+    }
+    .loading-content {
+        text-align: center; background: white; padding: 2.5rem 4rem;
+        border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px;
+    }
+    .loading-content .spinner-border { width: 3rem; height: 3rem; }
+</style>
+
+<div class="dashboard-wrapper">
+
+    <!-- FILTROS -->
+    <div class="filter-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Movimientos de Inventario</h4>
+        </div>
+
+        <div class="filter-row">
+            <!-- Producto: Tom Select código + descripción — OBLIGATORIO -->
+            <div class="filter-col" style="min-width:300px; flex-grow:3;">
+                <label>Producto <span style="color:#ef4444">*</span></label>
+                <select id="sel_producto">
+                    <option value="">Buscar por código o descripción...</option>
+                </select>
+            </div>
+            <div class="filter-col" style="max-width:145px;">
+                <label>Desde</label>
+                <input type="date" id="fecha_inicio" onchange="cargarMovimientos()">
+            </div>
+            <div class="filter-col" style="max-width:145px;">
+                <label>Hasta</label>
+                <input type="date" id="fecha_fin" onchange="cargarMovimientos()">
+            </div>
+            <div class="filter-col" style="max-width:160px;">
+                <label>Tipo Movimiento</label>
+                <select id="filtro_tipo" onchange="cargarMovimientos()">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div class="filter-col" style="max-width:160px;">
+                <label>Almacén</label>
+                <select id="filtro_almacen" onchange="cargarMovimientos()">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <button class="btn-limpiar" id="btn_limpiar" onclick="limpiarFiltros()">
+                ✕ Limpiar filtros
+            </button>
+        </div>
+    </div>
+
+    <!-- ENCABEZADO PRODUCTO (se muestra al seleccionar) -->
+    <div class="producto-header" id="producto_header">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+            <div>
+                <div class="prod-codigo" id="prod_codigo">—</div>
+                <div class="prod-titulo" id="prod_nombre">—</div>
+            </div>
+        </div>
+        <div class="kpi-strip">
+            <div class="kpi-card minmax">
+                <div class="kpi-label">Mínimo</div>
+                <div class="kpi-val" id="kpi_minimo">—</div>
+            </div>
+            <div class="kpi-card minmax">
+                <div class="kpi-label">Máximo</div>
+                <div class="kpi-val" id="kpi_maximo">—</div>
+            </div>
+            <div class="kpi-card entrada">
+                <div class="kpi-label">Total Entradas</div>
+                <div class="kpi-val" id="kpi_entradas">0</div>
+            </div>
+            <div class="kpi-card salida">
+                <div class="kpi-label">Total Salidas</div>
+                <div class="kpi-val" id="kpi_salidas">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Movimientos</div>
+                <div class="kpi-val" id="kpi_count">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DETALLE -->
+    <div class="card-tabla">
+        <div class="chart-title">Detalle de Movimientos</div>
+        <div id="no_data_msg" class="no-data">
+            <span class="no-data-icon">📦</span>
+            Selecciona un producto para ver sus movimientos
+        </div>
+        <div class="table-responsive" id="tabla_container" style="display:none;">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="fecha-col">Fecha</th>
+                        <th>Descripción Movimiento</th>
+                        <th>Proveedor / Cliente</th>
+                        <th class="num-col">Entrada</th>
+                        <th class="num-col">Salida</th>
+                        <th class="num-col">Saldo</th>
+                        <th>Almacén</th>
+                        <th>Movimiento</th>
+                        <th>Referencia</th>
+                        <th class="num-col">Costo</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody_mov"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner-border text-success" role="status"></div>
+        <div class="mt-3 fw-bold text-success fs-5">Cargando movimientos...</div>
+    </div>
+</div>
+
+<script>
+let tsProducto        = null;
+let productoSel       = '';
+let tiposPoblados     = false;
+let almacenesPoblados = false;
+
+const loadingOverlay = document.getElementById('loadingOverlay');
+function showLoading() { loadingOverlay.style.display = 'flex'; }
+function hideLoading()  { loadingOverlay.style.display = 'none'; }
+
+// Fechas dd/mm/yyyy
+function fmtFecha(f) {
+    if (!f || f === '-') return '-';
+    const p = String(f).split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return f;
+}
+
+const fmt2 = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt4 = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+
+function actualizarBtnLimpiar() {
+    const hoy     = new Date();
+    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const hayFiltro =
+        document.getElementById('fecha_inicio').value !== primero.toISOString().split('T')[0] ||
+        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0]     ||
+        document.getElementById('filtro_tipo').value    !== '' ||
+        document.getElementById('filtro_almacen').value !== '';
+    document.getElementById('btn_limpiar').style.display = hayFiltro ? 'inline-block' : 'none';
+}
+
+function limpiarFiltros() {
+    const hoy = new Date();
+    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    document.getElementById('fecha_inicio').value  = primero.toISOString().split('T')[0];
+    document.getElementById('fecha_fin').value     = hoy.toISOString().split('T')[0];
+    document.getElementById('filtro_tipo').value    = '';
+    document.getElementById('filtro_almacen').value = '';
+    actualizarBtnLimpiar();
+    if (productoSel) cargarMovimientos();
+}
+
+// ── Tom Select producto ───────────────────────────────────────────────────
+function initTomSelectProducto() {
+    tsProducto = new TomSelect('#sel_producto', {
+        placeholder: 'Buscar por código o descripción...',
+        allowEmptyOption: true,
+        maxOptions: 500,
+        searchField: ['text', 'value'],
+        onChange: (val) => {
+            productoSel = val ? val.toUpperCase() : '';
+            if (productoSel) {
+                cargarMovimientos();
+            } else {
+                // Limpiar pantalla
+                document.getElementById('producto_header').classList.remove('visible');
+                document.getElementById('no_data_msg').style.display = 'block';
+                document.getElementById('tabla_container').style.display = 'none';
+            }
+        }
+    });
+}
+
+function poblarProductos(lista) {
+    if (!tsProducto) return;
+    const actual = productoSel;
+    tsProducto.clearOptions();
+    tsProducto.addOption({ value: '', text: 'Buscar por código o descripción...' });
+    (lista || []).forEach(p => {
+        if (p) tsProducto.addOption({ value: p, text: p });
+    });
+    tsProducto.refreshOptions(false);
+    // Mantener selección si sigue en la lista
+    if (actual && lista.includes(actual)) {
+        tsProducto.setValue(actual, true);
+    }
+}
+
+// ── Carga principal ───────────────────────────────────────────────────────
+async function cargarMovimientos() {
+    actualizarBtnLimpiar();
+    showLoading();
+
+    const params = {
+        producto:      productoSel,
+        fecha_inicio:  document.getElementById('fecha_inicio').value,
+        fecha_fin:     document.getElementById('fecha_fin').value,
+        tipomov:       document.getElementById('filtro_tipo').value,
+        almacen:       document.getElementById('filtro_almacen').value,
+    };
+
+    try {
+        const r = await fetch('/api/movimientos_inventario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const d = await r.json();
+        if (d.error) { console.error(d.error); hideLoading(); return; }
+
+        // Poblar selectores (solo primera vez o si cambia el producto)
+        if (d.lista_productos?.length) poblarProductos(d.lista_productos);
+
+        if (!tiposPoblados && d.lista_tipos?.length) {
+            const sel = document.getElementById('filtro_tipo');
+            d.lista_tipos.forEach(t => {
+                if (t) sel.append(new Option(t, t));
+            });
+            tiposPoblados = true;
+        }
+        if (!almacenesPoblados && d.lista_almacenes?.length) {
+            const sel = document.getElementById('filtro_almacen');
+            d.lista_almacenes.forEach(a => {
+                if (a) sel.append(new Option(a, a));
+            });
+            almacenesPoblados = true;
+        }
+
+        // Si no hay producto seleccionado, solo poblar listas y salir
+        if (!productoSel) {
+            hideLoading();
+            return;
+        }
+
+        // Encabezado del producto
+        const info = d.info_producto || {};
+        document.getElementById('prod_codigo').textContent = info.codigo || '—';
+        document.getElementById('prod_nombre').textContent = info.nombre || '—';
+        document.getElementById('kpi_minimo').textContent  = fmt2(info.minimo || 0);
+        document.getElementById('kpi_maximo').textContent  = fmt2(info.maximo || 0);
+        document.getElementById('kpi_entradas').textContent= fmt2(d.total_entradas || 0);
+        document.getElementById('kpi_salidas').textContent = fmt2(d.total_salidas  || 0);
+        document.getElementById('kpi_count').textContent   = (d.detalles || []).length;
+        document.getElementById('producto_header').classList.add('visible');
+
+        // Tabla
+        const tbody    = document.getElementById('tbody_mov');
+        const noMsg    = document.getElementById('no_data_msg');
+        const tablaC   = document.getElementById('tabla_container');
+
+        if (!d.detalles?.length) {
+            noMsg.innerHTML = '<span class="no-data-icon">🔍</span>Sin movimientos para los filtros aplicados';
+            noMsg.style.display = 'block';
+            tablaC.style.display = 'none';
+        } else {
+            noMsg.style.display = 'none';
+            tablaC.style.display = 'block';
+            tbody.innerHTML = d.detalles.map(row => {
+                const tipoCls = row.TIPOMOV === 'E' ? 'badge-tipo-e' : (row.TIPOMOV === 'S' ? 'badge-tipo-s' : 'badge-tipo-o');
+                const entHTML = row.ENTRADAS > 0 ? `<span class="entrada-val">${fmt2(row.ENTRADAS)}</span>` : '<span class="text-muted">—</span>';
+                const salHTML = row.SALIDAS  > 0 ? `<span class="salida-val">${fmt2(row.SALIDAS)}</span>`  : '<span class="text-muted">—</span>';
+                return `<tr>
+                    <td class="fecha-col">${fmtFecha(row.FECHA)}</td>
+                    <td>
+                        <span class="${tipoCls}">${row.TIPOMOV || '—'}</span>
+                        <span class="ms-2 small">${row.DESCRIMOV || '—'}</span>
+                    </td>
+                    <td class="small">${row.PROV_CLI || '—'}</td>
+                    <td class="num-col">${entHTML}</td>
+                    <td class="num-col">${salHTML}</td>
+                    <td class="num-col saldo-val">${fmt2(row.SALDO)}</td>
+                    <td class="small">${row.ALMACEN || '—'}</td>
+                    <td class="small">${row.MOVIMIENTO || '—'}</td>
+                    <td class="small">${row.REFERENCIA || '—'}</td>
+                    <td class="num-col text-muted">${row.COSTO > 0 ? fmt4(row.COSTO) : '—'}</td>
+                </tr>`;
+            }).join('');
+        }
+
+    } catch (e) {
+        console.error('Error movimientos:', e);
+    } finally {
+        hideLoading();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date();
+    document.getElementById('fecha_fin').value   = hoy.toISOString().split('T')[0];
+    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+
+    initTomSelectProducto();
+    // Cargar solo las listas (sin producto seleccionado)
+    cargarMovimientos();
+});
+</script>
+
+{% endblock %}

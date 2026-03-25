@@ -196,6 +196,13 @@ def inventario_page():
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('inventario.html', empresa=current_user.nombre_empresa)
 
+@app.route('/inventario/movimientos')
+@login_required
+def movimientos_inventario_page():
+    if not current_user.tiene_permiso(6):
+        return redirect(url_for('ventas_page', error='sin_permiso'))
+    return render_template('movimientos_inventario.html', empresa=current_user.nombre_empresa)
+
 @app.route('/cobros')
 @login_required
 def cobros_page():
@@ -1042,6 +1049,110 @@ def get_inventario():
         print("Error en /api/inventario:", str(e))
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/movimientos_inventario', methods=['POST'])
+@login_required
+def get_movimientos_inventario():
+    params           = request.json or {}
+    f_producto       = (params.get('producto') or '').strip().upper()
+    f_inicio         = params.get('fecha_inicio', '')
+    f_fin            = params.get('fecha_fin', '')
+    f_tipomov        = (params.get('tipomov') or '').strip().upper()
+    f_almacen        = (params.get('almacen') or '').strip().upper()
+
+    # Listas para los selectores
+    all_productos  = {}   # codigo -> nombre
+    all_tipos      = set()
+    all_almacenes  = set()
+
+    detalles       = []
+    total_entradas = 0.0
+    total_salidas  = 0.0
+    info_producto  = {}
+
+    try:
+        path = get_dbf_path('tablero_movimientos_inventario.DBF')
+        if not os.path.exists(path):
+            return jsonify({"error": "Archivo de movimientos no encontrado"}), 404
+
+        for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
+            cod  = str(rec.get('CODIGOPRO', '')).strip()
+            nom  = str(rec.get('NOMBREPRO', '')).strip()
+            if cod:
+                all_productos[cod] = nom
+
+            tipo    = str(rec.get('TIPOMOV', '')).strip().upper()
+            almacen = str(rec.get('ALMACEN',  '')).strip().upper()
+            if tipo:    all_tipos.add(tipo)
+            if almacen: all_almacenes.add(almacen)
+
+            # Si no hay producto seleccionado, solo recolectar listas
+            if not f_producto:
+                continue
+
+            # Filtrar por producto (busca en código Y en nombre)
+            prod_label = (cod + " - " + nom.upper()) if cod else nom.upper()
+            if f_producto not in prod_label and f_producto not in cod.upper() and f_producto not in nom.upper():
+                continue
+
+            # Guardar info del producto (primera coincidencia)
+            if not info_producto and cod:
+                info_producto = {
+                    "codigo":      cod,
+                    "nombre":      nom,
+                    "minimo":      safe_float(rec.get('MINIMO', 0)),
+                    "maximo":      safe_float(rec.get('MAXIMO', 0)),
+                }
+
+            fecha_reg = parse_fecha(rec.get('FECHA'))
+            if f_inicio and fecha_reg < f_inicio: continue
+            if f_fin    and fecha_reg > f_fin:    continue
+            if f_tipomov  and tipo    != f_tipomov:  continue
+            if f_almacen  and almacen != f_almacen:  continue
+
+            entradas = safe_float(rec.get('ENTRADAS', 0))
+            salidas  = safe_float(rec.get('SALIDAS',  0))
+            total_entradas += entradas
+            total_salidas  += salidas
+
+            detalles.append({
+                "FECHA":     fecha_reg,
+                "DESCRIMOV": str(rec.get('DESCRIMOV', '')).strip(),
+                "PROV_CLI":  str(rec.get('PROV_CLI',  '')).strip(),
+                "ENTRADAS":  round(entradas, 2),
+                "SALIDAS":   round(salidas,  2),
+                "SALDO":     round(safe_float(rec.get('SALDO',  0)), 2),
+                "ALMACEN":   almacen,
+                "MOVIMIENTO":str(rec.get('MOVIMIENTO', '')).strip(),
+                "REFERENCIA":str(rec.get('REFERENCIA', '')).strip(),
+                "COSTO":     round(safe_float(rec.get('COSTO', 0)), 4),
+                "TIPOMOV":   tipo,
+            })
+
+        # Ordenar por fecha ASC
+        detalles.sort(key=lambda x: x["FECHA"])
+
+        # Lista de productos como "CODIGO - NOMBRE" para Tom Select
+        lista_productos = sorted([
+            f"{cod} - {nom}" for cod, nom in all_productos.items() if cod
+        ])
+
+        return jsonify({
+            "status":          "success",
+            "lista_productos": lista_productos,
+            "lista_tipos":     sorted(list(all_tipos)),
+            "lista_almacenes": sorted(list(all_almacenes)),
+            "info_producto":   info_producto,
+            "total_entradas":  round(total_entradas, 2),
+            "total_salidas":   round(total_salidas,  2),
+            "detalles":        detalles,
+        })
+
+    except Exception as e:
+        import traceback
+        print("Error en /api/movimientos_inventario:", traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
 
 
 @app.route('/api/cartera_cxp', methods=['POST'])
