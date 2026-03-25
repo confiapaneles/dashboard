@@ -677,7 +677,9 @@ def get_cobros_facturas():
     all_vendedores = set()
     all_formas     = set()
     all_cajas      = set()   # recolectada ANTES del filtro de caja
+    all_clientes   = set()   # para poblar filtro cliente
     caja_filtro    = (params.get('caja') or 'TODAS').strip().upper()
+    cliente_filtro = (params.get('cliente') or 'TODAS').strip().upper()
 
     try:
         path = get_dbf_path('tablero_cobro_factura.DBF')
@@ -695,6 +697,12 @@ def get_cobros_facturas():
             all_vendedores.add(vendedor_norm)
 
             if vendedor_filtro != 'TODOS' and vendedor_norm != vendedor_filtro:
+                continue
+
+            # Cliente
+            cliente_raw = str(rec.get('CLIENTE', 'S/C')).strip().upper()
+            all_clientes.add(cliente_raw)
+            if cliente_filtro != 'TODAS' and cliente_filtro != cliente_raw:
                 continue
 
             # Forma de pago
@@ -748,7 +756,8 @@ def get_cobros_facturas():
             "tabla":           data_tabla,
             "lista_vendedores": sorted(list(all_vendedores)),
             "lista_formas":    sorted(list(all_formas)),
-            "lista_cajas":     sorted(list(all_cajas)),   # ← pobla Tom Select de caja
+            "lista_cajas":     sorted(list(all_cajas)),
+            "lista_clientes":  sorted([c for c in all_clientes if c and c != 'S/C']),
         })
 
     except Exception as e:
@@ -1273,15 +1282,17 @@ def get_compras():
             for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
                 prov_reg  = str(rec.get('PROVEEDOR', 'S/P')).strip().upper()
                 prod_reg  = str(rec.get('NOMBREPRO', 'S/P')).strip().upper()
+                cod_prod  = str(rec.get('CODIGOPRO', '')).strip().upper()
                 fecha_reg = parse_fecha(rec.get('FECHA'))
+                prod_label = (cod_prod + " - " + prod_reg) if cod_prod else prod_reg
 
                 # Recolectar listas SIEMPRE, antes de filtrar
                 if prov_reg and prov_reg != 'S/P': all_proveedores.add(prov_reg)
-                if prod_reg and prod_reg != 'S/P': all_productos.add(prod_reg)
+                if prod_reg and prod_reg != 'S/P': all_productos.add(prod_label)
 
                 # Aplicar filtros — match exacto
                 if f_prov and f_prov != prov_reg: continue
-                if f_prod and f_prod != prod_reg: continue
+                if f_prod and f_prod != prod_label: continue
                 if f_inicio and fecha_reg < f_inicio: continue
                 if f_fin and fecha_reg > f_fin: continue
 

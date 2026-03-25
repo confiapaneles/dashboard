@@ -177,6 +177,13 @@
                     <option value="TODOS">Todos</option>
                 </select>
             </div>
+            <!-- Cliente: Tom Select searchable -->
+            <div class="filter-col">
+                <label>Cliente</label>
+                <select id="filtro_cliente">
+                    <option value="TODAS">Todos los clientes</option>
+                </select>
+            </div>
             <div class="filter-col" style="max-width:130px;">
                 <label>Top N</label>
                 <select id="top_n" onchange="cargarDatos()">
@@ -260,13 +267,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let charts  = {};
-let tsCaja  = null;
-let tsForma = null;
-let tsVend  = null;
+let tsCaja    = null;
+let tsForma   = null;
+let tsVend    = null;
+let tsCliente = null;
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading()  { loadingOverlay.style.display = 'none'; }
+
+function fmtFecha(f) {
+    if (!f || f === '-') return '-';
+    const p = String(f).split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return f;
+}
 
 function debounce(func, wait = 600) {
     let t;
@@ -302,6 +317,14 @@ function initTomSelects() {
         maxOptions: 200,
         onChange: () => cargarDatos()
     });
+
+    tsCliente = new TomSelect('#filtro_cliente', {
+        allowEmptyOption: false,
+        placeholder: 'Buscar cliente...',
+        maxOptions: 300,
+        searchField: ['text', 'value'],
+        onChange: () => cargarDatos()
+    });
 }
 
 // ── Poblar cajas desde API ────────────────────────────────────────────────
@@ -331,13 +354,27 @@ function poblarVendedores(lista) {
     tsVend.setValue(actual || 'TODOS', true);
 }
 
+// ── Poblar clientes desde API ─────────────────────────────────────────────
+function poblarClientes(lista) {
+    if (!tsCliente || !lista?.length) return;
+    const actual = tsCliente.getValue();
+    tsCliente.clearOptions();
+    tsCliente.addOption({ value: 'TODAS', text: 'Todos los clientes' });
+    lista.forEach(c => {
+        if (c?.trim()) tsCliente.addOption({ value: c.trim().toUpperCase(), text: c.trim() });
+    });
+    tsCliente.refreshOptions(false);
+    tsCliente.setValue(actual && lista.map(x=>x.trim().toUpperCase()).includes(actual) ? actual : 'TODAS', true);
+}
+
 function limpiarFiltros() {
     fechasDefault();
     document.getElementById('moneda').value = 'Bs';
     document.getElementById('top_n').value  = '10';
-    if (tsCaja)  tsCaja.setValue('TODAS', true);
-    if (tsForma) tsForma.setValue('TODAS', true);
-    if (tsVend)  tsVend.setValue('TODOS', true);
+    if (tsCaja)     tsCaja.setValue('TODAS', true);
+    if (tsForma)    tsForma.setValue('TODAS', true);
+    if (tsVend)     tsVend.setValue('TODOS', true);
+    if (tsCliente)  tsCliente.setValue('TODAS', true);
     actualizarBtnLimpiar();
     cargarDatos();
 }
@@ -348,9 +385,10 @@ function actualizarBtnLimpiar() {
     const hayFiltro =
         document.getElementById('fecha_inicio').value !== primero.toISOString().split('T')[0] ||
         document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0] ||
-        (tsCaja  && tsCaja.getValue()  !== 'TODAS') ||
-        (tsForma && tsForma.getValue() !== 'TODAS') ||
-        (tsVend  && tsVend.getValue()  !== 'TODOS') ||
+        (tsCaja    && tsCaja.getValue()    !== 'TODAS') ||
+        (tsForma   && tsForma.getValue()   !== 'TODAS') ||
+        (tsVend    && tsVend.getValue()    !== 'TODOS') ||
+        (tsCliente && tsCliente.getValue() !== 'TODAS') ||
         document.getElementById('top_n').value !== '10';
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
@@ -372,9 +410,10 @@ async function cargarDatos() {
         fecha_inicio: document.getElementById('fecha_inicio').value,
         fecha_fin:    document.getElementById('fecha_fin').value,
         moneda:       document.getElementById('moneda').value,
-        caja:         tsCaja  ? tsCaja.getValue()  : 'TODAS',
-        forma_pago:   tsForma ? tsForma.getValue() : 'TODAS',
-        vendedor:     tsVend  ? tsVend.getValue()  : 'TODOS',
+        caja:         tsCaja    ? tsCaja.getValue()    : 'TODAS',
+        forma_pago:   tsForma  ? tsForma.getValue()  : 'TODAS',
+        vendedor:     tsVend   ? tsVend.getValue()   : 'TODOS',
+        cliente:      tsCliente? tsCliente.getValue(): 'TODAS',
         top_n:        parseInt(document.getElementById('top_n').value)
     };
 
@@ -388,8 +427,9 @@ async function cargarDatos() {
         const data = await r.json();
 
         // Poblar selectores con datos del API
-        if (data.lista_cajas?.length)     poblarCajas(data.lista_cajas);
-        if (data.lista_vendedores?.length) poblarVendedores(data.lista_vendedores);
+        if (data.lista_cajas?.length)      poblarCajas(data.lista_cajas);
+        if (data.lista_vendedores?.length)  poblarVendedores(data.lista_vendedores);
+        if (data.lista_clientes?.length)    poblarClientes(data.lista_clientes);
 
         const monedaStr = params.moneda;
         const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -428,7 +468,7 @@ function renderAll(d, moneda) {
     document.getElementById('tabla_body').innerHTML = (d.tabla || []).map(r => `
         <tr>
             <td class="fw-bold" style="white-space:nowrap">${r.CODIGO || '-'}</td>
-            <td class="fecha-col">${r.FECHA || '-'}</td>
+            <td class="fecha-col">${fmtFecha(r.FECHA)}</td>
             <td class="cliente-col"><small>${r.CLIENTE || '—'}</small></td>
             <td><small>${r.VENDEDOR || '—'}</small></td>
             <td><small style="white-space:nowrap">${r.CAJA || '—'}</small></td>

@@ -15,20 +15,10 @@
         padding: 24px; margin-bottom: 24px;
         box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     }
-    .filter-row {
-        display: flex; flex-wrap: wrap;
-        gap: 14px; align-items: flex-end;
-    }
-    .filter-col {
-        display: flex; flex-direction: column;
-        gap: 4px; min-width: 140px;
-    }
-    .filter-col label {
-        font-size: 0.8rem; font-weight: 600;
-        color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .filter-col select,
-    .filter-col input[type="date"] {
+    .filter-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+    .filter-col { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
+    .filter-col label { font-size: 0.8rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; }
+    .filter-col select, .filter-col input[type="date"] {
         padding: 8px 12px; border: 1px solid #d1d5db;
         border-radius: 8px; font-size: 0.92rem;
         background: white; color: #1f2937; outline: none;
@@ -39,7 +29,7 @@
         box-shadow: 0 0 0 3px rgba(230,126,34,0.15);
     }
 
-    /* Tom Select overrides — color naranja compras */
+    /* Tom Select overrides naranja */
     .ts-wrapper.single .ts-control {
         padding: 8px 12px; border: 1px solid #d1d5db;
         border-radius: 8px; font-size: 0.92rem;
@@ -54,7 +44,8 @@
         border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         border: 1px solid #d1d5db; font-size: 0.9rem;
     }
-    .ts-dropdown .option { padding: 9px 14px; }
+    /* FIX: opciones en una sola línea */
+    .ts-dropdown .option { padding: 9px 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px; }
     .ts-dropdown .option:hover,
     .ts-dropdown .option.active { background: #fff3e0; color: #b45309; }
     .ts-dropdown-content { max-height: 260px; }
@@ -65,9 +56,7 @@
         background: #fff3e0; padding: 8px 20px; border-radius: 10px;
     }
 
-    .tab-navigation {
-        display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
-    }
+    .tab-navigation { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
     .tab-btn {
         padding: 8px 18px; border: 1px solid #d1d5db;
         background: white; border-radius: 8px;
@@ -92,22 +81,12 @@
     }
     .chart-container { position: relative; height: 420px; }
 
-    .no-data {
-        color: #6b7280; font-style: italic;
-        padding: 40px 20px; text-align: center;
-    }
-    .kpi-box {
-        background: white; border: 1px solid #e0e0e0;
-        border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .fecha-col {
-        white-space: nowrap; width: 110px; min-width: 110px; max-width: 110px;
-        overflow: hidden; text-overflow: ellipsis;
-    }
+    .no-data { color: #6b7280; font-style: italic; padding: 40px 20px; text-align: center; }
+    .kpi-box { background: white; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .fecha-col { white-space: nowrap; width: 110px; min-width: 110px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
 
     #loadingOverlay {
-        position: fixed; inset: 0;
-        background: rgba(255,255,255,0.80);
+        position: fixed; inset: 0; background: rgba(255,255,255,0.80);
         backdrop-filter: blur(4px); z-index: 9999;
         display: none; align-items: center; justify-content: center;
     }
@@ -151,24 +130,17 @@
                     <option value="50">Top 50</option>
                 </select>
             </div>
-            <!-- Proveedor — TomSelect -->
             <div class="filter-col" style="min-width:220px;">
                 <label>Proveedor</label>
-                <select id="sel_prov">
-                    <option value="">Todos los proveedores</option>
-                </select>
+                <select id="sel_prov"><option value="">Todos los proveedores</option></select>
             </div>
-            <!-- Producto — TomSelect igual al inventario -->
             <div class="filter-col" style="min-width:260px;">
                 <label>Producto</label>
-                <select id="sel_prod">
-                    <option value="">Todos los productos</option>
-                </select>
+                <select id="sel_prod"><option value="">Todos los productos</option></select>
             </div>
         </div>
     </div>
 
-    <!-- Pestañas -->
     <div class="tab-navigation">
         <button class="tab-btn active" data-tab="tab_res">Resumen General</button>
         <button class="tab-btn" data-tab="tab_prov">Top Proveedores</button>
@@ -176,7 +148,6 @@
         <button class="tab-btn" data-tab="tab_det_prod">Detalle por Producto</button>
     </div>
 
-    <!-- Resumen General -->
     <div id="tab_res" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-6">
@@ -194,7 +165,6 @@
         </div>
     </div>
 
-    <!-- Top Proveedores -->
     <div id="tab_prov" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title">Ranking de Proveedores</div>
@@ -202,7 +172,6 @@
         </div>
     </div>
 
-    <!-- Top Productos -->
     <div id="tab_prod" class="tab-pane">
         <div class="card-chart">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -216,15 +185,10 @@
         </div>
     </div>
 
-    <!-- ✅ NUEVA PESTAÑA: Detalle por Producto (a qué proveedor se le compró) -->
     <div id="tab_det_prod" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title" id="titulo_det_prod">Detalle por Producto</div>
-
-            <!-- KPIs resumen del producto seleccionado -->
             <div id="resumen_det_prod" class="mb-4"></div>
-
-            <!-- Tabla de compras del producto -->
             <div class="table-responsive">
                 <table class="table table-hover" id="tabla_det_prod">
                     <thead class="table-light">
@@ -255,17 +219,24 @@
 </div>
 
 <script>
-// ─── ESTADO GLOBAL ────────────────────────────────────────────────────────
-let inst              = {};
-let tsProveedor       = null;
-let tsProducto        = null;
-let productoSel       = '';
-let ultimosDatos      = null;
-let ultimaMoneda      = 'Bs';
+let inst         = {};
+let tsProveedor  = null;
+let tsProducto   = null;
+let productoSel  = '';
+let ultimosDatos = null;
+let ultimaMoneda = 'Bs';
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
+
+// FIX: fechas dd/mm/yyyy
+function fmtFecha(f) {
+    if (!f || f === '-') return '-';
+    const p = String(f).split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return f;
+}
 
 function debounce(func, wait = 600) {
     let timeout;
@@ -275,7 +246,6 @@ const debouncedCargarCompras = debounce(cargarCompras);
 
 const palette = ['#e67e22','#d35400','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#a78bfa','#2ecc71','#e74c3c','#1abc9c','#9b59b6'];
 
-// ─── PESTAÑAS ─────────────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -284,14 +254,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         this.classList.add('active');
         const tabId = this.getAttribute('data-tab');
         document.getElementById(tabId).classList.add('active');
-        // Al ir a detalle por producto, renderizar con datos actuales
-        if (tabId === 'tab_det_prod') {
-            renderDetalleProducto(ultimosDatos, ultimaMoneda, productoSel);
-        }
+        if (tabId === 'tab_det_prod') renderDetalleProducto(ultimosDatos, ultimaMoneda, productoSel);
     });
 });
 
-// ─── INICIALIZAR TOM SELECTS ──────────────────────────────────────────────
 function inicializarTomSelects() {
     tsProveedor = new TomSelect('#sel_prov', {
         placeholder: 'Buscar proveedor...',
@@ -300,10 +266,12 @@ function inicializarTomSelects() {
         onChange: () => cargarCompras()
     });
 
+    // FIX: searchField para buscar por código Y nombre
     tsProducto = new TomSelect('#sel_prod', {
         placeholder: 'Buscar producto...',
         allowEmptyOption: true,
         maxOptions: 300,
+        searchField: ['text', 'value'],
         onChange: (val) => {
             productoSel = val ? val.toUpperCase() : '';
             cargarCompras();
@@ -311,7 +279,6 @@ function inicializarTomSelects() {
     });
 }
 
-// ─── POBLAR TOM SELECTS ───────────────────────────────────────────────────
 function poblarTS(ts, lista, valorVacio, textoVacio) {
     if (!ts) return;
     const actual = ts.getValue();
@@ -322,7 +289,6 @@ function poblarTS(ts, lista, valorVacio, textoVacio) {
     ts.setValue(lista.includes(actual) ? actual : valorVacio, true);
 }
 
-// ─── CARGA PRINCIPAL ──────────────────────────────────────────────────────
 async function cargarCompras() {
     showLoading();
 
@@ -351,15 +317,12 @@ async function cargarCompras() {
         const monedaSel = params.moneda;
         const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // Total
         const totalSuma = (d.totales?.Contado || 0) + (d.totales?.Crédito || 0) + (d.totales?.Otros || 0);
         document.getElementById('txt_total').textContent = fmt(totalSuma) + ' ' + monedaSel;
 
-        // Poblar TomSelects desde API (lista real de BD)
         if (d.lista_proveedores?.length) poblarTS(tsProveedor, d.lista_proveedores, '', 'Todos los proveedores');
         if (d.lista_productos?.length)   poblarTS(tsProducto,  d.lista_productos,   '', 'Todos los productos');
 
-        // Gráficos
         renderChart('chartTipo', 'bar', 'Tipo de Compra',
             ['Contado', 'Crédito', 'Otros'],
             [d.totales?.Contado || 0, d.totales?.Crédito || 0, d.totales?.Otros || 0],
@@ -375,19 +338,14 @@ async function cargarCompras() {
             d.proveedores?.map(x => x.V) || [],
             palette, 'y');
 
-        const dataProd = params.prod_criterio === 'monto'
-            ? (d.productos_monto || [])
-            : (d.productos_unid  || []);
+        const dataProd = params.prod_criterio === 'monto' ? (d.productos_monto || []) : (d.productos_unid || []);
         renderChart('chartProd', 'bar', 'Ranking Productos',
             dataProd.map(x => x.PRODUCTO),
             dataProd.map(x => x.V),
             palette, 'y');
 
-        // Si estamos en la pestaña detalle, actualizar
         const tabActiva = document.querySelector('.tab-btn.active')?.dataset.tab;
-        if (tabActiva === 'tab_det_prod') {
-            renderDetalleProducto(d, monedaSel, productoSel);
-        }
+        if (tabActiva === 'tab_det_prod') renderDetalleProducto(d, monedaSel, productoSel);
 
     } catch (err) {
         console.error('Error cargando compras:', err);
@@ -396,44 +354,29 @@ async function cargarCompras() {
     }
 }
 
-// ─── RENDER DETALLE PRODUCTO (igual al de ventas pero con Proveedor) ──────
 function renderDetalleProducto(d, monedaStr, prodSel) {
-    const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const titulo     = document.getElementById('titulo_det_prod');
-    const resumen    = document.getElementById('resumen_det_prod');
-    const tbody      = document.getElementById('tbody_det_prod');
-    const noMsg      = document.getElementById('no_det_prod');
+    const fmt    = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const titulo  = document.getElementById('titulo_det_prod');
+    const resumen = document.getElementById('resumen_det_prod');
+    const tbody   = document.getElementById('tbody_det_prod');
+    const noMsg   = document.getElementById('no_det_prod');
 
     if (prodSel && d?.detalle_producto) {
         titulo.textContent = `Detalle de Compras: ${prodSel}`;
-
         resumen.innerHTML = `
             <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="kpi-box text-center p-3">
-                        <small class="text-muted d-block">Cantidad Total Comprada</small>
-                        <h5 class="fw-bold mb-0">${fmt(d.detalle_producto.cantidad_total || 0)}</h5>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="kpi-box text-center p-3">
-                        <small class="text-muted d-block">Monto Total</small>
-                        <h5 class="fw-bold mb-0" style="color:var(--primary)">${fmt(d.detalle_producto.monto_total || 0)} ${monedaStr}</h5>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="kpi-box text-center p-3">
-                        <small class="text-muted d-block">Proveedores Distintos</small>
-                        <h5 class="fw-bold mb-0">${d.detalle_producto.proveedores_unicos || 0}</h5>
-                    </div>
-                </div>
+                <div class="col-md-4"><div class="kpi-box text-center p-3"><small class="text-muted d-block">Cantidad Total Comprada</small><h5 class="fw-bold mb-0">${fmt(d.detalle_producto.cantidad_total || 0)}</h5></div></div>
+                <div class="col-md-4"><div class="kpi-box text-center p-3"><small class="text-muted d-block">Monto Total</small><h5 class="fw-bold mb-0" style="color:var(--primary)">${fmt(d.detalle_producto.monto_total || 0)} ${monedaStr}</h5></div></div>
+                <div class="col-md-4"><div class="kpi-box text-center p-3"><small class="text-muted d-block">Proveedores Distintos</small><h5 class="fw-bold mb-0">${d.detalle_producto.proveedores_unicos || 0}</h5></div></div>
             </div>`;
 
         tbody.innerHTML = '';
-        (d.detalle_producto.detalles || []).forEach(row => {
+        // FIX: fmtFecha en tabla + ordenado ASC
+        const detalles = [...(d.detalle_producto.detalles || [])].sort((a, b) => a.FECHA < b.FECHA ? -1 : 1);
+        detalles.forEach(row => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="fecha-col">${row.FECHA || '-'}</td>
+                <td class="fecha-col">${fmtFecha(row.FECHA)}</td>
                 <td>${row.DOCUMENTO || '-'}</td>
                 <td><strong>${row.PROVEEDOR || 'S/P'}</strong></td>
                 <td><span class="badge" style="background:${row.TIPO === 'Contado' ? '#d1fae5' : '#fee2e2'}; color:${row.TIPO === 'Contado' ? '#065f46' : '#991b1b'}">${row.TIPO || '-'}</span></td>
@@ -450,7 +393,6 @@ function renderDetalleProducto(d, monedaStr, prodSel) {
     }
 }
 
-// ─── CHARTS ───────────────────────────────────────────────────────────────
 function renderChart(id, type, title, labels, values, colores, indexAxis = 'x') {
     const canvas = document.getElementById(id);
     if (!canvas) return;
@@ -503,14 +445,11 @@ function renderChart(id, type, title, labels, values, colores, indexAxis = 'x') 
     });
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const hoy = new Date();
     document.getElementById('f_fin').value = hoy.toISOString().split('T')[0];
-    // 1ro del mes actual — igual que ventas
     const primeroDelMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     document.getElementById('f_inicio').value = primeroDelMes.toISOString().split('T')[0];
-
     inicializarTomSelects();
     cargarCompras();
 });
