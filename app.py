@@ -726,6 +726,8 @@ def get_bancos():
     moneda       = params.get('moneda', 'Bs')
     tipocuen     = params.get('tipocuen', '').strip()
     banco_filtro = params.get('banco', '').strip().upper()
+    fecha_inicio = params.get('fecha_inicio', '')
+    fecha_fin    = params.get('fecha_fin', '')
 
     data_movimientos  = []
     saldos_por_cuenta = {}
@@ -741,8 +743,12 @@ def get_bancos():
                 unique_tipos.add(tipocuen_reg)
                 banco_nom = str(rec.get('BANCO', '')).strip()
                 unique_bancos.add(banco_nom)
+                fecha_reg = parse_fecha(rec.get('FECHA'))
+                if fecha_inicio and fecha_reg < fecha_inicio: continue
+                if fecha_fin    and fecha_reg > fecha_fin:    continue
                 if tipocuen and tipocuen != tipocuen_reg: continue
-                if banco_filtro and banco_filtro != banco_nom.upper(): continue
+                if banco_filtro and banco_filtro != banco_nom.upper():
+                    continue
                 nro_cuenta = str(rec.get('CUENTA', '')).strip()
                 desc = str(rec.get('DESCRIPCIO', '')).strip()
                 if busqueda and (busqueda not in banco_nom.upper() and busqueda not in desc.upper()): continue
