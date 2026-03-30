@@ -781,6 +781,9 @@ def get_bancos():
             total_global += c['saldo']
             distribucion_bancos[c['banco']] += c['saldo']
 
+        # Ordenar movimientos por fecha ascendente
+        data_movimientos.sort(key=lambda x: x.get('FECHA', ''))
+
         return jsonify({
             "totales": {"ingresos": round(totales["ingresos"], 2), "egresos": round(totales["egresos"], 2), "saldo_total": round(total_global, 2)},
             "tabla":         data_movimientos,
