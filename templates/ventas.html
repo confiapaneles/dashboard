@@ -10,7 +10,6 @@
     .filter-col.text-col { flex-grow: 2; flex-basis: 220px; min-width: 220px; }
     .filter-col label { font-size: 0.85rem; color: #555; margin-bottom: 6px; font-weight: 500; display: block; }
     .filter-col input, .filter-col select { width: 100%; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.92rem; }
-    .filter-col input:focus, .filter-col select:focus { border-color: var(--accent, #3498db); box-shadow: 0 0 0 3px rgba(52,152,219,0.15); }
     .total-kpi { font-size: 2.2rem; font-weight: 800; color: #27ae60; white-space: nowrap; }
     .tab-navigation { margin: 0 0 25px 0; display: flex; flex-wrap: wrap; gap: 8px; }
     .tab-btn { padding: 10px 24px; border: none; border-radius: 8px; font-weight: 600; background: #e5e7eb; color: #4b5563; cursor: pointer; transition: all 0.25s; }
@@ -30,122 +29,61 @@
     .kpi-small { font-size: 1.1rem; color: #334155; }
     .factura-table { width: 100%; font-size: 0.88rem; table-layout: fixed; }
     .factura-table th, .factura-table td { padding: 8px 10px; vertical-align: middle; }
-    .fecha-col { white-space: nowrap !important; width: 110px !important; min-width: 110px !important; max-width: 110px !important; overflow: hidden; text-overflow: ellipsis; }
-    .factura-table th:nth-child(2), .factura-table td:nth-child(2) { min-width: 180px; }
-    .factura-table th:nth-child(3), .factura-table td:nth-child(3) { min-width: 120px; }
-    .factura-table th:nth-child(4), .factura-table td:nth-child(4) { min-width: 100px; }
-    .factura-table th:nth-child(5), .factura-table td:nth-child(5) { min-width: 80px; }
+    .fecha-col { white-space: nowrap !important; width: 110px !important; }
     #tablaDetalleProducto { width: 100%; font-size: 0.88rem; }
     #tablaDetalleProducto th { background: #f8f9fa; position: sticky; top: 0; z-index: 1; }
     #tablaDetalleProducto td, #tablaDetalleProducto th { padding: 8px 10px; vertical-align: middle; }
-    /* Botón limpiar filtros */
-    .btn-limpiar-filtros {
-        padding: 8px 16px; background: #fee2e2; color: #dc2626;
-        border: 1px solid #fca5a5; border-radius: 8px;
-        font-size: 0.82rem; font-weight: 600; cursor: pointer;
-        white-space: nowrap; transition: all 0.2s; align-self: flex-end;
-    }
-    .btn-limpiar-filtros:hover { background: #fecaca; }
-    /* Selector tipo gráfico */
+    .btn-limpiar-filtros { padding: 8px 16px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; align-self: flex-end; }
     .chart-type-selector { display: flex; gap: 4px; background: #f3f4f6; border-radius: 10px; padding: 4px; }
     .chart-type-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; border-radius: 7px; background: transparent; color: #9ca3af; cursor: pointer; transition: all 0.2s; }
-    .chart-type-btn:hover { background: white; color: #374151; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
     .chart-type-btn.active { background: white; color: var(--accent, #3498db); box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+    .metric-toggle { display: inline-flex; background: #f1f5f9; border-radius: 8px; padding: 3px; border: 1px solid #e2e8f0; }
+    .metric-toggle-btn { padding: 5px 14px; border: none; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; background: transparent; color: #64748b; }
+    .metric-toggle-btn.active { background: var(--accent, #3498db); color: white; box-shadow: 0 2px 6px rgba(52,152,219,0.35); }
+    .metric-toggle-btn:not(.active):hover { background: #e2e8f0; color: #374151; }
     #loadingOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.80); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; }
     .loading-content { text-align: center; background: white; padding: 2.5rem 4rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px; }
-    .loading-content .spinner-border { width: 3rem; height: 3rem; }
     @media (max-width: 768px) {
-        .dashboard-wrapper { padding: 0 8px; }
-        .filter-card { padding: 14px; margin-bottom: 14px; }
-        .filter-row { gap: 10px; margin-bottom: 8px; }
         .filter-col { min-width: calc(50% - 5px) !important; }
         .filter-col.text-col { min-width: 100% !important; }
         .filter-col.select-col { flex-basis: calc(50% - 5px) !important; max-width: calc(50% - 5px) !important; }
         .total-kpi { font-size: 1.4rem !important; }
-        .tab-navigation { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; gap: 5px; scrollbar-width: none; }
-        .tab-navigation::-webkit-scrollbar { display: none; }
+        .tab-navigation { flex-wrap: nowrap !important; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .tab-btn { white-space: nowrap; padding: 8px 14px !important; font-size: 0.8rem !important; flex-shrink: 0; }
         .chart-container { height: 260px !important; }
-        .card-chart { padding: 14px; margin-bottom: 14px; }
-        .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
-        .kpi-value { font-size: 1.2rem !important; }
-        .factura-table th:nth-child(4), .factura-table td:nth-child(4),
-        .factura-table th:nth-child(5), .factura-table td:nth-child(5) { display: none; }
-    }
-    @media (max-width: 480px) {
-        .filter-col, .filter-col.select-col { min-width: 100% !important; max-width: 100% !important; flex-basis: 100% !important; }
-        .chart-container { height: 220px !important; }
-    }
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .filter-col { min-width: 180px; }
-        .chart-container { height: 340px; }
-        .tab-btn { padding: 9px 18px; font-size: 0.85rem; }
+        .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
     }
 </style>
 
 <div class="dashboard-wrapper">
     <div class="filter-card">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h4 class="mb-0 fw-bold text-dark" style="font-size:clamp(1rem,3vw,1.35rem);">{{ empresa }} | Panel de Ventas</h4>
-            <div class="total-kpi" id="txt_total_general">0,00</div>
-        </div>
-
-        <div class="filter-row">
-            <div class="filter-col select-col">
-                <label>Status Factura</label>
-                <select id="filtro_status" onchange="cargarDatos()">
-                    <option value="TODOS">TODOS</option>
-                    <option value="Contado">Contado</option>
-                    <option value="Crédito">Crédito</option>
-                </select>
-            </div>
-            <div class="filter-col select-col">
-                <label>Moneda</label>
-                <select id="moneda" onchange="cargarDatos()">
-                    <option value="Bs">Bolívares (Bs)</option>
-                    <option value="USD">Dólares (USD)</option>
-                </select>
-            </div>
-            <div class="filter-col select-col">
-                <label>Top N</label>
-                <select id="top_n" onchange="cargarDatos()">
-                    <option value="10">Top 10</option>
-                    <option value="20">Top 20</option>
-                    <option value="50">Top 50</option>
-                </select>
-            </div>
-            <div class="filter-col select-col">
-                <label>Vendedor</label>
-                <select id="filtro_vendedor" onchange="cargarDatos()">
-                    <option value="TODOS">Todos los vendedores</option>
-                </select>
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Panel de Ventas</h4>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="metric-toggle">
+                    <button class="metric-toggle-btn active" data-metric="monto"    onclick="cambiarMetrica('monto')">$ Monto</button>
+                    <button class="metric-toggle-btn"        data-metric="cantidad" onclick="cambiarMetrica('cantidad')"># Cantidad</button>
+                </div>
+                <div class="total-kpi" id="txt_total_general">0,00</div>
             </div>
         </div>
-
         <div class="filter-row">
-            <div class="filter-col text-col">
-                <label>Desde</label>
-                <input type="date" id="fecha_inicio" onchange="debouncedCargarDatos()">
-            </div>
-            <div class="filter-col text-col">
-                <label>Hasta</label>
-                <input type="date" id="fecha_fin" onchange="debouncedCargarDatos()">
-            </div>
-            <div class="filter-col text-col">
-                <label>Cliente</label>
-                <select id="select_cliente"><option value="">Todos los clientes</option></select>
-            </div>
-            <div class="filter-col text-col">
-                <label>Producto</label>
-                <select id="select_producto"><option value="">Todos los productos</option></select>
-            </div>
-            <div class="filter-col text-col">
-                <label>Caja</label>
-                <select id="select_caja"><option value="">Todas las cajas</option></select>
-            </div>
-            <button class="btn-limpiar-filtros" id="btn_limpiar" onclick="limpiarFiltros()" style="display:none;">
-                ✕ Limpiar filtros
-            </button>
+            <div class="filter-col select-col"><label>Status</label>
+                <select id="filtro_status" onchange="cargarDatos()"><option value="TODOS">TODOS</option><option value="Contado">Contado</option><option value="Crédito">Crédito</option></select></div>
+            <div class="filter-col select-col"><label>Moneda</label>
+                <select id="moneda" onchange="cargarDatos()"><option value="Bs">Bolívares (Bs)</option><option value="USD">Dólares (USD)</option></select></div>
+            <div class="filter-col select-col"><label>Top N</label>
+                <select id="top_n" onchange="cargarDatos()"><option value="10">Top 10</option><option value="20">Top 20</option><option value="50">Top 50</option></select></div>
+            <div class="filter-col select-col"><label>Vendedor</label>
+                <select id="filtro_vendedor" onchange="cargarDatos()"><option value="TODOS">Todos</option></select></div>
+        </div>
+        <div class="filter-row">
+            <div class="filter-col text-col"><label>Desde</label><input type="date" id="fecha_inicio" onchange="debouncedCargarDatos()"></div>
+            <div class="filter-col text-col"><label>Hasta</label><input type="date" id="fecha_fin" onchange="debouncedCargarDatos()"></div>
+            <div class="filter-col text-col"><label>Cliente</label><select id="select_cliente"><option value="">Todos</option></select></div>
+            <div class="filter-col text-col"><label>Producto</label><select id="select_producto"><option value="">Todos</option></select></div>
+            <div class="filter-col text-col"><label>Caja</label><select id="select_caja"><option value="">Todas</option></select></div>
+            <button class="btn-limpiar-filtros" id="btn_limpiar" onclick="limpiarFiltros()" style="display:none;">✕ Limpiar filtros</button>
         </div>
     </div>
 
@@ -155,29 +93,21 @@
         <button class="tab-btn" data-tab="p_cli">Clientes</button>
         <button class="tab-btn" data-tab="p_prod">Productos</button>
         <button class="tab-btn" data-tab="p_vend">Vendedores</button>
-        <button class="tab-btn" data-tab="p_facturas">Facturas del Período</button>
-        <button class="tab-btn" data-tab="p_det_prod">Detalles por Producto</button>
+        <button class="tab-btn" data-tab="p_facturas">Facturas</button>
+        <button class="tab-btn" data-tab="p_det_prod">Detalle Producto</button>
     </div>
 
     <div id="p_gen" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="card-chart">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="chart-title mb-0">Ventas en el período</div>
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div class="chart-title mb-0" id="titulo_gen">Ventas en el período</div>
                         <div class="chart-type-selector" id="chartTypeSel">
-                            <button class="chart-type-btn" data-type="bar" title="Barras por día">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
-                            </button>
-                            <button class="chart-type-btn" data-type="barline" title="Barras + línea">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="13" width="3" height="8"/><rect x="9" y="9" width="3" height="12"/><rect x="15" y="11" width="3" height="10"/><polyline points="2,8 7,5 13,7 21,3" stroke-width="2"/></svg>
-                            </button>
-                            <button class="chart-type-btn" data-type="line" title="Línea">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,17 7,11 12,14 17,6 21,9"/><circle cx="3" cy="17" r="1.5" fill="currentColor"/><circle cx="7" cy="11" r="1.5" fill="currentColor"/><circle cx="12" cy="14" r="1.5" fill="currentColor"/><circle cx="17" cy="6" r="1.5" fill="currentColor"/><circle cx="21" cy="9" r="1.5" fill="currentColor"/></svg>
-                            </button>
-                            <button class="chart-type-btn active" data-type="pie" title="Torta">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                            </button>
+                            <button class="chart-type-btn" data-type="bar" title="Barras"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg></button>
+                            <button class="chart-type-btn" data-type="barline" title="Barras+línea"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="13" width="3" height="8"/><rect x="9" y="9" width="3" height="12"/><polyline points="2,8 7,5 13,7 21,3" stroke-width="2"/></svg></button>
+                            <button class="chart-type-btn" data-type="line" title="Línea"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,17 7,11 12,14 17,6 21,9"/></svg></button>
+                            <button class="chart-type-btn active" data-type="pie" title="Torta"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></button>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartTotales"></canvas></div>
@@ -189,7 +119,7 @@
                     <div style="font-size:4.5rem;font-weight:800;color:var(--accent,#3498db);" id="val_conteo_cli">0</div>
                     <div class="text-muted mt-2">en el período</div>
                     <div class="kpi-grid mt-4">
-                        <div class="kpi-item"><div class="kpi-label">Total Facturas Únicas</div><div class="kpi-value" id="val_total_fact">0</div></div>
+                        <div class="kpi-item"><div class="kpi-label">Facturas Únicas</div><div class="kpi-value" id="val_total_fact">0</div></div>
                         <div class="kpi-item"><div class="kpi-label">Contado</div><div class="kpi-value kpi-small" id="val_fact_cont_cant">0</div><div class="kpi-monto" id="val_fact_cont_monto">0,00</div></div>
                         <div class="kpi-item"><div class="kpi-label">Crédito</div><div class="kpi-value kpi-small" id="val_fact_cred_cant">0</div><div class="kpi-monto" id="val_fact_cred_monto">0,00</div></div>
                         <div class="kpi-item"><div class="kpi-label">IGTF</div><div class="kpi-monto" style="color:#e67e22;" id="val_total_igtf">0,00</div></div>
@@ -201,428 +131,251 @@
 
     <div id="p_zona" class="tab-pane">
         <div class="row g-4">
-            <div class="col-lg-8"><div class="card-chart"><div class="chart-title">Ventas por Zona Geográfica</div><div class="chart-container"><canvas id="chartZonas"></canvas></div></div></div>
-            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Distribución de Ingresos</div><div id="lista_detalles_zona" style="max-height:420px;overflow-y:auto;"></div></div></div>
+            <div class="col-lg-8"><div class="card-chart"><div class="chart-title" id="titulo_zona">Ventas por Zona</div><div class="chart-container"><canvas id="chartZonas"></canvas></div></div></div>
+            <div class="col-lg-4"><div class="card-chart"><div class="chart-title">Distribución</div><div id="lista_detalles_zona" style="max-height:420px;overflow-y:auto;"></div></div></div>
         </div>
     </div>
-    <div id="p_cli" class="tab-pane"><div class="card-chart"><div class="chart-title text-center">Ranking de Clientes por Monto</div><div class="chart-container" style="height:520px;"><canvas id="chartClientes"></canvas></div></div></div>
-    <div id="p_prod" class="tab-pane"><div class="card-chart"><div class="chart-title text-center">Productos Líderes en Ventas</div><div class="chart-container" style="height:580px;"><canvas id="chartProductos"></canvas></div></div></div>
+    <div id="p_cli" class="tab-pane"><div class="card-chart"><div class="chart-title" id="titulo_cli">Ranking de Clientes</div><div class="chart-container" style="height:520px;"><canvas id="chartClientes"></canvas></div></div></div>
+    <div id="p_prod" class="tab-pane"><div class="card-chart"><div class="chart-title" id="titulo_prod">Productos Líderes</div><div class="chart-container" style="height:580px;"><canvas id="chartProductos"></canvas></div></div></div>
     <div id="p_vend" class="tab-pane">
         <div class="row g-4">
-            <div class="col-lg-6"><div class="card-chart"><div class="chart-title">Ranking de Vendedores</div><div class="chart-container"><canvas id="chartVendedores"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="card-chart"><div class="chart-title" id="titulo_vend">Ranking de Vendedores</div><div class="chart-container"><canvas id="chartVendedores"></canvas></div></div></div>
             <div class="col-lg-6"><div class="card-chart"><div class="chart-title" id="titulo_prod_vend">Productos más vendidos</div><div class="chart-container"><canvas id="chartProdVendedor"></canvas></div></div></div>
         </div>
     </div>
-
     <div id="p_facturas" class="tab-pane">
         <div class="card-chart">
-            <div class="chart-title">Listado de Facturas del Período (filtradas)</div>
-            <div class="table-responsive" style="-webkit-overflow-scrolling:touch;">
+            <div class="chart-title">Facturas del Período</div>
+            <div class="table-responsive">
                 <table class="table table-hover factura-table mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="fecha-col">Fecha</th><th>Cliente</th><th>Vendedor</th>
-                            <th>Zona</th><th>Caja</th><th>Documento</th><th>Status</th>
-                            <th class="text-end">Monto</th>
-                        </tr>
-                    </thead>
+                    <thead class="table-light"><tr><th class="fecha-col">Fecha</th><th>Cliente</th><th>Vendedor</th><th>Zona</th><th>Caja</th><th>Documento</th><th>Status</th><th class="text-end">Monto</th></tr></thead>
                     <tbody id="tabla_facturas"></tbody>
                 </table>
             </div>
-            <div id="no_facturas" class="no-data mt-4 text-center" style="display:none;">No se encontraron facturas con los filtros aplicados</div>
+            <div id="no_facturas" class="no-data" style="display:none;">Sin facturas con los filtros aplicados</div>
         </div>
     </div>
-
     <div id="p_det_prod" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title" id="titulo_det_prod">Detalles del Producto</div>
             <div id="resumen_producto" class="mb-4"></div>
-            <div class="table-responsive" style="-webkit-overflow-scrolling:touch;">
+            <div class="table-responsive">
                 <table class="table table-hover" id="tablaDetalleProducto">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="fecha-col">Fecha</th><th>N° Factura</th><th>Caja</th>
-                            <th>Cliente</th><th>Vendedor</th>
-                            <th class="text-end">Cantidad</th><th class="text-end">Monto</th>
-                        </tr>
-                    </thead>
+                    <thead class="table-light"><tr><th class="fecha-col">Fecha</th><th>N° Factura</th><th>Caja</th><th>Cliente</th><th>Vendedor</th><th class="text-end">Cantidad</th><th class="text-end">Monto</th></tr></thead>
                     <tbody id="tbodyDetalleProducto"></tbody>
                 </table>
             </div>
-            <div id="no_det_prod" class="no-data mt-4 text-center" style="display:none;">Seleccione o busque un producto para ver detalles</div>
+            <div id="no_det_prod" class="no-data" style="display:none;">Selecciona un producto para ver detalles</div>
         </div>
     </div>
 </div>
 
-<div id="loadingOverlay"><div class="loading-content"><div class="spinner-border text-primary" role="status"></div><div class="mt-3 fw-bold text-primary fs-5">Cargando datos, por favor espere...</div></div></div>
+<div id="loadingOverlay"><div class="loading-content"><div class="spinner-border text-primary" role="status"></div><div class="mt-3 fw-bold text-primary fs-5">Cargando datos...</div></div></div>
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-.ts-wrapper.single .ts-control { padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:0.92rem; background:white; cursor:text; }
-.ts-wrapper.single.focus .ts-control { border-color:var(--accent,#3498db); box-shadow:0 0 0 3px rgba(52,152,219,0.15); }
-.ts-dropdown { border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.12); border:1px solid #d1d5db; font-size:0.9rem; }
-.ts-dropdown .option { padding:9px 14px; }
-.ts-dropdown .option:hover, .ts-dropdown .option.active { background:#eff6ff; color:#1d4ed8; }
-.ts-dropdown-content { max-height:260px; }
-.ts-wrapper { width:100%; }
+.ts-wrapper.single .ts-control{padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:0.92rem;background:white;}
+.ts-wrapper.single.focus .ts-control{border-color:var(--accent,#3498db);box-shadow:0 0 0 3px rgba(52,152,219,0.15);}
+.ts-dropdown{border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);border:1px solid #d1d5db;font-size:0.9rem;}
+.ts-dropdown .option{padding:9px 14px;}
+.ts-dropdown .option:hover,.ts-dropdown .option.active{background:#eff6ff;color:#1d4ed8;}
+.ts-dropdown-content{max-height:260px;}
+.ts-wrapper{width:100%;}
 </style>
-
 <script>
-let chartsInst = {};
-let vendedoresCargados = false;
-let tsCaja      = null;
-let tsProducto  = null;
-let tsCliente   = null;
-let cajasSeleccionada    = '';
-let productoSeleccionado = '';
-let clienteSeleccionado  = '';
-let ultimosDatosVentas   = null;
-let ultimaMonedaVentas   = 'Bs';
+// ── Estado global ─────────────────────────────────────────────────────────
+let chartsInst={}, tsCaja=null, tsProducto=null, tsCliente=null;
+let cajasSeleccionada='', productoSeleccionado='', clienteSeleccionado='';
+let ultimosDatos=null, ultimaMoneda='Bs';
+let metricaActual='monto';
+let tipoGraficoActual='pie';
+let ultimosHistorico=[], ultimoResumenTipo={};
 
-// ── Utilidad: formatear fecha YYYY-MM-DD → DD/MM/YYYY ────────────────────
-function fmtFecha(f) {
-    if (!f || f === '-') return '-';
-    const p = String(f).split('-');
-    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-    return f;
+const fmt = v => (v||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
+function fmtFecha(f){if(!f||f==='-')return '-';const p=String(f).split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:f;}
+const lo=document.getElementById('loadingOverlay');
+function showLoading(){lo.style.display='flex';} function hideLoading(){lo.style.display='none';}
+function debounce(fn,ms=600){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+const debouncedCargarDatos=debounce(cargarDatos);
+function generarColores(n){const p=['#3498db','#2980b9','#27ae60','#2ecc71','#16a085','#1abc9c','#f39c12','#e67e22','#e74c3c','#c0392b','#9b59b6','#8e44ad','#34495e'];return Array.from({length:n||5},(_,i)=>p[i%p.length]);}
+
+// ── Toggle Monto / Cantidad ───────────────────────────────────────────────
+function cambiarMetrica(nueva){
+    metricaActual=nueva;
+    document.querySelectorAll('.metric-toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.metric===nueva));
+    if(ultimosDatos) renderTodosGraficos(ultimosDatos, ultimaMoneda);
 }
 
-const loadingOverlay = document.getElementById('loadingOverlay');
-function showLoading() { loadingOverlay.style.display = 'flex'; }
-function hideLoading()  { loadingOverlay.style.display = 'none'; }
-
-function debounce(func, wait = 600) {
-    let timeout;
-    return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); };
+// ── Limpiar filtros ───────────────────────────────────────────────────────
+function actualizarBtnLimpiar(){
+    const hoy=new Date(), ini=new Date(hoy.getFullYear(),hoy.getMonth(),1).toISOString().split('T')[0], hoyS=hoy.toISOString().split('T')[0];
+    const hay=document.getElementById('fecha_inicio').value!==ini||document.getElementById('fecha_fin').value!==hoyS||document.getElementById('filtro_status').value!=='TODOS'||document.getElementById('filtro_vendedor').value!=='TODOS'||cajasSeleccionada!==''||productoSeleccionado!==''||clienteSeleccionado!=='';
+    document.getElementById('btn_limpiar').style.display=hay?'inline-block':'none';
 }
-const debouncedCargarDatos = debounce(cargarDatos);
-
-// ── Botón limpiar filtros ─────────────────────────────────────────────────
-function actualizarBtnLimpiar() {
-    const hoy = new Date();
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
-    const hoyStr    = hoy.toISOString().split('T')[0];
-    const hayFiltro =
-        document.getElementById('fecha_inicio').value !== inicioMes ||
-        document.getElementById('fecha_fin').value    !== hoyStr    ||
-        document.getElementById('filtro_status').value !== 'TODOS'  ||
-        document.getElementById('filtro_vendedor').value !== 'TODOS'||
-        cajasSeleccionada !== '' ||
-        productoSeleccionado !== '' ||
-        clienteSeleccionado !== '';
-    document.getElementById('btn_limpiar').style.display = hayFiltro ? 'inline-block' : 'none';
+function limpiarFiltros(){
+    const hoy=new Date();
+    document.getElementById('fecha_fin').value=hoy.toISOString().split('T')[0];
+    document.getElementById('fecha_inicio').value=new Date(hoy.getFullYear(),hoy.getMonth(),1).toISOString().split('T')[0];
+    document.getElementById('filtro_status').value='TODOS'; document.getElementById('filtro_vendedor').value='TODOS';
+    if(tsCaja)tsCaja.setValue('',true); if(tsProducto)tsProducto.setValue('',true); if(tsCliente)tsCliente.setValue('',true);
+    cajasSeleccionada=''; productoSeleccionado=''; clienteSeleccionado='';
+    actualizarBtnLimpiar(); cargarDatos();
 }
 
-function limpiarFiltros() {
-    const hoy = new Date();
-    document.getElementById('fecha_fin').value   = hoy.toISOString().split('T')[0];
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById('fecha_inicio').value = inicioMes.toISOString().split('T')[0];
-    document.getElementById('filtro_status').value   = 'TODOS';
-    document.getElementById('filtro_vendedor').value = 'TODOS';
-    if (tsCaja)     tsCaja.setValue('', true);
-    if (tsProducto) tsProducto.setValue('', true);
-    if (tsCliente)  tsCliente.setValue('', true);
-    cajasSeleccionada = ''; productoSeleccionado = ''; clienteSeleccionado = '';
-    actualizarBtnLimpiar();
-    cargarDatos();
-}
-
-async function cargarListaVendedores() {
-    try {
-        const resp = await fetch("/api/vendedores", { method: "GET" });
-        if (!resp.ok) return;
-        const data = await resp.json();
-        if (data.status !== "success" || !data.vendedores?.length) return;
-        const sel = document.getElementById("filtro_vendedor");
-        sel.innerHTML = '<option value="TODOS">Todos los vendedores</option>';
-        data.vendedores.forEach(v => {
-            const opt = document.createElement("option");
-            opt.value = v; opt.textContent = v; sel.appendChild(opt);
-        });
-        vendedoresCargados = true;
-    } catch (err) { console.error("Error cargando vendedores:", err); }
-}
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        this.classList.add('active');
-        const tabId = this.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
-        if (tabId === 'p_det_prod') {
-            renderDetallesProducto(ultimosDatosVentas, ultimaMonedaVentas, productoSeleccionado);
-        }
-    });
-});
-
-function generarColores(cant) {
-    const paleta = ['#3498db','#2980b9','#1f75cb','#27ae60','#2ecc71','#16a085','#0e6655','#1abc9c','#f39c12','#e67e22','#e74c3c','#c0392b','#9b59b6','#8e44ad','#34495e'];
-    return Array.from({length: cant || 5}, (_, i) => paleta[i % paleta.length]);
-}
-
-async function cargarDatos() {
-    showLoading();
-    const params = {
-        moneda:            document.getElementById("moneda").value,
-        top_n:             document.getElementById("top_n").value,
-        fecha_inicio:      document.getElementById("fecha_inicio").value,
-        fecha_fin:         document.getElementById("fecha_fin").value,
-        busqueda_cliente:  clienteSeleccionado,
-        busqueda_producto: productoSeleccionado,
-        filtro_caja:       cajasSeleccionada,
-        vendedor:          document.getElementById("filtro_vendedor").value || "TODOS",
-        status:            document.getElementById("filtro_status").value
-    };
-
-    try {
-        const resp = await fetch("/api/ventas", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(params) });
-        if (!resp.ok) throw new Error("Error HTTP");
-        const d = await resp.json();
-        if (d.status === "error") { console.error(d.message); hideLoading(); return; }
-
-        if (d.lista_cajas?.length)     poblarSelectCaja(d.lista_cajas);
-        if (d.lista_productos?.length) poblarSelectProducto(d.lista_productos);
-        if (d.lista_clientes?.length)  poblarSelectCliente(d.lista_clientes);
-
-        const monedaStr = params.moneda;
-        ultimosDatosVentas = d;
-        ultimaMonedaVentas = monedaStr;
-        const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
-
-        document.getElementById("txt_total_general").textContent = fmt(d.total_gral || 0) + ' ' + monedaStr;
-        document.getElementById("val_conteo_cli").textContent     = d.general?.conteo_clientes || 0;
-        document.getElementById("val_total_fact").textContent     = d.general?.total_facturas_unicas || 0;
-        document.getElementById("val_fact_cont_cant").textContent = d.general?.facturas_contado_unicas || 0;
-        document.getElementById("val_fact_cont_monto").textContent= fmt(d.general?.fact_cont_monto || 0) + ' ' + monedaStr;
-        document.getElementById("val_fact_cred_cant").textContent = d.general?.facturas_credito_unicas || 0;
-        document.getElementById("val_fact_cred_monto").textContent= fmt(d.general?.fact_cred_monto || 0) + ' ' + monedaStr;
-        document.getElementById("val_total_igtf").textContent     = fmt(d.general?.total_igtf || 0) + ' ' + monedaStr;
-
-        renderChartTotales(tipoGraficoActual, d.historico_ventas || [], d.resumen_tipo, monedaStr);
-
-        renderChartWithPercent("chartZonas","bar","Monto",(d.zonas||[]).map(x=>x.label),(d.zonas||[]).map(x=>x.value),generarColores(d.zonas?.length||0));
-        document.getElementById("lista_detalles_zona").innerHTML = (d.zonas||[]).length>0
-            ? (d.zonas||[]).map(z=>`<div class="info-tag">● <b>${z.label}</b> <span style="float:right">${fmt(z.value||0)} ${monedaStr}</span></div>`).join("")
-            : '<div class="no-data">No hay datos de zonas</div>';
-
-        renderChartWithPercent("chartClientes","bar","Monto",(d.clientes||[]).map(x=>x.label),(d.clientes||[]).map(x=>x.value),generarColores(d.clientes?.length||0),'y');
-        renderChartWithPercent("chartProductos","bar","Monto",(d.productos||[]).map(x=>x.label),(d.productos||[]).map(x=>x.value),generarColores(d.productos?.length||0),'y');
-
-        if (d.vendedores?.length) {
-            renderChartWithPercent("chartVendedores","bar","Ventas",d.vendedores.map(x=>x.label),d.vendedores.map(x=>x.value),generarColores(d.vendedores.length),'y');
-            const vendedorSel = params.vendedor;
-            document.getElementById("titulo_prod_vend").textContent = vendedorSel !== "TODOS" ? `Productos más vendidos: ${vendedorSel}` : "Productos más vendidos (todos)";
-            let productos = vendedorSel !== "TODOS" && d.detalles_vendedor?.[vendedorSel] ? d.detalles_vendedor[vendedorSel] : d.productos || [];
-            if (productos.length > 0) renderChartWithPercent("chartProdVendedor","bar","Monto",productos.map(x=>x.label),productos.map(x=>x.value),generarColores(productos.length),'y');
-            else { if (chartsInst["chartProdVendedor"]) chartsInst["chartProdVendedor"].destroy(); }
-        }
-
-        // Tabla Facturas — fechas dd/mm/yyyy, ordenadas fecha DESC (ya vienen del backend)
-        const tbodyFact = document.getElementById("tabla_facturas");
-        const noFactMsg = document.getElementById("no_facturas");
-        tbodyFact.innerHTML = '';
-        if (d.facturas?.length > 0) {
-            d.facturas.forEach(f => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="fecha-col">${fmtFecha(f.FECHA)}</td>
-                    <td>${f.CLIENTE||'S/C'}</td><td>${f.VENDEDOR||'S/V'}</td>
-                    <td>${f.ZONA||'Sin zona'}</td><td>${f.CAJA||'S/C'}</td>
-                    <td>${f.DOCUMENTO||'-'}</td>
-                    <td><span class="badge ${f.TIPO==='Contado'?'bg-success':'bg-warning text-dark'}">${f.TIPO}</span></td>
-                    <td class="text-end fw-bold">${fmt(f.MONTO)} ${monedaStr}</td>`;
-                tbodyFact.appendChild(tr);
-            });
-            noFactMsg.style.display = 'none';
-        } else { noFactMsg.style.display = 'block'; }
-
-        renderDetallesProducto(d, monedaStr, productoSeleccionado);
-        actualizarBtnLimpiar();
-
-    } catch (err) { console.error("Error ventas:", err); }
-    finally { hideLoading(); }
-}
-
-function renderDetallesProducto(d, monedaStr, prodBuscado) {
-    const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
-    const titulo   = document.getElementById("titulo_det_prod");
-    const resumen  = document.getElementById("resumen_producto");
-    const tbody    = document.getElementById("tbodyDetalleProducto");
-    const noMsg    = document.getElementById("no_det_prod");
-
-    if (prodBuscado && d?.detalle_producto) {
-        titulo.textContent = `Detalles del Producto: ${prodBuscado}`;
-        resumen.innerHTML = `
-            <div class="row g-3">
-                <div class="col-md-4"><div class="kpi-item"><small class="text-muted d-block">Cantidad Total</small><h5 class="fw-bold mb-0">${d.detalle_producto.cantidad_total||0}</h5></div></div>
-                <div class="col-md-4"><div class="kpi-item"><small class="text-muted d-block">Monto Total</small><h5 class="fw-bold mb-0">${fmt(d.detalle_producto.monto_total||0)} ${monedaStr}</h5></div></div>
-                <div class="col-md-4"><div class="kpi-item"><small class="text-muted d-block">Facturas Únicas</small><h5 class="fw-bold mb-0">${d.detalle_producto.facturas_unicas||0}</h5></div></div>
-            </div>`;
-        tbody.innerHTML = '';
-        // Detalles ordenados fecha ASC (menor a mayor)
-        const detalles = [...(d.detalle_producto.detalles||[])].sort((a,b) => a.FECHA < b.FECHA ? -1 : 1);
-        detalles.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="fecha-col">${fmtFecha(row.FECHA)}</td>
-                <td>${row.FACTURA||'-'}</td><td>${row.CAJA||'S/C'}</td>
-                <td>${row.CLIENTE||'S/C'}</td><td>${row.VENDEDOR||'S/V'}</td>
-                <td class="text-end">${row.CANTIDAD||0}</td>
-                <td class="text-end fw-bold">${fmt(row.MONTO||0)} ${monedaStr}</td>`;
-            tbody.appendChild(tr);
-        });
-        noMsg.style.display = 'none';
-    } else {
-        titulo.textContent = "Detalles por Producto";
-        resumen.innerHTML  = ''; tbody.innerHTML = '';
-        noMsg.style.display = 'block';
-    }
-}
-
-function renderChartWithPercent(id, type, labelAxis, labels, values, colores, indexAxis='x') {
-    const canvas = document.getElementById(id); if (!canvas) return;
-    if (chartsInst[id]) chartsInst[id].destroy();
-    const total = values.reduce((s,v) => s+(v||0), 0);
-    chartsInst[id] = new Chart(canvas.getContext('2d'), {
-        type, data: { labels, datasets: [{ label:labelAxis, data:values, backgroundColor:colores, borderWidth:0, borderRadius:type==='bar'?6:0, barThickness:(id.includes('Productos')||id.includes('Vendedores')||id.includes('Clientes'))?28:'flex' }] },
-        options: { responsive:true, maintainAspectRatio:false, indexAxis,
-            plugins: { legend:{display:type==='pie',position:'bottom'}, tooltip:{ callbacks:{ label: ctx => { const pct = total>0?((ctx.raw/total)*100).toFixed(1):0; const f=ctx.raw.toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2}); return `${ctx.label}: ${f} ${document.getElementById("moneda").value}  (${pct}%)`; } } } },
-            scales: indexAxis==='y' ? { y:{ticks:{autoSkip:false,font:{size:11},callback:(_,i)=>{let s=(labels[i]||'').trim();return s.length>38?s.substring(0,35)+'…':s;}},grid:{display:false}}, x:{grid:{color:'#f0f0f0'}} } : { x:{grid:{color:'#f0f0f0'}}, y:{beginAtZero:true} }
-        }
-    });
-}
+// ── Tabs ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',function(e){
+    e.preventDefault();
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active'); document.getElementById(this.dataset.tab).classList.add('active');
+    if(this.dataset.tab==='p_det_prod') renderDetallesProducto(ultimosDatos,ultimaMoneda,productoSeleccionado);
+}));
 
 // ── Tom Selects ───────────────────────────────────────────────────────────
-function initTomSelectCaja() {
-    tsCaja = new TomSelect('#select_caja', { placeholder:'Buscar caja...', allowEmptyOption:true, maxOptions:100,
-        onChange: val => { cajasSeleccionada = val ? val.toUpperCase() : ''; actualizarBtnLimpiar(); cargarDatos(); }
-    });
+function initTomSelectCaja(){tsCaja=new TomSelect('#select_caja',{placeholder:'Buscar caja...',allowEmptyOption:true,maxOptions:100,onChange:val=>{cajasSeleccionada=val?val.toUpperCase():'';actualizarBtnLimpiar();cargarDatos();}});}
+function initTomSelectProducto(){tsProducto=new TomSelect('#select_producto',{placeholder:'Código o descripción...',allowEmptyOption:true,maxOptions:500,searchField:['text','value'],onChange:val=>{productoSeleccionado=val?val.toUpperCase():'';actualizarBtnLimpiar();cargarDatos();}});}
+function initTomSelectCliente(){tsCliente=new TomSelect('#select_cliente',{placeholder:'Nombre o código...',allowEmptyOption:true,maxOptions:500,searchField:['text','value'],onChange:val=>{clienteSeleccionado=val?val.toUpperCase():'';actualizarBtnLimpiar();cargarDatos();}});}
+function poblarSelect(ts, lista, actual){if(!ts)return;ts.clearOptions();ts.addOption({value:'',text:'Todos'});(lista||[]).forEach(v=>{if(v)ts.addOption({value:v,text:v});});ts.refreshOptions(false);ts.setValue(actual&&lista.includes(actual)?actual:'',true);}
+function poblarSelectCaja(l){poblarSelect(tsCaja,l,cajasSeleccionada);}
+function poblarSelectProducto(l){poblarSelect(tsProducto,l,productoSeleccionado);}
+function poblarSelectCliente(l){poblarSelect(tsCliente,l,clienteSeleccionado);}
+
+// ── Vendedores ────────────────────────────────────────────────────────────
+async function cargarListaVendedores(){
+    try{const r=await fetch("/api/vendedores");const d=await r.json();if(d.status!=="success"||!d.vendedores?.length)return;
+    const sel=document.getElementById("filtro_vendedor");sel.innerHTML='<option value="TODOS">Todos los vendedores</option>';
+    d.vendedores.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});}catch(e){}
 }
 
-function initTomSelectProducto() {
-    // Muestra "CODIGO — NOMBRE" para buscar por código O por nombre
-    tsProducto = new TomSelect('#select_producto', {
-        placeholder:'Código o descripción...', allowEmptyOption:true, maxOptions:500,
-        searchField:['text', 'value'],
-        onChange: val => { productoSeleccionado = val ? val.toUpperCase() : ''; actualizarBtnLimpiar(); cargarDatos(); }
-    });
+// ── Carga principal ───────────────────────────────────────────────────────
+async function cargarDatos(){
+    showLoading();
+    const params={moneda:document.getElementById("moneda").value,top_n:document.getElementById("top_n").value,fecha_inicio:document.getElementById("fecha_inicio").value,fecha_fin:document.getElementById("fecha_fin").value,busqueda_cliente:clienteSeleccionado,busqueda_producto:productoSeleccionado,filtro_caja:cajasSeleccionada,vendedor:document.getElementById("filtro_vendedor").value||"TODOS",status:document.getElementById("filtro_status").value};
+    try{
+        const resp=await fetch("/api/ventas",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(params)});
+        if(!resp.ok)throw new Error("HTTP");
+        const d=await resp.json();
+        if(d.status==="error"){hideLoading();return;}
+        if(d.lista_cajas?.length)poblarSelectCaja(d.lista_cajas);
+        if(d.lista_productos?.length)poblarSelectProducto(d.lista_productos);
+        if(d.lista_clientes?.length)poblarSelectCliente(d.lista_clientes);
+        ultimosDatos=d; ultimaMoneda=params.moneda;
+        ultimosHistorico=d.historico_ventas||[]; ultimoResumenTipo=d.resumen_tipo||{};
+        const ms=params.moneda;
+        document.getElementById("txt_total_general").textContent=fmt(d.total_gral||0)+' '+ms;
+        document.getElementById("val_conteo_cli").textContent=d.general?.conteo_clientes||0;
+        document.getElementById("val_total_fact").textContent=d.general?.total_facturas_unicas||0;
+        document.getElementById("val_fact_cont_cant").textContent=d.general?.facturas_contado_unicas||0;
+        document.getElementById("val_fact_cont_monto").textContent=fmt(d.general?.fact_cont_monto||0)+' '+ms;
+        document.getElementById("val_fact_cred_cant").textContent=d.general?.facturas_credito_unicas||0;
+        document.getElementById("val_fact_cred_monto").textContent=fmt(d.general?.fact_cred_monto||0)+' '+ms;
+        document.getElementById("val_total_igtf").textContent=fmt(d.general?.total_igtf||0)+' '+ms;
+        // Tabla facturas
+        const tb=document.getElementById("tabla_facturas"); tb.innerHTML='';
+        if(d.facturas?.length){d.facturas.forEach(f=>{const tr=document.createElement('tr');tr.innerHTML=`<td class="fecha-col">${fmtFecha(f.FECHA)}</td><td>${f.CLIENTE||'S/C'}</td><td>${f.VENDEDOR||'S/V'}</td><td>${f.ZONA||'-'}</td><td>${f.CAJA||'S/C'}</td><td>${f.DOCUMENTO||'-'}</td><td><span class="badge ${f.TIPO==='Contado'?'bg-success':'bg-warning text-dark'}">${f.TIPO}</span></td><td class="text-end fw-bold">${fmt(f.MONTO)} ${ms}</td>`;tb.appendChild(tr);});document.getElementById("no_facturas").style.display='none';}
+        else{document.getElementById("no_facturas").style.display='block';}
+        renderTodosGraficos(d,ms);
+        renderDetallesProducto(d,ms,productoSeleccionado);
+        actualizarBtnLimpiar();
+    }catch(e){console.error(e);}finally{hideLoading();}
 }
 
-function initTomSelectCliente() {
-    tsCliente = new TomSelect('#select_cliente', { placeholder:'Nombre o código...', allowEmptyOption:true, maxOptions:500,
-        searchField:['text','value'],
-        onChange: val => { clienteSeleccionado = val ? val.toUpperCase() : ''; actualizarBtnLimpiar(); cargarDatos(); }
-    });
+// ── Render de todos los gráficos según metricaActual ─────────────────────
+function renderTodosGraficos(d, ms){
+    const esCant=metricaActual==='cantidad';
+    const lbl=esCant?'Cantidad':'Monto';
+    const suf=esCant?'':(' '+ms);
+    // Títulos
+    document.getElementById('titulo_gen').textContent  = esCant?'Unidades vendidas en el período':'Ventas en el período';
+    document.getElementById('titulo_zona').textContent = esCant?'Unidades por Zona':'Ventas por Zona';
+    document.getElementById('titulo_cli').textContent  = esCant?'Clientes por Cantidad':'Clientes por Monto';
+    document.getElementById('titulo_prod').textContent = esCant?'Productos por Cantidad':'Productos Líderes';
+    // Datasets — usa _cant si existe, si no usa el normal (retrocompatibilidad)
+    const zonas    =esCant?(d.zonas_cant    ||d.zonas    ||[]):(d.zonas    ||[]);
+    const clientes =esCant?(d.clientes_cant ||d.clientes ||[]):(d.clientes ||[]);
+    const productos=esCant?(d.productos_cant||d.productos||[]):(d.productos||[]);
+    const vendedores=esCant?(d.vendedores_cant||d.vendedores||[]):(d.vendedores||[]);
+    const detVend  =esCant?(d.detalles_vendedor_cant||d.detalles_vendedor||{}):(d.detalles_vendedor||{});
+    // Gráfico general
+    renderChartGeneral(tipoGraficoActual, ultimosHistorico, ultimoResumenTipo, ms, esCant);
+    // Zonas
+    renderBar("chartZonas",lbl,zonas,'x',suf);
+    document.getElementById("lista_detalles_zona").innerHTML=zonas.length>0?zonas.map(z=>`<div class="info-tag">● <b>${z.label}</b><span style="float:right">${fmt(z.value||0)}${suf}</span></div>`).join(''):'<div class="no-data">Sin datos</div>';
+    // Clientes / Productos
+    renderBar("chartClientes",lbl,clientes,'y',suf);
+    renderBar("chartProductos",lbl,productos,'y',suf);
+    // Vendedores
+    if(vendedores.length){
+        renderBar("chartVendedores",lbl,vendedores,'y',suf);
+        const vs=document.getElementById("filtro_vendedor").value;
+        document.getElementById("titulo_prod_vend").textContent=vs!=="TODOS"?`Productos: ${vs}`:'Productos (todos)';
+        const pv=vs!=="TODOS"&&detVend[vs]?detVend[vs]:productos;
+        if(pv.length)renderBar("chartProdVendedor",lbl,pv,'y',suf);
+        else if(chartsInst["chartProdVendedor"]){chartsInst["chartProdVendedor"].destroy();}
+    }
 }
 
-function poblarSelectCaja(lista) {
-    if (!tsCaja) return;
-    const actual = cajasSeleccionada;
-    tsCaja.clearOptions();
-    tsCaja.addOption({value:'', text:'Todas las cajas'});
-    (lista||[]).forEach(c => { if(c) tsCaja.addOption({value:c, text:c}); });
-    tsCaja.refreshOptions(false);
-    tsCaja.setValue(actual && lista.includes(actual) ? actual : '', true);
-}
-
-function poblarSelectProducto(lista) {
-    if (!tsProducto) return;
-    const actual = productoSeleccionado;
-    tsProducto.clearOptions();
-    tsProducto.addOption({value:'', text:'Todos los productos'});
-    (lista||[]).forEach(p => {
-        if (p) {
-            // FIX: poblar con codigo — nombre si el API devuelve objetos {codigo, nombre}
-            // Por ahora la lista es solo strings de nombre/descripcion
-            // Para buscar por codigo, el value Y text son el mismo string del producto
-            tsProducto.addOption({value:p, text:p});
-        }
-    });
-    tsProducto.refreshOptions(false);
-    tsProducto.setValue(actual && lista.includes(actual) ? actual : '', true);
-}
-
-function poblarSelectCliente(lista) {
-    if (!tsCliente) return;
-    const actual = clienteSeleccionado;
-    tsCliente.clearOptions();
-    tsCliente.addOption({value:'', text:'Todos los clientes'});
-    (lista||[]).forEach(c => { if(c) tsCliente.addOption({value:c, text:c}); });
-    tsCliente.refreshOptions(false);
-    tsCliente.setValue(actual && lista.includes(actual) ? actual : '', true);
-}
-
-// ── Gráfico Resumen General ───────────────────────────────────────────────
-let tipoGraficoActual = 'pie';
-let ultimosHistorico  = [];
-let ultimoResumenTipo = {};
-let ultimaMonedaStr   = 'Bs';
-
-function renderChartTotales(tipo, histDatos, resumenTipo, monedaStr) {
-    tipoGraficoActual = tipo;
-    ultimosHistorico  = histDatos  || ultimosHistorico;
-    ultimoResumenTipo = resumenTipo || ultimoResumenTipo;
-    ultimaMonedaStr   = monedaStr  || ultimaMonedaStr;
-    if (chartsInst["chartTotales"]) chartsInst["chartTotales"].destroy();
-    const ctx = document.getElementById("chartTotales"); if (!ctx) return;
-    const fmt2 = v => (v||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
-
-    if (tipo === 'pie') {
-        const labels = Object.keys(ultimoResumenTipo);
-        const values = Object.values(ultimoResumenTipo);
-        const total  = values.reduce((s,v) => s+v, 0);
-        chartsInst["chartTotales"] = new Chart(ctx.getContext('2d'), {
-            type:'pie', data:{ labels, datasets:[{data:values, backgroundColor:['#3498db','#e74c3c'], borderWidth:2, borderColor:'#fff'}] },
-            options:{ responsive:true, maintainAspectRatio:false,
-                plugins:{ legend:{display:true,position:'bottom'}, tooltip:{callbacks:{label:c=>`${c.label}: ${fmt2(c.raw)} ${ultimaMonedaStr} (${total>0?((c.raw/total)*100).toFixed(1):0}%)`}} }
-            }
-        });
+// ── Gráfico general (torta / barras / línea) ──────────────────────────────
+function renderChartGeneral(tipo, hist, resumen, ms, esCant){
+    tipoGraficoActual=tipo;
+    if(chartsInst["chartTotales"])chartsInst["chartTotales"].destroy();
+    const ctx=document.getElementById("chartTotales"); if(!ctx)return;
+    const und=esCant?'uds':(ms||'');
+    if(tipo==='pie'){
+        const labels=Object.keys(resumen), values=Object.values(resumen), total=values.reduce((s,v)=>s+v,0);
+        chartsInst["chartTotales"]=new Chart(ctx.getContext('2d'),{type:'pie',data:{labels,datasets:[{data:values,backgroundColor:['#3498db','#e74c3c'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom'},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)} ${und} (${total>0?((c.raw/total)*100).toFixed(1):0}%)`}}}}});
         return;
     }
-
-    const labels = ultimosHistorico.map(x => x.fecha);
-    const montos = ultimosHistorico.map(x => x.monto);
-    let datasets = [];
-    if (tipo==='bar') datasets = [{type:'bar',label:'Ventas del día',data:montos,backgroundColor:'rgba(52,152,219,0.6)',borderColor:'#3498db',borderWidth:1,borderRadius:4}];
-    else if (tipo==='line') datasets = [{type:'line',label:'Ventas',data:montos,borderColor:'#3498db',backgroundColor:'rgba(52,152,219,0.08)',borderWidth:2.5,pointRadius:montos.length>60?0:3,fill:true,tension:0.35}];
-    else datasets = [
-        {type:'bar',label:'Ventas del día',data:montos,backgroundColor:'rgba(52,152,219,0.55)',borderColor:'#3498db',borderWidth:1,borderRadius:4},
-        {type:'line',label:'Tendencia',data:montos,borderColor:'#27ae60',backgroundColor:'rgba(39,174,96,0.07)',borderWidth:2.5,pointRadius:montos.length>60?0:3,fill:true,tension:0.35}
-    ];
-    chartsInst["chartTotales"] = new Chart(ctx.getContext('2d'), {
-        data:{labels,datasets},
-        options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
-            plugins:{ legend:{display:tipo==='barline',position:'top',labels:{boxWidth:12,font:{size:11}}}, tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt2(c.raw)} ${ultimaMonedaStr}`}} },
-            scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:12,font:{size:10},maxRotation:45}}, y:{beginAtZero:true,grid:{color:'#f0f0f0'},ticks:{font:{size:10},callback:v=>v.toLocaleString('es-VE',{minimumFractionDigits:0})}} }
-        }
-    });
+    const labels=hist.map(x=>x.fecha);
+    const valores=hist.map(x=>esCant?(x.cantidad||0):x.monto);
+    let ds=[];
+    if(tipo==='bar')ds=[{type:'bar',label:esCant?'Unidades/día':'Ventas del día',data:valores,backgroundColor:'rgba(52,152,219,0.6)',borderColor:'#3498db',borderWidth:1,borderRadius:4}];
+    else if(tipo==='line')ds=[{type:'line',label:esCant?'Unidades':'Ventas',data:valores,borderColor:'#3498db',backgroundColor:'rgba(52,152,219,0.08)',borderWidth:2.5,pointRadius:valores.length>60?0:3,fill:true,tension:0.35}];
+    else ds=[{type:'bar',label:esCant?'Unidades/día':'Ventas del día',data:valores,backgroundColor:'rgba(52,152,219,0.55)',borderColor:'#3498db',borderWidth:1,borderRadius:4},{type:'line',label:'Tendencia',data:valores,borderColor:'#27ae60',backgroundColor:'rgba(39,174,96,0.07)',borderWidth:2.5,pointRadius:valores.length>60?0:3,fill:true,tension:0.35}];
+    chartsInst["chartTotales"]=new Chart(ctx.getContext('2d'),{data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:tipo==='barline',position:'top'},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)} ${und}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:12,font:{size:10},maxRotation:45}},y:{beginAtZero:true,grid:{color:'#f0f0f0'},ticks:{font:{size:10},callback:v=>v.toLocaleString('es-VE',{minimumFractionDigits:0})}}}}});
 }
 
-document.getElementById('chartTypeSel')?.querySelectorAll('.chart-type-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+// ── Selector tipo gráfico ─────────────────────────────────────────────────
+document.getElementById('chartTypeSel')?.querySelectorAll('.chart-type-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+        document.querySelectorAll('.chart-type-btn').forEach(b=>b.classList.remove('active'));
         this.classList.add('active');
-        renderChartTotales(this.dataset.type);
+        renderChartGeneral(this.dataset.type,ultimosHistorico,ultimoResumenTipo,ultimaMoneda,metricaActual==='cantidad');
     });
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const hoy = new Date();
-    document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById("fecha_inicio").value = inicioMes.toISOString().split('T')[0];
-    initTomSelectCaja();
-    initTomSelectProducto();
-    initTomSelectCliente();
+// ── Render de barra genérico ──────────────────────────────────────────────
+function renderBar(id, labelAxis, lista, indexAxis, sufijo){
+    const canvas=document.getElementById(id); if(!canvas)return;
+    if(chartsInst[id])chartsInst[id].destroy();
+    const labels=lista.map(x=>x.label), values=lista.map(x=>x.value);
+    const colores=generarColores(lista.length);
+    const total=values.reduce((s,v)=>s+(v||0),0);
+    chartsInst[id]=new Chart(canvas.getContext('2d'),{type:'bar',data:{labels,datasets:[{label:labelAxis,data:values,backgroundColor:colores,borderWidth:0,borderRadius:6,barThickness:28}]},options:{responsive:true,maintainAspectRatio:false,indexAxis,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const pct=total>0?((c.raw/total)*100).toFixed(1):0;return `${c.label}: ${fmt(c.raw)}${sufijo} (${pct}%)`;}}}},scales:indexAxis==='y'?{y:{ticks:{autoSkip:false,font:{size:11},callback:(_,i)=>{let s=(labels[i]||'').trim();return s.length>38?s.substring(0,35)+'…':s;}},grid:{display:false}},x:{grid:{color:'#f0f0f0'}}}:{x:{grid:{color:'#f0f0f0'}},y:{beginAtZero:true}}}});
+}
+
+// ── Detalles por producto ─────────────────────────────────────────────────
+function renderDetallesProducto(d,ms,prod){
+    const titulo=document.getElementById("titulo_det_prod"),resumen=document.getElementById("resumen_producto"),tbody=document.getElementById("tbodyDetalleProducto"),noMsg=document.getElementById("no_det_prod");
+    if(prod&&d?.detalle_producto){
+        titulo.textContent=`Detalles: ${prod}`;
+        resumen.innerHTML=`<div class="row g-3"><div class="col-md-4"><div class="kpi-item"><small class="text-muted d-block">Cantidad Total</small><h5 class="fw-bold mb-0">${fmt(d.detalle_producto.cantidad_total||0)}</h5></div></div><div class="col-md-4"><div class="kpi-item"><small class="text-muted d-block">Monto Total</small><h5 class="fw-bold mb-0">${fmt(d.detalle_producto.monto_total||0)} ${ms}</h5></div></div><div class="col-md-4"><div class="kpi-item"><small class="text-muted d-block">Facturas Únicas</small><h5 class="fw-bold mb-0">${d.detalle_producto.facturas_unicas||0}</h5></div></div></div>`;
+        tbody.innerHTML='';
+        [...(d.detalle_producto.detalles||[])].sort((a,b)=>a.FECHA<b.FECHA?-1:1).forEach(row=>{const tr=document.createElement('tr');tr.innerHTML=`<td class="fecha-col">${fmtFecha(row.FECHA)}</td><td>${row.FACTURA||'-'}</td><td>${row.CAJA||'S/C'}</td><td>${row.CLIENTE||'S/C'}</td><td>${row.VENDEDOR||'S/V'}</td><td class="text-end">${fmt(row.CANTIDAD||0)}</td><td class="text-end fw-bold">${fmt(row.MONTO||0)} ${ms}</td>`;tbody.appendChild(tr);});
+        noMsg.style.display='none';
+    }else{titulo.textContent="Detalles por Producto";resumen.innerHTML='';tbody.innerHTML='';noMsg.style.display='block';}
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded",async()=>{
+    const hoy=new Date();
+    document.getElementById("fecha_fin").value=hoy.toISOString().split('T')[0];
+    document.getElementById("fecha_inicio").value=new Date(hoy.getFullYear(),hoy.getMonth(),1).toISOString().split('T')[0];
+    initTomSelectCaja(); initTomSelectProducto(); initTomSelectCliente();
     await cargarListaVendedores();
     await cargarDatos();
 });
 </script>
-
 {% endblock %}
