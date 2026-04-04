@@ -6,99 +6,90 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    :root { --primary: #e67e22; --primary-hover: #d35400; }
+    :root { --primary: #e67e22; }
 
-    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; }
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
 
     .filter-card {
-        background: white; border-radius: 14px;
-        padding: 24px; margin-bottom: 24px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        background: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 25px;
     }
-    .filter-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
-    .filter-col { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
-    .filter-col label { font-size: 0.8rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; }
-    .filter-col select, .filter-col input[type="date"] {
-        padding: 8px 12px; border: 1px solid #d1d5db;
-        border-radius: 8px; font-size: 0.92rem;
-        background: white; color: #1f2937; outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
+    .filter-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 14px; }
+    .filter-row:last-child { margin-bottom: 0; }
+    .filter-col { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+    .filter-col label {
+        font-size: 0.82rem; color: #6b7280; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.04em;
     }
-    .filter-col select:focus, .filter-col input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(230,126,34,0.15);
+    .filter-col input[type="date"],
+    .filter-col select {
+        padding: 8px 11px; border: 1px solid #d1d5db; border-radius: 8px;
+        font-size: 0.92rem; background: white; transition: border-color 0.2s;
+    }
+    .filter-col input:focus, .filter-col select:focus {
+        border-color: var(--primary); box-shadow: 0 0 0 3px rgba(230,126,34,0.15); outline: none;
     }
 
-    /* Tom Select overrides naranja */
+    /* TomSelect — igual al inventario, color naranja para compras */
     .ts-wrapper.single .ts-control {
-        padding: 8px 12px; border: 1px solid #d1d5db;
-        border-radius: 8px; font-size: 0.92rem;
-        cursor: text; background: white; min-height: unset;
+        padding: 8px 11px; border: 1px solid #d1d5db; border-radius: 8px;
+        font-size: 0.92rem; cursor: text; background: white; min-height: unset;
     }
     .ts-wrapper.single.focus .ts-control {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(230,126,34,0.15);
+        border-color: var(--primary); box-shadow: 0 0 0 3px rgba(230,126,34,0.15);
     }
     .ts-wrapper.single.has-items .ts-control { font-weight: 500; }
     .ts-dropdown {
         border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        border: 1px solid #d1d5db; font-size: 0.9rem;
+        border: 1px solid #d1d5db; font-size: 0.9rem; z-index: 1200 !important;
     }
-    /* FIX: opciones en una sola línea */
-    .ts-dropdown .option { padding: 9px 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px; }
-    .ts-dropdown .option:hover,
-    .ts-dropdown .option.active { background: #fff3e0; color: #b45309; }
+    .ts-dropdown .option { padding: 9px 14px; }
+    .ts-dropdown .option:hover, .ts-dropdown .option.active { background: #fff7ed; color: #9a3412; }
     .ts-dropdown-content { max-height: 260px; }
     .ts-wrapper { width: 100%; }
 
     .total-kpi {
-        font-size: 1.6rem; font-weight: 800; color: var(--primary);
-        background: #fff3e0; padding: 8px 20px; border-radius: 10px;
+        font-size: 1.8rem; font-weight: 800; color: var(--primary);
+        background: #fff7ed; padding: 8px 20px; border-radius: 10px; white-space: nowrap;
     }
+    .btn-limpiar {
+        padding: 8px 16px; background: #fee2e2; color: #dc2626;
+        border: 1px solid #fca5a5; border-radius: 8px; font-size: 0.82rem;
+        font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; align-self: flex-end;
+    }
+    .btn-limpiar:hover { background: #fecaca; }
+    .btn-limpiar.oculto { display: none; }
 
-    .tab-navigation { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    /* Pestañas */
+    .tab-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
     .tab-btn {
-        padding: 8px 18px; border: 1px solid #d1d5db;
-        background: white; border-radius: 8px;
-        font-size: 0.87rem; font-weight: 600; color: #374151;
-        cursor: pointer; transition: all 0.2s;
+        padding: 10px 22px; border: none; border-radius: 8px;
+        font-weight: 600; background: #f3f4f6; color: #374151; cursor: pointer; transition: all 0.25s;
     }
-    .tab-btn:hover { background: #f3f4f6; }
-    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
+    .tab-btn.active, .tab-btn:hover { background: var(--primary); color: white; }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
-    .card-chart {
-        background: white; border-radius: 14px;
-        padding: 20px; margin-bottom: 20px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    }
-    .chart-title {
-        font-size: 1.05rem; font-weight: 700; color: #1f2937;
-        margin-bottom: 14px; border-left: 4px solid var(--primary);
-        padding-left: 10px;
-    }
+    .card-chart { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; height: 100%; }
+    .chart-title { font-size: 1.05rem; font-weight: 700; color: #1f2937; border-left: 5px solid var(--primary); padding-left: 10px; margin-bottom: 12px; }
     .chart-container { position: relative; height: 420px; }
-
-    .no-data { color: #6b7280; font-style: italic; padding: 40px 20px; text-align: center; }
-    .kpi-box { background: white; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .fecha-col { white-space: nowrap; width: 110px; min-width: 110px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+    .info-tag { background: #fff7ed; color: #7c2d12; padding: 12px; border-radius: 8px; border-left: 5px solid var(--primary); margin: 8px 0; }
 
     #loadingOverlay {
         position: fixed; inset: 0; background: rgba(255,255,255,0.80);
-        backdrop-filter: blur(4px); z-index: 9999;
-        display: none; align-items: center; justify-content: center;
+        backdrop-filter: blur(4px); z-index: 9999; display: none;
+        align-items: center; justify-content: center;
     }
     .loading-content {
-        text-align: center; background: white;
-        padding: 2.5rem 4rem; border-radius: 16px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px;
+        text-align: center; background: white; padding: 2.5rem 4rem;
+        border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px;
     }
     .loading-content .spinner-border { width: 3rem; height: 3rem; }
 </style>
 
 <div class="dashboard-wrapper">
+
+    <!-- ══ FILTROS ══ -->
     <div class="filter-card">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Panel de Compras</h4>
@@ -106,72 +97,73 @@
         </div>
 
         <div class="filter-row">
-            <div class="filter-col">
+            <div class="filter-col" style="min-width:130px; max-width:145px;">
                 <label>Desde</label>
                 <input type="date" id="f_inicio" onchange="debouncedCargarCompras()">
             </div>
-            <div class="filter-col">
+            <div class="filter-col" style="min-width:130px; max-width:145px;">
                 <label>Hasta</label>
                 <input type="date" id="f_fin" onchange="debouncedCargarCompras()">
             </div>
-            <div class="filter-col">
+            <div class="filter-col" style="min-width:140px; max-width:170px;">
                 <label>Moneda</label>
                 <select id="moneda_comp" onchange="cargarCompras()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
-            <div class="filter-col">
-                <label>Top N</label>
-                <select id="top_n" onchange="cargarCompras()">
-                    <option value="10">Top 10</option>
-                    <option value="15">Top 15</option>
-                    <option value="25">Top 25</option>
-                    <option value="50">Top 50</option>
+            <!-- Proveedor TomSelect -->
+            <div class="filter-col" style="min-width:200px;">
+                <label>Proveedor</label>
+                <select id="bus_prov">
+                    <option value="">Todos los proveedores</option>
                 </select>
             </div>
-            <div class="filter-col" style="min-width:220px;">
-                <label>Proveedor</label>
-                <select id="sel_prov"><option value="">Todos los proveedores</option></select>
-            </div>
+            <!-- Producto TomSelect — busca por código O nombre -->
             <div class="filter-col" style="min-width:260px;">
-                <label>Producto</label>
-                <select id="sel_prod"><option value="">Todos los productos</option></select>
+                <label>Producto <span style="font-weight:400; text-transform:none; font-size:0.75rem; color:#9ca3af;">— código o nombre</span></label>
+                <select id="bus_prod">
+                    <option value="">Todos los productos</option>
+                </select>
             </div>
+            <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar</button>
         </div>
     </div>
 
+    <!-- ══ PESTAÑAS ══ -->
     <div class="tab-navigation">
         <button class="tab-btn active" data-tab="tab_res">Resumen General</button>
         <button class="tab-btn" data-tab="tab_prov">Top Proveedores</button>
         <button class="tab-btn" data-tab="tab_prod">Top Productos</button>
-        <button class="tab-btn" data-tab="tab_det_prod">Detalle por Producto</button>
     </div>
 
+    <!-- Resumen -->
     <div id="tab_res" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="card-chart">
-                    <div class="chart-title">Distribución por Tipo (Contado / Crédito)</div>
+                    <div class="chart-title">Distribución por Tipo</div>
                     <div class="chart-container"><canvas id="chartTipo"></canvas></div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="card-chart">
-                    <div class="chart-title">Compras por Marca / Clasificación</div>
+                    <div class="chart-title">Compras por Marca</div>
                     <div class="chart-container"><canvas id="chartMarca"></canvas></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Top Proveedores -->
     <div id="tab_prov" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title">Ranking de Proveedores</div>
-            <div class="chart-container" style="height: 600px;"><canvas id="chartProv"></canvas></div>
+            <div class="chart-container" style="height:600px;"><canvas id="chartProv"></canvas></div>
         </div>
     </div>
 
+    <!-- Top Productos -->
     <div id="tab_prod" class="tab-pane">
         <div class="card-chart">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -181,62 +173,29 @@
                     <option value="unid">Ver por Unidades</option>
                 </select>
             </div>
-            <div class="chart-container" style="height: 700px;"><canvas id="chartProd"></canvas></div>
+            <div class="chart-container" style="height:700px;"><canvas id="chartProd"></canvas></div>
         </div>
     </div>
 
-    <div id="tab_det_prod" class="tab-pane">
-        <div class="card-chart">
-            <div class="chart-title" id="titulo_det_prod">Detalle por Producto</div>
-            <div id="resumen_det_prod" class="mb-4"></div>
-            <div class="table-responsive">
-                <table class="table table-hover" id="tabla_det_prod">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="fecha-col">Fecha</th>
-                            <th>N° Documento</th>
-                            <th>Proveedor</th>
-                            <th>Tipo</th>
-                            <th class="text-end">Cantidad</th>
-                            <th class="text-end">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody_det_prod"></tbody>
-                </table>
-            </div>
-            <div id="no_det_prod" class="no-data" style="display:none;">
-                Seleccione un producto para ver a qué proveedor se le compró
-            </div>
-        </div>
-    </div>
 </div>
 
 <div id="loadingOverlay">
     <div class="loading-content">
-        <div class="spinner-border" style="color: var(--primary);" role="status"></div>
-        <div class="mt-3 fw-bold fs-5" style="color: var(--primary);">Cargando datos, por favor espere...</div>
+        <div class="spinner-border" style="color:var(--primary);" role="status"></div>
+        <div class="mt-3 fw-bold fs-5" style="color:var(--primary);">Cargando datos, por favor espere...</div>
     </div>
 </div>
 
 <script>
 let inst         = {};
-let tsProveedor  = null;
-let tsProducto   = null;
-let productoSel  = '';
-let ultimosDatos = null;
-let ultimaMoneda = 'Bs';
+let tsProv       = null;
+let tsProd       = null;
+let provCargados = false;
+let prodCargados = false;
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
-
-// FIX: fechas dd/mm/yyyy
-function fmtFecha(f) {
-    if (!f || f === '-') return '-';
-    const p = String(f).split('-');
-    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-    return f;
-}
 
 function debounce(func, wait = 600) {
     let timeout;
@@ -244,61 +203,124 @@ function debounce(func, wait = 600) {
 }
 const debouncedCargarCompras = debounce(cargarCompras);
 
-const palette = ['#e67e22','#d35400','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#a78bfa','#2ecc71','#e74c3c','#1abc9c','#9b59b6'];
+// ── Fechas ─────────────────────────────────────────────────────────────────
+function fechasDefault() {
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+    if (periodo === 'D') {
+        document.getElementById('fecha_inicio').value = hoy.toISOString().split('T')[0];
+    } else {
+        const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    }
+}
 
+// ── Limpiar ────────────────────────────────────────────────────────────────
+function limpiarFiltros() {
+    fechasDefault();
+    document.getElementById('moneda_comp').value = 'Bs';
+    if (tsProv) tsProv.setValue('', true);
+    if (tsProd) tsProd.setValue('', true);
+    actualizarBtnLimpiar();
+    cargarCompras();
+}
+
+function actualizarBtnLimpiar() {
+    const hoy     = new Date();
+    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const hay =
+        document.getElementById('f_inicio').value !== primero.toISOString().split('T')[0] ||
+        document.getElementById('f_fin').value    !== hoy.toISOString().split('T')[0]     ||
+        document.getElementById('moneda_comp').value !== 'Bs' ||
+        (tsProv && tsProv.getValue() !== '')  ||
+        (tsProd && tsProd.getValue() !== '');
+    document.getElementById('btn_limpiar').classList.toggle('oculto', !hay);
+}
+
+// ── Pestañas ───────────────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         this.classList.add('active');
-        const tabId = this.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
-        if (tabId === 'tab_det_prod') renderDetalleProducto(ultimosDatos, ultimaMoneda, productoSel);
+        document.getElementById(this.dataset.tab).classList.add('active');
     });
 });
 
-function inicializarTomSelects() {
-    tsProveedor = new TomSelect('#sel_prov', {
+// ── Init TomSelect ─────────────────────────────────────────────────────────
+function initTomSelects() {
+    tsProv = new TomSelect('#bus_prov', {
         placeholder: 'Buscar proveedor...',
-        allowEmptyOption: true,
-        maxOptions: 300,
-        onChange: () => cargarCompras()
+        allowEmptyOption: true, maxOptions: 300,
+        onChange: () => { actualizarBtnLimpiar(); cargarCompras(); }
     });
 
-    // FIX: searchField para buscar por código Y nombre
-    tsProducto = new TomSelect('#sel_prod', {
-        placeholder: 'Buscar producto...',
-        allowEmptyOption: true,
-        maxOptions: 300,
-        searchField: ['text', 'value'],
-        onChange: (val) => {
-            productoSel = val ? val.toUpperCase() : '';
-            cargarCompras();
-        }
+    // Producto: valueField y labelField, searchField busca en código Y nombre
+    tsProd = new TomSelect('#bus_prod', {
+        placeholder: 'Código o nombre del producto...',
+        allowEmptyOption: true, maxOptions: 400,
+        valueField: 'value',
+        labelField:  'label',
+        searchField: ['value', 'label'],   // ← busca en código Y descripción
+        render: {
+            option: (data) => `<div style="display:flex; gap:8px; align-items:baseline;">
+                <span style="font-size:0.78rem; color:#9ca3af; min-width:80px; font-weight:600;">${data.codigo || ''}</span>
+                <span>${data.nombre || data.label}</span>
+            </div>`,
+            item: (data) => `<span><b style="color:#9a3412; font-size:0.85rem;">${data.codigo}</b> ${data.nombre || data.label}</span>`
+        },
+        onChange: () => { actualizarBtnLimpiar(); cargarCompras(); }
     });
 }
 
-function poblarTS(ts, lista, valorVacio, textoVacio) {
-    if (!ts) return;
-    const actual = ts.getValue();
-    ts.clearOptions();
-    ts.addOption({ value: valorVacio, text: textoVacio });
-    lista.forEach(item => ts.addOption({ value: item, text: item }));
-    ts.refreshOptions(false);
-    ts.setValue(lista.includes(actual) ? actual : valorVacio, true);
+// ── Poblar selects desde API ───────────────────────────────────────────────
+function poblarProv(lista) {
+    if (!tsProv) return;
+    const val = tsProv.getValue();
+    tsProv.clearOptions();
+    tsProv.addOption({ value: '', text: 'Todos los proveedores' });
+    lista.forEach(p => { if (p?.trim()) tsProv.addOption({ value: p.trim(), text: p.trim() }); });
+    tsProv.refreshOptions(false);
+    tsProv.setValue((val && lista.includes(val)) ? val : '', true);
+    provCargados = true;
 }
 
+// Poblar producto con objetos {value, label, codigo, nombre}
+// lista_productos viene del backend como ["COD||NOMBRE", ...]
+function poblarProd(lista) {
+    if (!tsProd) return;
+    const val = tsProd.getValue();
+    tsProd.clearOptions();
+    tsProd.addOption({ value: '', label: 'Todos los productos', codigo: '', nombre: 'Todos los productos' });
+    lista.forEach(item => {
+        // item puede venir como "COD||NOMBRE" o solo "NOMBRE"
+        const partes = item.split('||');
+        const codigo = partes.length > 1 ? partes[0].trim() : '';
+        const nombre = partes.length > 1 ? partes[1].trim() : partes[0].trim();
+        tsProd.addOption({ value: item, label: `${codigo} ${nombre}`.trim(), codigo, nombre });
+    });
+    tsProd.refreshOptions(false);
+    tsProd.setValue((val && lista.includes(val)) ? val : '', true);
+    prodCargados = true;
+}
+
+// ── Cargar compras ─────────────────────────────────────────────────────────
 async function cargarCompras() {
+    actualizarBtnLimpiar();
     showLoading();
 
+    const monedaSel  = document.getElementById('moneda_comp').value;
+    // El valor del TomSelect de producto es "COD||NOMBRE", enviamos tal cual al backend
+    const prodVal    = tsProd ? (tsProd.getValue() || '') : '';
     const params = {
-        moneda:       document.getElementById('moneda_comp').value,
+        moneda:       monedaSel,
         fecha_inicio: document.getElementById('f_inicio').value,
         fecha_fin:    document.getElementById('f_fin').value,
-        top_n:        parseInt(document.getElementById('top_n').value) || 15,
-        proveedor:    tsProveedor ? (tsProveedor.getValue() || '') : '',
-        producto:     tsProducto  ? (tsProducto.getValue()  || '') : '',
+        proveedor:    tsProv ? (tsProv.getValue() || '') : '',
+        producto:     prodVal,
+        top_n:        15,
         prod_criterio: document.getElementById('criterio_prod')?.value || 'monto'
     };
 
@@ -311,41 +333,37 @@ async function cargarCompras() {
         if (!resp.ok) throw new Error('Error HTTP');
         const d = await resp.json();
 
-        ultimosDatos = d;
-        ultimaMoneda = params.moneda;
-
-        const monedaSel = params.moneda;
-        const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+        // Total
         const totalSuma = (d.totales?.Contado || 0) + (d.totales?.Crédito || 0) + (d.totales?.Otros || 0);
-        document.getElementById('txt_total').textContent = fmt(totalSuma) + ' ' + monedaSel;
+        document.getElementById('txt_total').textContent =
+            totalSuma.toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' ' + monedaSel;
 
-        if (d.lista_proveedores?.length) poblarTS(tsProveedor, d.lista_proveedores, '', 'Todos los proveedores');
-        if (d.lista_productos?.length)   poblarTS(tsProducto,  d.lista_productos,   '', 'Todos los productos');
+        // Poblar selects desde API (primera carga o si cambian)
+        if (d.lista_proveedores?.length) poblarProv(d.lista_proveedores);
+        if (d.lista_productos?.length)   poblarProd(d.lista_productos);
 
-        renderChart('chartTipo', 'bar', 'Tipo de Compra',
+        // Gráficos
+        renderChart('chartTipo', 'bar',
             ['Contado', 'Crédito', 'Otros'],
             [d.totales?.Contado || 0, d.totales?.Crédito || 0, d.totales?.Otros || 0],
-            [palette[0], palette[2], palette[4]], 'x');
+            ['#3b82f6', '#10b981', '#f59e0b'], 'x', monedaSel);
 
-        renderChart('chartMarca', 'pie', 'Compras por Marca',
+        renderChart('chartMarca', 'pie',
             d.marcas?.map(x => x.MARCA) || [],
-            d.marcas?.map(x => x.V) || [],
-            palette);
+            d.marcas?.map(x => x.V)     || [],
+            defaultPalette, 'x', monedaSel);
 
-        renderChart('chartProv', 'bar', 'Ranking Proveedores',
+        renderChart('chartProv', 'bar',
             d.proveedores?.map(x => x.PROVEEDOR) || [],
-            d.proveedores?.map(x => x.V) || [],
-            palette, 'y');
+            d.proveedores?.map(x => x.V)         || [],
+            defaultPalette, 'y', monedaSel);
 
-        const dataProd = params.prod_criterio === 'monto' ? (d.productos_monto || []) : (d.productos_unid || []);
-        renderChart('chartProd', 'bar', 'Ranking Productos',
+        const dataProd = params.prod_criterio === 'monto'
+            ? (d.productos_monto || []) : (d.productos_unid || []);
+        renderChart('chartProd', 'bar',
             dataProd.map(x => x.PRODUCTO),
             dataProd.map(x => x.V),
-            palette, 'y');
-
-        const tabActiva = document.querySelector('.tab-btn.active')?.dataset.tab;
-        if (tabActiva === 'tab_det_prod') renderDetalleProducto(d, monedaSel, productoSel);
+            defaultPalette, 'y', monedaSel);
 
     } catch (err) {
         console.error('Error cargando compras:', err);
@@ -354,60 +372,28 @@ async function cargarCompras() {
     }
 }
 
-function renderDetalleProducto(d, monedaStr, prodSel) {
-    const fmt    = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const titulo  = document.getElementById('titulo_det_prod');
-    const resumen = document.getElementById('resumen_det_prod');
-    const tbody   = document.getElementById('tbody_det_prod');
-    const noMsg   = document.getElementById('no_det_prod');
+const defaultPalette = [
+    '#e67e22','#3b82f6','#10b981','#f59e0b','#8b5cf6',
+    '#ec4899','#14b8a6','#f97316','#ef4444','#6366f1','#a78bfa'
+];
 
-    if (prodSel && d?.detalle_producto) {
-        titulo.textContent = `Detalle de Compras: ${prodSel}`;
-        resumen.innerHTML = `
-            <div class="row g-3">
-                <div class="col-md-4"><div class="kpi-box text-center p-3"><small class="text-muted d-block">Cantidad Total Comprada</small><h5 class="fw-bold mb-0">${fmt(d.detalle_producto.cantidad_total || 0)}</h5></div></div>
-                <div class="col-md-4"><div class="kpi-box text-center p-3"><small class="text-muted d-block">Monto Total</small><h5 class="fw-bold mb-0" style="color:var(--primary)">${fmt(d.detalle_producto.monto_total || 0)} ${monedaStr}</h5></div></div>
-                <div class="col-md-4"><div class="kpi-box text-center p-3"><small class="text-muted d-block">Proveedores Distintos</small><h5 class="fw-bold mb-0">${d.detalle_producto.proveedores_unicos || 0}</h5></div></div>
-            </div>`;
-
-        tbody.innerHTML = '';
-        // FIX: fmtFecha en tabla + ordenado ASC
-        const detalles = [...(d.detalle_producto.detalles || [])].sort((a, b) => a.FECHA < b.FECHA ? -1 : 1);
-        detalles.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="fecha-col">${fmtFecha(row.FECHA)}</td>
-                <td>${row.DOCUMENTO || '-'}</td>
-                <td><strong>${row.PROVEEDOR || 'S/P'}</strong></td>
-                <td><span class="badge" style="background:${row.TIPO === 'Contado' ? '#d1fae5' : '#fee2e2'}; color:${row.TIPO === 'Contado' ? '#065f46' : '#991b1b'}">${row.TIPO || '-'}</span></td>
-                <td class="text-end">${fmt(row.CANTIDAD || 0)}</td>
-                <td class="text-end fw-bold">${fmt(row.MONTO || 0)} ${monedaStr}</td>`;
-            tbody.appendChild(tr);
-        });
-        noMsg.style.display = 'none';
-    } else {
-        titulo.textContent = 'Detalle por Producto';
-        resumen.innerHTML  = '';
-        tbody.innerHTML    = '';
-        noMsg.style.display = 'block';
-    }
-}
-
-function renderChart(id, type, title, labels, values, colores, indexAxis = 'x') {
+function renderChart(id, type, labels, values, colores, indexAxis, moneda) {
     const canvas = document.getElementById(id);
     if (!canvas) return;
     if (inst[id]) inst[id].destroy();
     const total = values.reduce((s, v) => s + (v || 0), 0);
+
     inst[id] = new Chart(canvas.getContext('2d'), {
         type,
         data: {
             labels,
             datasets: [{
-                label: title, data: values,
-                backgroundColor: colores || palette,
-                borderWidth: type === 'pie' ? 2 : 0,
+                label: id,
+                data: values,
+                backgroundColor: colores || defaultPalette,
+                borderWidth:  type === 'pie' ? 2 : 0,
                 borderRadius: type === 'bar' ? 6 : 0,
-                barThickness: (id === 'chartProd' || id === 'chartProv') ? 24 : 'flex'
+                barThickness: (['chartProd','chartProv'].includes(id)) ? 24 : 'flex'
             }]
         },
         options: {
@@ -418,39 +404,25 @@ function renderChart(id, type, title, labels, values, colores, indexAxis = 'x') 
                     callbacks: {
                         label: ctx => {
                             const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                            const f = ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            const mon = document.getElementById('moneda_comp').value;
-                            return `${ctx.label}: ${f} ${mon}  (${pct}%)`;
+                            const f   = ctx.raw.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+                            return `${ctx.label}: ${f} ${moneda}  (${pct}%)`;
                         }
                     }
                 }
             },
-            scales: indexAxis === 'y' ? {
-                y: {
-                    ticks: {
-                        autoSkip: false, font: { size: 11 },
-                        callback: (_, idx) => {
-                            const s = (labels[idx] || '').trim();
-                            return s.length > 38 ? s.substring(0, 35) + '…' : s;
-                        }
-                    },
-                    grid: { display: false }
-                },
-                x: { beginAtZero: true, grid: { color: '#f0f0f0' } }
-            } : {
-                x: { beginAtZero: true, grid: { display: false } },
-                y: { grid: { color: '#f0f0f0' } }
-            }
+            scales: indexAxis === 'y'
+                ? { y: { ticks: { autoSkip: false, font: { size: 11 },
+                        callback: (_, i) => { const s = (labels[i]||'').trim(); return s.length > 38 ? s.substring(0,35)+'…' : s; } },
+                      grid: { display: false } },
+                    x: { beginAtZero: true, grid: { color: '#f0f0f0' } } }
+                : { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#f0f0f0' } } }
         }
     });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const hoy = new Date();
-    document.getElementById('f_fin').value = hoy.toISOString().split('T')[0];
-    const primeroDelMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById('f_inicio').value = primeroDelMes.toISOString().split('T')[0];
-    inicializarTomSelects();
+    fechasDefault();
+    initTomSelects();
     cargarCompras();
 });
 </script>

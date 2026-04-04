@@ -56,6 +56,8 @@
     .text-egreso  { color: var(--banco-egr); font-weight: 700; }
 
     .badge-tipo { background: #e0e7ff; color: #3730a3; font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 5px; display: inline-block; }
+
+    /* ✅ FIX descripción — color siempre oscuro */
     .desc-concepto { color: #374151 !important; font-size: 0.85rem; margin-top: 4px; line-height: 1.35; }
 
     #loadingOverlay {
@@ -156,23 +158,19 @@ let bancosPoblados       = false;
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
-
-// FIX: fechas dd/mm/yyyy
-function fmtFecha(f) {
-    if (!f || f === '-') return '-';
-    const p = String(f).split('-');
-    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-    return f;
-}
-
 function debounce(f, w = 600) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => f(...a), w); }; }
 const debouncedCargarBancos = debounce(cargarBancos);
 
 function fechasDefault() {
-    const hoy    = new Date();
-    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById('fecha_fin').value    = hoy.toISOString().split('T')[0];
-    document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+    if (periodo === 'D') {
+        document.getElementById('fecha_inicio').value = hoy.toISOString().split('T')[0];
+    } else {
+        const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    }
 }
 
 function limpiarFiltros() {
@@ -221,10 +219,9 @@ async function cargarBancos() {
         document.getElementById('t_egr').textContent   = fmt(d.totales?.egresos)     + uni;
         document.getElementById('t_neto').textContent  = fmt((d.totales?.ingresos || 0) - (d.totales?.egresos || 0)) + uni;
 
-        // FIX: fmtFecha en tabla
         document.getElementById('tabla_bancos').innerHTML = (d.tabla || []).map(m => `
             <tr>
-                <td class="ps-3 text-muted" style="white-space:nowrap">${fmtFecha(m.FECHA)}</td>
+                <td class="ps-3 text-muted" style="white-space:nowrap">${m.FECHA || '-'}</td>
                 <td>
                     <div class="fw-bold text-dark">${m.BANCO || '-'}</div>
                     <div class="text-muted small">${m.CUENTA || '-'}</div>

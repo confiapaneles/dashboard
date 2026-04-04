@@ -362,11 +362,12 @@ function debounce(func, wait = 600) { let t; return (...a) => { clearTimeout(t);
 const debouncedCargarDatos = debounce(cargarDatos);
 
 function actualizarBtnLimpiar() {
-    const hoy = new Date();
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
-    const hoyStr    = hoy.toISOString().split('T')[0];
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
+    const iniDef  = periodo === 'D' ? hoy.toISOString().split('T')[0] : new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
+    const hoyStr  = hoy.toISOString().split('T')[0];
     const hayFiltro =
-        document.getElementById('fecha_inicio').value !== inicioMes ||
+        document.getElementById('fecha_inicio').value !== iniDef ||
         document.getElementById('fecha_fin').value    !== hoyStr    ||
         document.getElementById('filtro_status').value !== 'TODOS'  ||
         document.getElementById('filtro_vendedor').value !== 'TODOS'||
@@ -676,11 +677,20 @@ function renderDetallesProducto(d, monedaStr, prodBuscado) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
+function fechasDefault() {
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+    if (periodo === 'D') {
+        document.getElementById('fecha_inicio').value = hoy.toISOString().split('T')[0];
+    } else {
+        const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
-    const hoy = new Date();
-    document.getElementById("fecha_fin").value = hoy.toISOString().split('T')[0];
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById("fecha_inicio").value = inicioMes.toISOString().split('T')[0];
+    fechasDefault();
     initTomSelectCaja();
     initTomSelectProducto();
     initTomSelectCliente();

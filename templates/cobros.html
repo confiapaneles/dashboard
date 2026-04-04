@@ -32,6 +32,7 @@
         white-space: nowrap;
     }
 
+    /* ✅ Botón limpiar filtros */
     .btn-limpiar {
         padding: 8px 16px; background: #fee2e2; color: #dc2626;
         border: 1px solid #fca5a5; border-radius: 8px;
@@ -56,6 +57,7 @@
         background: white; border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 0;
     }
+
     .chart-title {
         font-size: 1.05rem; font-weight: 700; color: #1f2937;
         margin-bottom: 15px; border-left: 5px solid var(--cob-primary); padding-left: 10px;
@@ -70,6 +72,7 @@
     }
     .table td { font-size: 0.9rem; vertical-align: middle; }
 
+    /* ✅ FIX: fecha en una línea siempre */
     .table td.fecha-col, .table th.fecha-col {
         white-space: nowrap !important;
         width: 115px !important; min-width: 115px !important; max-width: 115px !important;
@@ -149,6 +152,7 @@
                     <option value="20">Top 20</option>
                 </select>
             </div>
+            <!-- ✅ Botón limpiar filtros -->
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">
                 ✕ Limpiar filtros
             </button>
@@ -161,6 +165,7 @@
         <button class="tab-btn" data-tab="tab_detalle">Detalle Recibos</button>
     </div>
 
+    <!-- Resumen General -->
     <div id="tab_resumen" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-4">
@@ -184,6 +189,7 @@
         </div>
     </div>
 
+    <!-- Top Clientes -->
     <div id="tab_clientes" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title">Top Clientes por Monto Recaudado</div>
@@ -191,6 +197,7 @@
         </div>
     </div>
 
+    <!-- Detalle Recibos -->
     <div id="tab_detalle" class="tab-pane">
         <div class="card-chart">
             <div class="chart-title">Detalle de Recibos</div>
@@ -229,27 +236,26 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
 
-// FIX: fechas dd/mm/yyyy
-function fmtFecha(f) {
-    if (!f || f === '-') return '-';
-    const p = String(f).split('-');
-    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-    return f;
-}
-
 function debounce(func, wait = 600) {
     let t;
     return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); };
 }
 const debouncedCargarCobros = debounce(cargarCobros);
 
+// ✅ Fechas de inicio de mes y fin hoy
 function fechasDefault() {
-    const hoy = new Date();
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
     document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
-    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    if (periodo === 'D') {
+        document.getElementById('fecha_inicio').value = hoy.toISOString().split('T')[0];
+    } else {
+        const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    }
 }
 
+// ✅ Limpiar filtros — devuelve todo a estado inicial
 function limpiarFiltros() {
     fechasDefault();
     document.getElementById('moneda').value     = 'Bs';
@@ -261,16 +267,21 @@ function limpiarFiltros() {
     cargarCobros();
 }
 
+// ✅ Mostrar/ocultar botón limpiar según filtros activos
 function actualizarBtnLimpiar() {
     const hoy    = new Date();
     const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const fechaInicioDefault = primero.toISOString().split('T')[0];
+    const fechaFinDefault    = hoy.toISOString().split('T')[0];
+
     const hayFiltro =
-        document.getElementById('fecha_inicio').value !== primero.toISOString().split('T')[0] ||
-        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0]    ||
+        document.getElementById('fecha_inicio').value !== fechaInicioDefault ||
+        document.getElementById('fecha_fin').value    !== fechaFinDefault    ||
         document.getElementById('caja').value        !== 'TODAS'            ||
         document.getElementById('forma_pago').value  !== 'TODAS'            ||
         document.getElementById('filtro_cliente').value.trim() !== ''       ||
         document.getElementById('top_n').value       !== '10';
+
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -350,11 +361,11 @@ function renderAll(d, moneda) {
         d.clientes?.map(x => x.label) || [], d.clientes?.map(x => x.value) || [],
         ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe'], 'y');
 
-    // Tabla con fmtFecha
+    // ✅ Tabla con fecha en clase fecha-col → nowrap garantizado por CSS
     document.getElementById('tabla_body').innerHTML = (d.tabla || []).map(r => `
         <tr>
             <td class="fw-bold" style="white-space:nowrap">${r.RECIBO || '-'}</td>
-            <td class="fecha-col">${fmtFecha(r.FECHA)}</td>
+            <td class="fecha-col">${r.FECHA || '-'}</td>
             <td><small>${r.CLIENTE || '—'}</small></td>
             <td><span class="badge badge-forma" style="white-space:nowrap">${r.FORMA || '—'}</span></td>
             <td><small style="white-space:nowrap">${r.CAJA || '—'}</small></td>
@@ -404,6 +415,7 @@ function renderChartWithPercent(id, type, title, labels, values, colores, indexA
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ✅ Fecha: 01 del mes actual → hoy
     fechasDefault();
     cargarCobros();
 });
