@@ -175,28 +175,28 @@ def ventas_page():
 @app.route('/ventas/cobros-facturas')
 @login_required
 def ventas_cobros_facturas_page():
-    if not current_user.tiene_permiso(1):
+    if not current_user.tiene_permiso(2):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('ventas_cobros_facturas.html', empresa=current_user.nombre_empresa)
 
 @app.route('/compras')
 @login_required
 def compras_page():
-    if not current_user.tiene_permiso(2):
+    if not current_user.tiene_permiso(4):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('compras.html', empresa=current_user.nombre_empresa)
 
 @app.route('/inventario')
 @login_required
 def inventario_page():
-    if not current_user.tiene_permiso(6):
+    if not current_user.tiene_permiso(5):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('inventario.html', empresa=current_user.nombre_empresa)
 
 @app.route('/inventario/movimientos')
 @login_required
 def movimientos_inventario_page():
-    if not current_user.tiene_permiso(6):
+    if not current_user.tiene_permiso(8):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('movimientos_inventario.html', empresa=current_user.nombre_empresa)
 
@@ -210,14 +210,14 @@ def cobros_page():
 @app.route('/cxc')
 @login_required
 def cxc_page():
-    if not current_user.tiene_permiso(3):
+    if not current_user.tiene_permiso(6):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('cxc.html', empresa=current_user.nombre_empresa)
 
 @app.route('/cxp')
 @login_required
 def cxp_page():
-    if not current_user.tiene_permiso(5):
+    if not current_user.tiene_permiso(9):
         return redirect(url_for('ventas_page', error='sin_permiso'))
     return render_template('cxp.html', empresa=current_user.nombre_empresa)
 
@@ -825,6 +825,12 @@ def get_inventario():
         if key in params:
             filtros_carac[i] = (params[key] or '').strip().upper()
 
+    # Permisos de precios y costo (pos 12=Precio1, 13=Precio2, 14=Precio3, 15=Costo)
+    ver_precio1 = current_user.tiene_permiso(12)
+    ver_precio2 = current_user.tiene_permiso(13)
+    ver_precio3 = current_user.tiene_permiso(14)
+    ver_costo   = current_user.tiene_permiso(15)
+
     data_tabla = []
     totales = {"articulos": 0, "existencia": 0.0, "valor_total": 0.0, "kilos": 0.0}
     por_marca           = defaultdict(float)
@@ -887,10 +893,12 @@ def get_inventario():
 
             item = {
                 "CODIGO": codigo, "DESCRIPCION": desc, "EXISTENCIA": existencia,
-                "COSTO_UNITARIO": round(costo_unitario, 4),
-                "PRECIO1": precio1, "PRECIO2": precio2, "PRECIO3": precio3,
                 "VALOR_TOTAL": round(valor_total_item, 2), "TOTAL_EMPAQUE": kilos,
             }
+            if ver_costo:   item["COSTO_UNITARIO"] = round(costo_unitario, 4)
+            if ver_precio1: item["PRECIO1"] = precio1
+            if ver_precio2: item["PRECIO2"] = precio2
+            if ver_precio3: item["PRECIO3"] = precio3
             for i in '1234':
                 val = str(rec.get(f'CARAC{i}', '')).strip()
                 if val: item[f'CARAC{i}'] = val
@@ -933,7 +941,13 @@ def get_inventario():
             "nombres_precios":   nombres_precios,
             "caracteristicas":   caracteristicas_activas,
             "filtros_dinamicos": filtros_dinamicos,
-            "valorizar_a":       valorizar_a
+            "valorizar_a":       valorizar_a,
+            "permisos_precio": {
+                "ver_precio1": ver_precio1,
+                "ver_precio2": ver_precio2,
+                "ver_precio3": ver_precio3,
+                "ver_costo":   ver_costo,
+            }
         })
     except Exception as e:
         import traceback
@@ -947,14 +961,16 @@ def get_inventario():
 def get_movimientos_inventario():
     params    = request.json or {}
     f_producto = (params.get('producto') or '').strip().upper()
-    f_inicio  = params.get('fecha_inicio', '')
-    f_fin     = params.get('fecha_fin', '')
-    f_tipomov = (params.get('tipomov') or '').strip().upper()
-    f_almacen = (params.get('almacen') or '').strip().upper()
+    f_inicio   = params.get('fecha_inicio', '')
+    f_fin      = params.get('fecha_fin', '')
+    f_tipomov  = (params.get('tipomov') or '').strip().upper()
+    f_almacen  = (params.get('almacen') or '').strip().upper()
+    f_prov_cli = (params.get('prov_cli') or '').strip().upper()
 
     all_productos  = {}
     all_tipos      = set()
     all_almacenes  = set()
+    all_prov_cli   = set()
     detalles       = []
     total_entradas = 0.0
     total_salidas  = 0.0
@@ -969,10 +985,12 @@ def get_movimientos_inventario():
             cod  = str(rec.get('CODIGOPRO', '')).strip()
             nom  = str(rec.get('NOMBREPRO', '')).strip()
             if cod: all_productos[cod] = nom
-            tipo    = str(rec.get('TIPOMOV', '')).strip().upper()
-            almacen = str(rec.get('ALMACEN',  '')).strip().upper()
-            if tipo:    all_tipos.add(tipo)
-            if almacen: all_almacenes.add(almacen)
+            tipo     = str(rec.get('TIPOMOV',  '')).strip().upper()
+            almacen  = str(rec.get('ALMACEN',  '')).strip().upper()
+            prov_cli_r = str(rec.get('PROV_CLI','  ')).strip()
+            if tipo:     all_tipos.add(tipo)
+            if almacen:  all_almacenes.add(almacen)
+            if prov_cli_r: all_prov_cli.add(prov_cli_r)
 
             if not f_producto: continue
 
@@ -990,8 +1008,10 @@ def get_movimientos_inventario():
             fecha_reg = parse_fecha(rec.get('FECHA'))
             if f_inicio and fecha_reg < f_inicio: continue
             if f_fin    and fecha_reg > f_fin:    continue
-            if f_tipomov and tipo    != f_tipomov: continue
-            if f_almacen and almacen != f_almacen: continue
+            if f_tipomov  and tipo      != f_tipomov:   continue
+            if f_almacen  and almacen   != f_almacen:   continue
+            prov_cli_val = str(rec.get('PROV_CLI', '')).strip().upper()
+            if f_prov_cli and f_prov_cli not in prov_cli_val: continue
 
             entradas = safe_float(rec.get('ENTRADAS', 0))
             salidas  = safe_float(rec.get('SALIDAS',  0))
@@ -1020,6 +1040,7 @@ def get_movimientos_inventario():
             "lista_productos": lista_productos,
             "lista_tipos":     sorted(list(all_tipos)),
             "lista_almacenes": sorted(list(all_almacenes)),
+            "lista_prov_cli":  sorted(list(all_prov_cli)),
             "info_producto":   info_producto,
             "total_entradas":  round(total_entradas, 2),
             "total_salidas":   round(total_salidas,  2),
