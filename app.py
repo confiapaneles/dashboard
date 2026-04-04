@@ -44,14 +44,20 @@ def obtener_configuracion():
                 str(conf.get('ALMACEN3', '')).strip(),
             ]
             almacenes = [a for a in almacenes if a and a != 'None']
+            bloqueo_raw = conf.get('BLOQUEO', 0)
+            try:    bloqueo = int(bloqueo_raw) if bloqueo_raw else 0
+            except: bloqueo = 0
+            periodo = str(conf.get('PERIODO', 'M')).strip().upper() or 'M'
             return {
-                "empresa": str(conf.get('EMPRESA', 'CONFIA')).strip().upper(),
+                "empresa":  str(conf.get('EMPRESA', 'CONFIA')).strip().upper(),
                 "almacenes": almacenes,
-                "precios": [conf.get('PRECIO1'), conf.get('PRECIO2'), conf.get('PRECIO3')]
+                "precios":  [conf.get('PRECIO1'), conf.get('PRECIO2'), conf.get('PRECIO3')],
+                "bloqueo":  bloqueo,   # minutos de inactividad (0 = sin bloqueo)
+                "periodo":  periodo,   # "D" = día de hoy | "M" = 1ro del mes hasta hoy
             }
     except Exception as e:
         print(f"Error leyendo configuración: {e}")
-    return {"empresa": "CONFIA", "almacenes": [], "precios": []}
+    return {"empresa": "CONFIA", "almacenes": [], "precios": [], "bloqueo": 0, "periodo": "M"}
 
 def obtener_nombre_empresa_global():
     conf = obtener_configuracion()
@@ -148,6 +154,22 @@ def login():
                             login_user(user_obj)
                             session['empresa']        = empresa_usuario
                             session['nombre_empresa'] = nombre_empresa
+                            # Leer configuración de la empresa para bloqueo y período
+                            try:
+                                path_cfg = os.path.join(DBF_DIR, empresa_usuario, 'tablero_configura.dbf')
+                                if os.path.exists(path_cfg):
+                                    for cfg in DBF(path_cfg, encoding='latin-1'):
+                                        bloqueo_val = cfg.get('BLOQUEO', 0)
+                                        try:    session['bloqueo'] = int(bloqueo_val) if bloqueo_val else 0
+                                        except: session['bloqueo'] = 0
+                                        session['periodo'] = str(cfg.get('PERIODO', 'M')).strip().upper() or 'M'
+                                        break
+                                else:
+                                    session['bloqueo'] = 0
+                                    session['periodo'] = 'M'
+                            except Exception:
+                                session['bloqueo'] = 0
+                                session['periodo'] = 'M'
                             return redirect(url_for('ventas_page'))
                     error = "Credenciales incorrectas"
                 except Exception as e:
@@ -163,6 +185,8 @@ def login():
 def logout():
     session.pop('empresa', None)
     session.pop('nombre_empresa', None)
+    session.pop('bloqueo', None)
+    session.pop('periodo', None)
     logout_user()
     return redirect(url_for('login'))
 
@@ -170,63 +194,63 @@ def logout():
 @app.route('/ventas')
 @login_required
 def ventas_page():
-    return render_template('ventas.html', empresa=current_user.nombre_empresa)
+    return render_template('ventas.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/ventas/cobros-facturas')
 @login_required
 def ventas_cobros_facturas_page():
     if not current_user.tiene_permiso(2):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('ventas_cobros_facturas.html', empresa=current_user.nombre_empresa)
+    return render_template('ventas_cobros_facturas.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/compras')
 @login_required
 def compras_page():
     if not current_user.tiene_permiso(4):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('compras.html', empresa=current_user.nombre_empresa)
+    return render_template('compras.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/inventario')
 @login_required
 def inventario_page():
     if not current_user.tiene_permiso(5):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('inventario.html', empresa=current_user.nombre_empresa)
+    return render_template('inventario.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/inventario/movimientos')
 @login_required
 def movimientos_inventario_page():
     if not current_user.tiene_permiso(8):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('movimientos_inventario.html', empresa=current_user.nombre_empresa)
+    return render_template('movimientos_inventario.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/cobros')
 @login_required
 def cobros_page():
     if not current_user.tiene_permiso(3):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('cobros.html', empresa=current_user.nombre_empresa)
+    return render_template('cobros.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/cxc')
 @login_required
 def cxc_page():
     if not current_user.tiene_permiso(6):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('cxc.html', empresa=current_user.nombre_empresa)
+    return render_template('cxc.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/cxp')
 @login_required
 def cxp_page():
     if not current_user.tiene_permiso(9):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('cxp.html', empresa=current_user.nombre_empresa)
+    return render_template('cxp.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/bancos')
 @login_required
 def bancos_page():
     if not current_user.tiene_permiso(7):
         return redirect(url_for('ventas_page', error='sin_permiso'))
-    return render_template('bancos.html', empresa=current_user.nombre_empresa)
+    return render_template('bancos.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 # ─── ENDPOINT SYNC DBF ────────────────────────────────────────────────────
 @app.route('/api/sync-dbf', methods=['POST'])
@@ -1377,6 +1401,76 @@ def api_cobranzas():
         import traceback
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
+
+# ─── EXPLORADOR DE CAMPOS DBF ─────────────────────────────────────────────
+@app.route('/admin/dbf-explorer')
+@login_required
+def dbf_explorer_page():
+    return render_template('dbf_explorer.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
+
+@app.route('/api/admin/dbf-list', methods=['GET'])
+@login_required
+def dbf_list():
+    """Lista todos los archivos DBF del disco por empresa."""
+    resultado = {}
+    try:
+        for empresa in sorted(os.listdir(DBF_DIR)):
+            carpeta = os.path.join(DBF_DIR, empresa)
+            if not os.path.isdir(carpeta): continue
+            archivos = sorted([
+                f for f in os.listdir(carpeta)
+                if f.lower().endswith(('.dbf',))
+            ])
+            resultado[empresa] = archivos
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    return jsonify(resultado)
+
+@app.route('/api/admin/dbf-fields', methods=['POST'])
+@login_required
+def dbf_fields():
+    """Devuelve los campos y primeras filas de un DBF."""
+    data    = request.json or {}
+    empresa = (data.get('empresa') or '').strip().upper()
+    archivo = (data.get('archivo') or '').strip()
+    filas_n = int(data.get('filas', 5))
+
+    if not empresa or not archivo:
+        return jsonify({"error": "empresa y archivo son requeridos"}), 400
+
+    empresa_segura = "".join(c for c in empresa if c.isalnum() or c in ('_','-'))
+    archivo_seguro = os.path.basename(archivo)
+    path = os.path.join(DBF_DIR, empresa_segura, archivo_seguro)
+
+    if not os.path.exists(path):
+        return jsonify({"error": f"Archivo no encontrado: {path}"}), 404
+
+    try:
+        tabla = DBF(path, encoding='latin-1', ignore_missing_memofile=True)
+        campos = [{"nombre": f.name, "tipo": f.type, "longitud": f.length}
+                  for f in tabla.fields]
+        filas = []
+        for i, rec in enumerate(tabla):
+            if i >= filas_n: break
+            fila = {}
+            for c in campos:
+                val = rec.get(c["nombre"])
+                fila[c["nombre"]] = str(val).strip() if val is not None else ""
+            filas.append(fila)
+        tamanio_kb = round(os.path.getsize(path) / 1024, 1)
+        return jsonify({
+            "campos":     campos,
+            "filas":      filas,
+            "total_campos": len(campos),
+            "tamanio_kb": tamanio_kb,
+            "ruta":       path
+        })
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
 
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
 port = int(os.environ.get('PORT', 5000))

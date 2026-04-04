@@ -43,7 +43,6 @@
             transition: margin-left 0.35s ease;
         }
 
-        /* ── NAVBAR ─────────────────────────────────────── */
         .navbar-custom {
             background: var(--nav-bg) !important;
             padding: 0.8rem 1.5rem;
@@ -80,7 +79,6 @@
             pointer-events: none;
         }
 
-        /* ── SIDEBAR ─────────────────────────────────────── */
         .sidebar {
             position: fixed;
             inset: 0 auto 0 0;
@@ -102,7 +100,6 @@
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-        /* Ítem de sección (padre con submenú) */
         .nav-section {
             display: flex;
             align-items: center;
@@ -132,7 +129,6 @@
         }
         .nav-section.open .chevron { transform: rotate(90deg); }
 
-        /* Ítem de sección sin hijos (enlace directo) */
         .nav-section-link {
             display: flex;
             align-items: center;
@@ -152,9 +148,7 @@
             color: white;
             border-left-color: var(--accent);
         }
-        .nav-section-link .nav-section-icon { font-size: 1.1rem; margin-right: 10px; }
 
-        /* Subítems */
         .nav-children {
             overflow: hidden;
             max-height: 0;
@@ -182,19 +176,16 @@
             border-left-color: var(--accent);
         }
 
-        /* Divisor */
         .nav-divider {
             height: 1px;
             background: rgba(255,255,255,0.07);
             margin: 6px 0;
         }
 
-        /* ── CONTENIDO ───────────────────────────────────── */
         .content-wrapper { padding: 1rem; }
         @media (min-width: 768px)  { .content-wrapper { padding: 1.5rem; } }
         @media (min-width: 992px)  { .content-wrapper { padding: 2rem 2.5rem; } }
 
-        /* ── OVERLAY (oscurece el fondo cuando sidebar está abierto en móvil) */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -204,71 +195,6 @@
             backdrop-filter: blur(2px);
         }
         .sidebar-overlay.active { display: block; }
-
-        /* ── RESPONSIVE NAVBAR ─────────────────────────── */
-        @media (max-width: 768px) {
-            .navbar-custom { padding: 0.6rem 1rem; }
-            .navbar-center { display: none !important; }
-            .brand-logo-box { width: 38px; height: 38px; font-size: 20px; border-radius: 8px; }
-            /* Nombre empresa compacto en móvil */
-            .navbar-empresa-movil {
-                font-size: 0.85rem;
-                font-weight: 700;
-                color: white;
-                letter-spacing: 0.5px;
-                margin-left: 8px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 140px;
-            }
-            /* Botón salir más pequeño */
-            .btn-salir-text { display: none; }
-        }
-
-        /* ── RESPONSIVE SIDEBAR ────────────────────────── */
-        /* En móvil: sidebar siempre es overlay (no empuja) */
-        @media (max-width: 991px) {
-            .main-wrapper.sidebar-active { margin-left: 0 !important; }
-            .sidebar { width: 260px; }
-        }
-
-        /* En desktop (≥992px): sidebar puede ser persistente */
-        @media (min-width: 992px) {
-            .sidebar { width: var(--sidebar-width); }
-        }
-
-        /* ── TABLAS RESPONSIVE ─────────────────────────── */
-        .table-responsive-x {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* ── FILTROS RESPONSIVE ────────────────────────── */
-        .filter-row { flex-wrap: wrap; }
-        @media (max-width: 576px) {
-            .filter-col { min-width: 100% !important; }
-            .filter-col.select-col { max-width: 100% !important; flex-basis: 100% !important; }
-        }
-
-        /* ── CARDS Y GRÁFICOS ──────────────────────────── */
-        @media (max-width: 576px) {
-            .chart-container { height: 260px !important; }
-            .card-chart { padding: 14px; }
-            .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .total-kpi { font-size: 1.4rem !important; }
-        }
-
-        /* ── TAB NAVIGATION ────────────────────────────── */
-        @media (max-width: 576px) {
-            .tab-navigation { gap: 4px; }
-            .tab-btn {
-                padding: 8px 12px !important;
-                font-size: 0.78rem !important;
-                flex: 1 1 auto;
-                text-align: center;
-            }
-        }
     </style>
 </head>
 
@@ -281,11 +207,10 @@
 {% elif p.startswith('/bancos') %}{% set modulo_activo = 'bancos' %}
 {% else %}{% set modulo_activo = 'default' %}{% endif %}
 
-<body class="modulo-{{ modulo_activo }}">
+<body class="modulo-{{ modulo_activo }}" data-bloqueo="{{ bloqueo | default(0) | int }}">
 
-<!-- ── SIDEBAR ──────────────────────────────────────────────────── -->
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-
     <div class="sidebar-header">
         <a href="/" class="d-flex align-items-center text-decoration-none">
             <div class="brand-logo-box me-3">
@@ -299,14 +224,9 @@
     </div>
 
     <nav style="padding: 0.75rem 0;">
-
-        <!-- VENTAS -->
         {% if current_user.tiene_permiso(1) %}
-        <button class="nav-section {% if p.startswith('/ventas') %}open{% endif %}"
-                onclick="toggleMenu(this, 'menu-ventas')">
-            <span>
-                <i class="nav-section-icon bi bi-cart-check"></i>Ventas
-            </span>
+        <button class="nav-section {% if p.startswith('/ventas') %}open{% endif %}" onclick="toggleMenu(this, 'menu-ventas')">
+            <span><i class="nav-section-icon bi bi-cart-check"></i>Ventas</span>
             <i class="chevron bi bi-chevron-right"></i>
         </button>
         <div class="nav-children {% if p.startswith('/ventas') %}open{% endif %}" id="menu-ventas">
@@ -319,42 +239,35 @@
         </div>
         {% endif %}
 
-        <!-- COMPRAS -->
-        {% if current_user.tiene_permiso(2) %}
+        {% if current_user.tiene_permiso(4) %}
         <div class="nav-divider"></div>
         <a class="nav-section-link {% if p.startswith('/compras') %}active{% endif %}" href="/compras">
             <i class="nav-section-icon bi bi-bag-plus"></i>Compras
         </a>
         {% endif %}
 
-        <!-- INVENTARIO -->
-        {% if current_user.tiene_permiso(6) %}
+        {% if current_user.tiene_permiso(5) %}
         <div class="nav-divider"></div>
-        <button class="nav-section {% if p.startswith('/inventario') %}open{% endif %}"
-                onclick="toggleMenu(this, 'menu-inventario')">
-            <span>
-                <i class="nav-section-icon bi bi-box-seam"></i>Inventario
-            </span>
+        <button class="nav-section {% if p.startswith('/inventario') %}open{% endif %}" onclick="toggleMenu(this, 'menu-inventario')">
+            <span><i class="nav-section-icon bi bi-box-seam"></i>Inventario</span>
             <i class="chevron bi bi-chevron-right"></i>
         </button>
         <div class="nav-children {% if p.startswith('/inventario') %}open{% endif %}" id="menu-inventario">
             <a class="nav-child-link {% if p == '/inventario' %}active{% endif %}" href="/inventario">
                 <i class="bi bi-table"></i> Panel de Inventario
             </a>
+            {% if current_user.tiene_permiso(8) %}
             <a class="nav-child-link {% if p == '/inventario/movimientos' %}active{% endif %}" href="/inventario/movimientos">
                 <i class="bi bi-arrow-left-right"></i> Movimiento de Producto
             </a>
+            {% endif %}
         </div>
         {% endif %}
 
-        <!-- CUENTAS POR COBRAR -->
-        {% if current_user.tiene_permiso(3) %}
+        {% if current_user.tiene_permiso(6) %}
         <div class="nav-divider"></div>
-        <button class="nav-section {% if p.startswith('/cobros') or p.startswith('/cxc') %}open{% endif %}"
-                onclick="toggleMenu(this, 'menu-cxc')">
-            <span>
-                <i class="nav-section-icon bi bi-cash-coin"></i>Cuentas por Cobrar
-            </span>
+        <button class="nav-section {% if p.startswith('/cobros') or p.startswith('/cxc') %}open{% endif %}" onclick="toggleMenu(this, 'menu-cxc')">
+            <span><i class="nav-section-icon bi bi-cash-coin"></i>Cuentas por Cobrar</span>
             <i class="chevron bi bi-chevron-right"></i>
         </button>
         <div class="nav-children {% if p.startswith('/cobros') or p.startswith('/cxc') %}open{% endif %}" id="menu-cxc">
@@ -367,7 +280,6 @@
         </div>
         {% endif %}
 
-        <!-- BANCOS -->
         {% if current_user.tiene_permiso(7) %}
         <div class="nav-divider"></div>
         <a class="nav-section-link {% if p.startswith('/bancos') %}active{% endif %}" href="/bancos">
@@ -375,21 +287,18 @@
         </a>
         {% endif %}
 
-        <!-- CUENTAS POR PAGAR -->
-        {% if current_user.tiene_permiso(5) %}
+        {% if current_user.tiene_permiso(9) %}
         <div class="nav-divider"></div>
         <a class="nav-section-link {% if p.startswith('/cxp') %}active{% endif %}" href="/cxp">
             <i class="nav-section-icon bi bi-currency-dollar"></i>Cuentas por Pagar
         </a>
         {% endif %}
-
     </nav>
 </div>
 
-<!-- Overlay para cerrar sidebar en móvil -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- ── NAVBAR SUPERIOR ──────────────────────────────────────────── -->
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand navbar-custom sticky-top">
     <div class="container-fluid position-relative">
         <div class="d-flex align-items-center">
@@ -399,7 +308,6 @@
             <div class="brand-logo-box">
                 {{ empresa[0] | upper if empresa else 'C' }}
             </div>
-            <!-- Nombre empresa visible en móvil (donde está oculto el centro) -->
             <span class="navbar-empresa-movil d-md-none">{{ empresa or 'CONFIA' }}</span>
         </div>
 
@@ -421,14 +329,14 @@
     </div>
 </nav>
 
-<!-- ── CONTENIDO ────────────────────────────────────────────────── -->
+<!-- CONTENIDO -->
 <div class="main-wrapper" id="mainWrapper">
     <div class="content-wrapper">
         {% block content %}{% endblock %}
     </div>
 </div>
 
-<!-- Modal sin permisos -->
+<!-- MODAL -->
 <div class="modal fade" id="modalPrivilegios" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg">
@@ -451,15 +359,44 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    const sidebar     = document.getElementById('sidebar');
-    const mainWrapper = document.getElementById('mainWrapper');
-    const toggleBtn   = document.getElementById('sidebarToggle');
+    // ==================== TIMER DE INACTIVIDAD ====================
+    (function() {
+        const mins = parseInt(document.body.getAttribute('data-bloqueo')) || 0;
+        if (mins <= 0) return;
 
+        let timer;
+
+        function resetTimer() {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.body.insertAdjacentHTML('beforeend', `
+                    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:99999;display:flex;align-items:center;justify-content:center;">
+                        <div style="background:white;padding:2.2rem 2.8rem;border-radius:16px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.35);max-width:360px;">
+                            <div style="font-size:2.8rem;margin-bottom:12px;">🔒</div>
+                            <h5 style="margin:0 0 8px;color:#1e293b;">Sesión cerrada</h5>
+                            <p style="color:#64748b;font-size:0.88rem;margin:0;">Inactividad de <b>${mins}</b> minuto${mins === 1 ? '' : 's'}.<br>Redirigiendo al inicio de sesión...</p>
+                        </div>
+                    </div>
+                `);
+                setTimeout(() => { window.location.href = '/logout'; }, 1800);
+            }, mins * 60 * 1000);
+        }
+
+        ['mousemove', 'keydown', 'mousedown', 'scroll', 'touchstart'].forEach(ev => {
+            document.addEventListener(ev, resetTimer, { passive: true });
+        });
+
+        resetTimer();
+    })();
+
+    // ==================== SIDEBAR ====================
+    const sidebar = document.getElementById('sidebar');
+    const mainWrapper = document.getElementById('mainWrapper');
+    const toggleBtn = document.getElementById('sidebarToggle');
     const overlay = document.getElementById('sidebarOverlay');
 
     function openSidebar() {
         sidebar.classList.add('active');
-        // Solo empujar en desktop
         if (window.innerWidth >= 992) mainWrapper.classList.add('sidebar-active');
         overlay.classList.add('active');
     }
@@ -474,42 +411,22 @@
         sidebar.classList.contains('active') ? closeSidebar() : openSidebar();
     });
 
-    // Cerrar con overlay
-    overlay.addEventListener('click', closeSidebar);
+    overlay?.addEventListener('click', closeSidebar);
 
-    // Cerrar al navegar en móvil
-    sidebar.querySelectorAll('a[href]').forEach(a => {
-        a.addEventListener('click', () => {
-            if (window.innerWidth < 992) closeSidebar();
-        });
-    });
-
-    // Ajustar margin al cambiar tamaño de ventana
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 992 && sidebar.classList.contains('active')) {
-            mainWrapper.classList.add('sidebar-active');
-        } else {
-            mainWrapper.classList.remove('sidebar-active');
-        }
-    });
-
-    // Acordeón del sidebar
     function toggleMenu(btn, menuId) {
         const menu = document.getElementById(menuId);
         const isOpen = menu.classList.contains('open');
-
-        // Cerrar todos
+        
         document.querySelectorAll('.nav-children').forEach(m => m.classList.remove('open'));
         document.querySelectorAll('.nav-section').forEach(b => b.classList.remove('open'));
-
-        // Abrir el clickeado si estaba cerrado
+        
         if (!isOpen) {
             menu.classList.add('open');
             btn.classList.add('open');
         }
     }
 
-    // Modal sin permisos
+    // ==================== MODAL SIN PERMISOS ====================
     document.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
         if (params.get('error') === 'sin_permiso') {

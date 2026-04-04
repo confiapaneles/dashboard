@@ -20,18 +20,31 @@
     .kpi-box { flex: 1; min-width: 160px; background: white; border-radius: 10px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
     .kpi-box .kpi-label { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 4px; }
     .kpi-box .kpi-val   { font-size: 1.5rem; font-weight: 800; color: #1e293b; }
-    .kpi-box .kpi-val.entrada { color: #16a34a; }
-    .kpi-box .kpi-val.salida  { color: #dc2626; }
 
     .card-table { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; }
-    .table-responsive { max-height: 60vh; overflow-y: auto; overflow-x: auto; }
-    .table th { position: sticky; top: 0; background: #f8f9fa; z-index: 5; font-size: 0.8rem; font-weight: 700; color: #495057; text-transform: uppercase; letter-spacing: 0.04em; }
-    .table td { font-size: 0.88rem; vertical-align: middle; }
+    .table-responsive { max-height: 62vh; overflow-y: auto; overflow-x: auto; }
+    .table th { position: sticky; top: 0; background: #f8f9fa; z-index: 5; font-size: 0.78rem; font-weight: 700; color: #495057; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid #dee2e6; padding: 9px 12px; }
+    .table td { font-size: 0.87rem; vertical-align: middle; padding: 7px 12px; border-bottom: 1px solid #f1f5f9; }
+    .table tbody tr:hover { background: #fafafa; }
     .fecha-col { white-space: nowrap !important; width: 100px; }
-    .badge-tipo { background: #e0f2fe; color: #0369a1; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
-    .entrada-val { color: #16a34a; font-weight: 700; }
-    .salida-val  { color: #dc2626; font-weight: 700; }
-    .saldo-val   { color: #1d4ed8; font-weight: 700; }
+
+    /* ── Tipo de movimiento badge ── */
+    .badge-tipo { display: inline-block; padding: 2px 9px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+
+    /* ── ENTRADAS: verde ── */
+    .badge-entrada { background: #dcfce7; color: #15803d; }
+    td.entrada-val  { color: #16a34a; font-weight: 700; }
+    tr.row-entrada  { background: #f0fdf4 !important; }
+    tr.row-entrada:hover { background: #dcfce7 !important; }
+
+    /* ── SALIDAS: rojo ── */
+    .badge-salida  { background: #fee2e2; color: #b91c1c; }
+    td.salida-val   { color: #dc2626; font-weight: 700; }
+    tr.row-salida   { background: #fff5f5 !important; }
+    tr.row-salida:hover { background: #fee2e2 !important; }
+
+    /* ── Saldo y costo ── */
+    td.saldo-val { color: #1d4ed8; font-weight: 700; }
 
     .btn-limpiar { padding: 7px 14px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; align-self: flex-end; }
     .btn-limpiar.oculto { display: none; }
@@ -46,12 +59,12 @@
     .loading-content { text-align: center; background: white; padding: 2rem 3rem; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
 
     /* Tom Select */
-    .ts-wrapper.single .ts-control { padding:7px 11px; border:1px solid #dee2e6; border-radius:8px; font-size:0.9rem; background:white; }
+    .ts-wrapper.single .ts-control { padding:7px 11px; border:1px solid #dee2e6; border-radius:8px; font-size:0.9rem; background:white; cursor:text; }
     .ts-wrapper.single.focus .ts-control { border-color:#86b7fe; box-shadow:0 0 0 3px rgba(13,110,253,0.15); }
     .ts-dropdown { border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.1); border:1px solid #dee2e6; font-size:0.88rem; }
     .ts-dropdown .option { padding:7px 12px; }
     .ts-dropdown .option:hover,.ts-dropdown .option.active { background:#eff6ff; color:#1d4ed8; }
-    .ts-dropdown-content { max-height:220px; }
+    .ts-dropdown-content { max-height:240px; }
     .ts-wrapper { width:100%; }
 
     @media (max-width: 768px) {
@@ -71,20 +84,20 @@
             </h4>
         </div>
 
-        <!-- Filtro de Producto -->
+        <!-- Fila 1: Producto + Cliente/Proveedor -->
         <div class="filter-row mb-3">
             <div class="filter-col" style="flex:3; min-width:260px;">
                 <label><i class="bi bi-box-seam me-1"></i>Producto</label>
                 <select id="sel_producto"><option value="">— Selecciona un producto —</option></select>
             </div>
-            <div class="filter-col" style="flex:2; min-width:200px;">
+            <div class="filter-col" style="flex:2; min-width:220px;">
                 <label><i class="bi bi-people me-1"></i>Cliente / Proveedor</label>
                 <select id="sel_prov_cli"><option value="">Todos</option></select>
             </div>
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
         </div>
 
-        <!-- Filtros secundarios -->
+        <!-- Fila 2: Fechas + Tipo + Almacén -->
         <div class="filter-row">
             <div class="filter-col">
                 <label>Desde</label>
@@ -105,11 +118,11 @@
         </div>
     </div>
 
-    <!-- Info del producto seleccionado -->
+    <!-- Info del producto -->
     <div class="info-prod" id="info_prod">
         <div>
             <div class="prod-nombre" id="info_nombre">—</div>
-            <div class="prod-meta" id="info_codigo">—</div>
+            <div class="prod-meta"  id="info_codigo">—</div>
         </div>
         <div class="prod-meta">
             Mínimo: <b id="info_min">—</b> &nbsp;|&nbsp; Máximo: <b id="info_max">—</b>
@@ -120,11 +133,11 @@
     <div class="kpi-row" id="kpi_row" style="display:none;">
         <div class="kpi-box">
             <div class="kpi-label">Total Entradas</div>
-            <div class="kpi-val entrada" id="kpi_entradas">0</div>
+            <div class="kpi-val" style="color:#16a34a;" id="kpi_entradas">0</div>
         </div>
         <div class="kpi-box">
             <div class="kpi-label">Total Salidas</div>
-            <div class="kpi-val salida" id="kpi_salidas">0</div>
+            <div class="kpi-val" style="color:#dc2626;" id="kpi_salidas">0</div>
         </div>
         <div class="kpi-box">
             <div class="kpi-label">Movimientos</div>
@@ -139,14 +152,21 @@
                 <i class="bi bi-table me-1"></i>Detalle de Movimientos
                 <span id="cont_registros" class="text-muted fw-normal" style="font-size:0.82rem;"></span>
             </h6>
+            <!-- Leyenda -->
+            <div class="d-flex gap-3 align-items-center" style="font-size:0.8rem;">
+                <span><span class="badge-tipo badge-entrada">ENTRADA</span></span>
+                <span><span class="badge-tipo badge-salida">SALIDA</span></span>
+            </div>
         </div>
+
         <div id="no_producto" class="text-center text-muted py-5">
             <i class="bi bi-search" style="font-size:2rem; opacity:0.3;"></i>
             <div class="mt-2">Selecciona un producto para ver su Kardex</div>
         </div>
+
         <div id="tabla_wrap" style="display:none;">
             <div class="table-responsive">
-                <table class="table table-hover table-sm mb-0">
+                <table class="table table-sm mb-0">
                     <thead>
                         <tr>
                             <th class="fecha-col">Fecha</th>
@@ -155,9 +175,9 @@
                             <th>Cliente / Proveedor</th>
                             <th>Almacén</th>
                             <th>Referencia</th>
-                            <th class="text-end">Entradas</th>
-                            <th class="text-end">Salidas</th>
-                            <th class="text-end">Saldo</th>
+                            <th class="text-end" style="color:#15803d;">Entradas</th>
+                            <th class="text-end" style="color:#b91c1c;">Salidas</th>
+                            <th class="text-end" style="color:#1d4ed8;">Saldo</th>
                             <th class="text-end">Costo</th>
                         </tr>
                     </thead>
@@ -180,47 +200,59 @@
 const lo = document.getElementById('loadingOverlay');
 function showLoading() { lo.style.display='flex'; }
 function hideLoading()  { lo.style.display='none'; }
-function fmt(n) { return (n||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function fmtFecha(f) { if(!f||f==='-')return '-'; const p=String(f).split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:f; }
+function fmt(n)       { return (n||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtFecha(f)  { if(!f||f==='-')return '-'; const p=String(f).split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:f; }
 
-let tsProducto = null, tsTipo = null, tsAlmacen = null, tsProvCli = null;
+let tsProducto=null, tsTipo=null, tsAlmacen=null, tsProvCli=null;
 
-// ── Fechas por defecto ────────────────────────────────────────────────────
+// ── Fechas por defecto según PERIODO de la empresa ────────────────────────
 function fechasDefault() {
-    const hoy = new Date();
-    document.getElementById('fecha_fin').value   = hoy.toISOString().split('T')[0];
-    document.getElementById('fecha_inicio').value = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
+    const dias    = parseInt('{{ dias | default(0) }}') || 0;
+    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+
+    let fechaInicio;
+    if (periodo === 'D') {
+        fechaInicio = new Date(hoy);
+    } else {
+        fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    }
+    if (dias > 0) {
+        const limite = new Date(hoy);
+        limite.setDate(limite.getDate() - dias);
+        if (fechaInicio < limite) fechaInicio = limite;
+    }
+    document.getElementById('fecha_inicio').value = fechaInicio.toISOString().split('T')[0];
+}
+
+// ── Determinar si un movimiento es ENTRADA o SALIDA ───────────────────────
+function esEntrada(r) {
+    return (r.ENTRADAS || 0) > 0;
 }
 
 // ── Init TomSelects ───────────────────────────────────────────────────────
 function initTomSelects() {
     tsProducto = new TomSelect('#sel_producto', {
-        placeholder: 'Buscar por código o nombre...',
-        allowEmptyOption: true,
-        maxOptions: 500,
+        placeholder: 'Buscar por código o nombre completo...',
+        allowEmptyOption: true, maxOptions: 500,
         searchField: ['text','value'],
         onChange: () => cargarMovimientos()
     });
-
     tsProvCli = new TomSelect('#sel_prov_cli', {
         placeholder: 'Buscar cliente o proveedor...',
-        allowEmptyOption: true,
-        maxOptions: 400,
+        allowEmptyOption: true, maxOptions: 400,
         searchField: ['text','value'],
         onChange: () => cargarMovimientos()
     });
-
     tsTipo = new TomSelect('#sel_tipomov', {
         placeholder: 'Todos los tipos...',
-        allowEmptyOption: true,
-        maxOptions: 100,
+        allowEmptyOption: true, maxOptions: 100,
         onChange: () => cargarMovimientos()
     });
-
     tsAlmacen = new TomSelect('#sel_almacen', {
         placeholder: 'Todos los almacenes...',
-        allowEmptyOption: true,
-        maxOptions: 100,
+        allowEmptyOption: true, maxOptions: 100,
         onChange: () => cargarMovimientos()
     });
 }
@@ -237,10 +269,15 @@ function poblarSelect(ts, lista, textoVacio) {
 
 // ── Botón limpiar ─────────────────────────────────────────────────────────
 function actualizarBtnLimpiar() {
-    const hoy = new Date(), ini = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    const hay =
-        document.getElementById('fecha_inicio').value !== ini.toISOString().split('T')[0] ||
-        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0] ||
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
+    const iniDef  = periodo === 'D'
+        ? hoy.toISOString().split('T')[0]
+        : new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
+    const hoyS = hoy.toISOString().split('T')[0];
+    const hay  =
+        document.getElementById('fecha_inicio').value !== iniDef ||
+        document.getElementById('fecha_fin').value    !== hoyS   ||
         (tsProducto && tsProducto.getValue() !== '') ||
         (tsProvCli  && tsProvCli.getValue()  !== '') ||
         (tsTipo     && tsTipo.getValue()     !== '') ||
@@ -279,11 +316,11 @@ async function cargarMovimientos() {
         if (!resp.ok) throw new Error('HTTP error');
         const d = await resp.json();
 
-        // Poblar selects con listas de la API
-        poblarSelect(tsProducto, d.lista_productos  || [], '— Selecciona un producto —');
-        poblarSelect(tsTipo,     d.lista_tipos       || [], 'Todos los tipos');
-        poblarSelect(tsAlmacen,  d.lista_almacenes   || [], 'Todos los almacenes');
-        poblarSelect(tsProvCli,  d.lista_prov_cli    || [], 'Todos los clientes / proveedores');
+        // Poblar selects conservando selección
+        poblarSelect(tsProducto, d.lista_productos || [], '— Selecciona un producto —');
+        poblarSelect(tsTipo,     d.lista_tipos      || [], 'Todos los tipos');
+        poblarSelect(tsAlmacen,  d.lista_almacenes  || [], 'Todos los almacenes');
+        poblarSelect(tsProvCli,  d.lista_prov_cli   || [], 'Todos los clientes / proveedores');
 
         const detalles = d.detalles || [];
 
@@ -302,8 +339,8 @@ async function cargarMovimientos() {
         // KPIs
         const kpiRow = document.getElementById('kpi_row');
         if (producto && detalles.length > 0) {
-            document.getElementById('kpi_entradas').textContent   = fmt(d.total_entradas || 0);
-            document.getElementById('kpi_salidas').textContent    = fmt(d.total_salidas  || 0);
+            document.getElementById('kpi_entradas').textContent    = fmt(d.total_entradas || 0);
+            document.getElementById('kpi_salidas').textContent     = fmt(d.total_salidas  || 0);
             document.getElementById('kpi_movimientos').textContent = detalles.length.toLocaleString('es-VE');
             kpiRow.style.display = 'flex';
         } else {
@@ -317,6 +354,7 @@ async function cargarMovimientos() {
         const contReg    = document.getElementById('cont_registros');
 
         if (!producto) {
+            noProducto.innerHTML = '<i class="bi bi-search" style="font-size:2rem;opacity:0.3;"></i><div class="mt-2">Selecciona un producto para ver su Kardex</div>';
             noProducto.style.display = 'block';
             tablaWrap.style.display  = 'none';
             contReg.textContent = '';
@@ -330,20 +368,24 @@ async function cargarMovimientos() {
             tablaWrap.style.display  = 'block';
             contReg.textContent = ` — ${detalles.length.toLocaleString('es-VE')} registros`;
 
-            tbody.innerHTML = detalles.map(r => `
-                <tr>
+            tbody.innerHTML = detalles.map(r => {
+                const entrada = (r.ENTRADAS || 0) > 0;
+                const rowClass   = entrada ? 'row-entrada' : 'row-salida';
+                const badgeClass = entrada ? 'badge-entrada' : 'badge-salida';
+
+                return `<tr class="${rowClass}">
                     <td class="fecha-col text-muted">${fmtFecha(r.FECHA)}</td>
-                    <td><span class="badge-tipo">${r.TIPOMOV||'-'}</span></td>
-                    <td style="max-width:200px; font-size:0.83rem;">${r.DESCRIMOV||'-'}</td>
-                    <td style="font-size:0.83rem; color:#374151;">${r.PROV_CLI||'-'}</td>
-                    <td style="font-size:0.82rem; color:#6b7280;">${r.ALMACEN||'-'}</td>
-                    <td style="font-size:0.82rem; color:#6b7280;">${r.REFERENCIA||'-'}</td>
+                    <td><span class="badge-tipo ${badgeClass}">${r.TIPOMOV || '-'}</span></td>
+                    <td style="max-width:220px; font-size:0.83rem;">${r.DESCRIMOV || '-'}</td>
+                    <td style="font-size:0.83rem;">${r.PROV_CLI || '-'}</td>
+                    <td style="font-size:0.82rem; color:#6b7280;">${r.ALMACEN || '-'}</td>
+                    <td style="font-size:0.82rem; color:#6b7280;">${r.REFERENCIA || '-'}</td>
                     <td class="text-end entrada-val">${r.ENTRADAS > 0 ? fmt(r.ENTRADAS) : '<span class="text-muted">—</span>'}</td>
-                    <td class="text-end salida-val">${r.SALIDAS > 0  ? fmt(r.SALIDAS)  : '<span class="text-muted">—</span>'}</td>
+                    <td class="text-end salida-val">${r.SALIDAS  > 0 ? fmt(r.SALIDAS)  : '<span class="text-muted">—</span>'}</td>
                     <td class="text-end saldo-val">${fmt(r.SALDO)}</td>
                     <td class="text-end" style="color:#64748b;">${r.COSTO > 0 ? fmt(r.COSTO) : '—'}</td>
-                </tr>
-            `).join('');
+                </tr>`;
+            }).join('');
         }
 
     } catch(e) {
@@ -357,7 +399,7 @@ async function cargarMovimientos() {
 document.addEventListener('DOMContentLoaded', () => {
     fechasDefault();
     initTomSelects();
-    cargarMovimientos();   // carga inicial para llenar los selects
+    cargarMovimientos();
 });
 </script>
 {% endblock %}
