@@ -31,7 +31,7 @@ def get_dbf_path(archivo):
 
 def obtener_configuracion():
     try:
-        path = get_dbf_path('tablero_configura.dbf')
+        path = get_dbf_path('tablero_configura.DBF')
         if not os.path.exists(path):
             return {"empresa": "CONFIA", "almacenes": [], "precios": []}
         table = DBF(path, encoding='latin1')
@@ -156,7 +156,7 @@ def login():
                             session['nombre_empresa'] = nombre_empresa
                             # Leer configuración de la empresa para bloqueo y período
                             try:
-                                path_cfg = os.path.join(DBF_DIR, empresa_usuario, 'tablero_configura.dbf')
+                                path_cfg = os.path.join(DBF_DIR, empresa_usuario, 'tablero_configura.DBF')
                                 if os.path.exists(path_cfg):
                                     for cfg in DBF(path_cfg, encoding='latin-1'):
                                         bloqueo_val = cfg.get('BLOQUEO', 0)
