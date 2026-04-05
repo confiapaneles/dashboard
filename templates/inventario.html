@@ -236,21 +236,36 @@
 
             {% if current_user.tiene_permiso(18) %}
             <div class="tab-pane fade p-3" id="precios-pane">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h5 class="panel-title mb-0">Lista de Precios</h5>
-                    <span id="precios_count" class="text-muted small fw-semibold"></span>
+
+                <!-- Filtros independientes de la pestaña de precios -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-7 col-12">
+                        <label class="form-label small fw-semibold">Producto</label>
+                        <select id="sel_precio_producto"><option value="">— Busca un producto —</option></select>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label class="form-label small fw-semibold">Lista de Precio</label>
+                        <select id="sel_precio_lista"><option value="">Todos los precios</option></select>
+                    </div>
+                    <div class="col-md-1 col-12 d-flex align-items-end">
+                        <span id="precios_count" class="text-muted small fw-semibold"></span>
+                    </div>
                 </div>
+
+                <!-- Hint inicial -->
                 <div id="precios_hint" class="text-center text-muted py-5">
-                    <i class="bi bi-search" style="font-size:2rem;opacity:0.3;"></i>
-                    <div class="mt-2">Usa la <b>Búsqueda General</b> o los filtros de arriba para buscar un producto,<br>luego vuelve a esta pestaña para ver sus precios.</div>
+                    <i class="bi bi-tags" style="font-size:2.5rem;opacity:0.25;"></i>
+                    <div class="mt-2">Selecciona un producto para ver sus precios disponibles</div>
                 </div>
-                <div class="table-responsive" style="max-height:65vh; display:none;" id="precios_tabla_wrap">
+
+                <!-- Tabla de precios -->
+                <div class="table-responsive" style="max-height:58vh; display:none;" id="precios_tabla_wrap">
                     <table class="table table-hover table-sm mb-0" style="width:100%;">
                         <thead class="table-light sticky-top">
                             <tr>
                                 <th class="ps-3">Código</th>
                                 <th>Descripción</th>
-                                <th class="text-center">Cod. Precio</th>
+                                <th class="text-center">Cod.</th>
                                 <th>Nombre Precio</th>
                                 <th class="text-end pe-3">Precio</th>
                             </tr>
@@ -258,6 +273,7 @@
                         <tbody id="tabla_precios"></tbody>
                     </table>
                 </div>
+
             </div>
             {% endif %}
 
@@ -640,24 +656,66 @@ function renderInvChart(id, labels, values) {
 document.addEventListener('DOMContentLoaded', () => {
     initTomSelects();
     cargarInv(1);
+    initTomSelectsPrecios();   // TomSelects de la pestaña de precios
 });
 
 // ── PESTAÑA LISTA DE PRECIOS — pos 18 ────────────────────────────────────
-// Usa el mismo filtro de búsqueda general del inventario — no carga todo
+let tsPrecioProducto = null;
+let tsPrecioLista    = null;
+let _todosPrecios    = [];      // cache completo del producto seleccionado
+let _preciosInit     = false;   // flag para cargar productos solo una vez
 
 async function cargarPrecios() {
-    // Leer búsqueda activa del inventario
-    const busqueda = document.getElementById('filtro_general')?.value.trim().toUpperCase() || '';
+    // Cargar lista de productos solo la primera vez
+    if (!_preciosInit) {
+        await _cargarProductosPrecios();
+        _preciosInit = true;
+    }
+}
 
-    // También leer filtros de clasificación activos
-    const filtrosCarac = {};
-    Object.entries(tsCaracs).forEach(([idx, ts]) => {
-        const v = ts.getValue();
-        if (v) filtrosCarac[idx] = v;
-    });
+async function _cargarProductosPrecios() {
+    showLoading();
+    try {
+        // Traer lista de productos únicos del DBF de precios
+        const resp = await fetch('/api/precios_inventario', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ solo_productos: true })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const d = await resp.json();
 
-    if (!busqueda && Object.keys(filtrosCarac).length === 0) {
-        // Sin filtro — mostrar hint
+        // Poblar TomSelect de producto
+        if (tsPrecioProducto) {
+            tsPrecioProducto.clearOptions();
+            tsPrecioProducto.addOption({value:'', text:'— Busca un producto —'});
+            (d.productos || []).forEach(p => {
+                tsPrecioProducto.addOption({value: p.codigo, text: p.codigo + ' — ' + p.nombre});
+            });
+            tsPrecioProducto.refreshOptions(false);
+        }
+
+        // Poblar TomSelect de lista de precio con todos los nombres únicos
+        if (tsPrecioLista) {
+            tsPrecioLista.clearOptions();
+            tsPrecioLista.addOption({value:'', text:'Todos los precios'});
+            (d.listas || []).forEach(l => {
+                tsPrecioLista.addOption({value: l, text: l});
+            });
+            tsPrecioLista.refreshOptions(false);
+        }
+    } catch(e) {
+        console.error('Error cargando productos de precios:', e);
+    } finally {
+        hideLoading();
+    }
+}
+
+async function _cargarPreciosProducto() {
+    const codigo = tsPrecioProducto ? tsPrecioProducto.getValue() : '';
+    const lista  = tsPrecioLista    ? tsPrecioLista.getValue()    : '';
+
+    if (!codigo) {
         document.getElementById('precios_hint').style.display = 'block';
         document.getElementById('precios_tabla_wrap').style.display = 'none';
         document.getElementById('precios_count').textContent = '';
@@ -668,21 +726,22 @@ async function cargarPrecios() {
     try {
         const resp = await fetch('/api/precios_inventario', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ busqueda: busqueda })
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ codigo: codigo, lista: lista })
         });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const d = await resp.json();
-        renderTablaPrecios(d.data || []);
+        _todosPrecios = d.data || [];
+        renderTablaPrecios(_todosPrecios);
     } catch(e) {
-        console.error('Error precios:', e);
+        console.error('Error cargando precios:', e);
     } finally {
         hideLoading();
     }
 }
 
 function renderTablaPrecios(rows) {
-    const fmt  = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    const fmt   = v => (v || 0).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2});
     const tbody = document.getElementById('tabla_precios');
     const hint  = document.getElementById('precios_hint');
     const wrap  = document.getElementById('precios_tabla_wrap');
@@ -690,16 +749,15 @@ function renderTablaPrecios(rows) {
     if (!tbody) return;
 
     if (!rows.length) {
-        if (hint)  hint.innerHTML = '<i class="bi bi-inbox" style="font-size:2rem;opacity:0.3;"></i><div class="mt-2">Sin precios para el filtro aplicado</div>';
-        if (hint)  hint.style.display = 'block';
-        if (wrap)  wrap.style.display = 'none';
-        if (count) count.textContent = '';
+        hint.innerHTML = '<i class="bi bi-inbox" style="font-size:2rem;opacity:0.3;"></i><div class="mt-2">Sin precios para este filtro</div>';
+        hint.style.display = 'block';
+        wrap.style.display = 'none';
+        count.textContent  = '';
         return;
     }
-
-    if (hint)  hint.style.display = 'none';
-    if (wrap)  wrap.style.display = 'block';
-    if (count) count.textContent = rows.length.toLocaleString('es-VE') + ' registros';
+    hint.style.display  = 'none';
+    wrap.style.display  = 'block';
+    count.textContent   = rows.length.toLocaleString('es-VE') + ' registros';
 
     tbody.innerHTML = rows.map(r => `
         <tr>
@@ -710,6 +768,20 @@ function renderTablaPrecios(rows) {
             <td class="text-end pe-3 fw-bold text-pvp">${fmt(r.PRECIO)}</td>
         </tr>
     `).join('');
+}
+
+function initTomSelectsPrecios() {
+    tsPrecioProducto = new TomSelect('#sel_precio_producto', {
+        placeholder: 'Buscar por código o nombre...',
+        allowEmptyOption: true, maxOptions: 500,
+        searchField: ['text','value'],
+        onChange: () => _cargarPreciosProducto()
+    });
+    tsPrecioLista = new TomSelect('#sel_precio_lista', {
+        placeholder: 'Todos los precios...',
+        allowEmptyOption: true, maxOptions: 50,
+        onChange: () => _cargarPreciosProducto()
+    });
 }
 </script>
 

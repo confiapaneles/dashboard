@@ -1427,12 +1427,6 @@ def dbf_list():
         return jsonify({"error": str(e)}), 500
     return jsonify(resultado)
 
-@app.route('/debug-session')
-@login_required
-def debug_session():
-    acceso = current_user.acceso
-    return f"acceso={acceso} len={len(acceso)} pos18={acceso[17] if len(acceso)>=18 else 'NO_EXISTE'} permiso18={current_user.tiene_permiso(18)}"
-
 @app.route('/api/admin/dbf-fields', methods=['POST'])
 @login_required
 def dbf_fields():
@@ -1483,25 +1477,42 @@ def dbf_fields():
 @app.route('/api/precios_inventario', methods=['POST'])
 @login_required
 def get_precios_inventario():
-    # Permiso pos 18 — Lista de Precios extendida
     if not current_user.tiene_permiso(18):
         return jsonify({"error": "sin_permiso"}), 403
-    params   = request.json or {}
-    busqueda = (params.get('busqueda') or '').strip().upper()
+    params        = request.json or {}
+    solo_productos = params.get('solo_productos', False)
+    codigo_filtro  = (params.get('codigo') or '').strip().upper()
+    lista_filtro   = (params.get('lista')  or '').strip().upper()
+
     try:
         path = get_dbf_path('tablero_precios.DBF')
         if not os.path.exists(path):
             return jsonify({"error": "Archivo no encontrado"}), 404
 
-        data = []
+        productos_dict = {}   # codigo -> nombre (para el selector)
+        listas_set     = set()
+        data           = []
+
         for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
-            codigo   = str(rec.get('CODIGO',    '')).strip()
-            desc     = str(rec.get('DESCRIPCIO','')).strip()
-            cod_pre  = str(rec.get('CODIGOPRE', '')).strip()
-            nom_pre  = str(rec.get('NOMBREPRE', '')).strip()
-            precio   = safe_float(rec.get('PRECIO'))
-            if busqueda and busqueda not in codigo.upper() and busqueda not in desc.upper():
+            codigo  = str(rec.get('CODIGO',    '')).strip()
+            desc    = str(rec.get('DESCRIPCIO','')).strip()
+            cod_pre = str(rec.get('CODIGOPRE', '')).strip()
+            nom_pre = str(rec.get('NOMBREPRE', '')).strip()
+            precio  = safe_float(rec.get('PRECIO'))
+
+            if codigo: productos_dict[codigo] = desc
+            if nom_pre: listas_set.add(nom_pre)
+
+            if solo_productos:
+                continue   # solo necesitamos productos y listas
+
+            # Filtro por código de producto (match exacto)
+            if codigo_filtro and codigo != codigo_filtro:
                 continue
+            # Filtro por nombre de lista de precio
+            if lista_filtro and nom_pre.upper() != lista_filtro:
+                continue
+
             data.append({
                 "CODIGO":    codigo,
                 "DESCRIPCIO": desc,
@@ -1509,11 +1520,32 @@ def get_precios_inventario():
                 "NOMBREPRE": nom_pre,
                 "PRECIO":    round(precio, 2),
             })
+
+        if solo_productos:
+            productos = sorted(
+                [{"codigo": k, "nombre": v} for k, v in productos_dict.items()],
+                key=lambda x: x["codigo"]
+            )
+            return jsonify({
+                "status":    "success",
+                "productos": productos,
+                "listas":    sorted(list(listas_set))
+            })
+
         return jsonify({"status": "success", "data": data, "total": len(data)})
+
     except Exception as e:
         import traceback
         print("Error en /api/precios_inventario:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/debug-session')
+@login_required
+def debug_session():
+    acceso = str(current_user.acceso)
+    p18 = current_user.tiene_permiso(18)
+    return f"acceso={acceso} len={len(acceso)} pos18={acceso[17] if len(acceso)>=18 else 'NO_EXISTE'} permiso18={p18}"
 
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
 port = int(os.environ.get('PORT', 5000))
