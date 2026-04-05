@@ -1472,6 +1472,43 @@ def dbf_fields():
         return jsonify({"error": str(e)}), 500
 
 
+
+# ─── API: PRECIOS (tablero_precios.DBF) ───────────────────────────────────
+@app.route('/api/precios_inventario', methods=['POST'])
+@login_required
+def get_precios_inventario():
+    # Permiso pos 18 — Lista de Precios extendida
+    if not current_user.tiene_permiso(18):
+        return jsonify({"error": "sin_permiso"}), 403
+    params   = request.json or {}
+    busqueda = (params.get('busqueda') or '').strip().upper()
+    try:
+        path = get_dbf_path('tablero_precios.DBF')
+        if not os.path.exists(path):
+            return jsonify({"error": "Archivo no encontrado"}), 404
+
+        data = []
+        for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
+            codigo   = str(rec.get('CODIGO',    '')).strip()
+            desc     = str(rec.get('DESCRIPCIO','')).strip()
+            cod_pre  = str(rec.get('CODIGOPRE', '')).strip()
+            nom_pre  = str(rec.get('NOMBREPRE', '')).strip()
+            precio   = safe_float(rec.get('PRECIO'))
+            if busqueda and busqueda not in codigo.upper() and busqueda not in desc.upper():
+                continue
+            data.append({
+                "CODIGO":    codigo,
+                "DESCRIPCIO": desc,
+                "CODIGOPRE": cod_pre,
+                "NOMBREPRE": nom_pre,
+                "PRECIO":    round(precio, 2),
+            })
+        return jsonify({"status": "success", "data": data, "total": len(data)})
+    except Exception as e:
+        import traceback
+        print("Error en /api/precios_inventario:", traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
 port = int(os.environ.get('PORT', 5000))
 app.run(debug=False, host='0.0.0.0', port=port)

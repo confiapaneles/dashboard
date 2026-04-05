@@ -590,6 +590,67 @@ document.addEventListener('DOMContentLoaded', () => {
     initTomSelects();
     cargarInv(1);
 });
+
+// ── PESTAÑA LISTA DE PRECIOS ──────────────────────────────────────────────
+let _preciosData    = [];
+let _preciosCargado = false;
+
+async function cargarPrecios() {
+    if (_preciosCargado) return;
+    showLoading();
+    try {
+        const resp = await fetch('/api/precios_inventario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ busqueda: '' })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const d = await resp.json();
+        _preciosData    = d.data || [];
+        _preciosCargado = true;
+        renderTablaPrecios(_preciosData);
+    } catch(e) {
+        console.error('Error precios:', e);
+    } finally {
+        hideLoading();
+    }
+}
+
+function filtrarPreciosLocal(texto) {
+    const q = texto.trim().toUpperCase();
+    const filtrado = q
+        ? _preciosData.filter(r =>
+            r.CODIGO.includes(q) ||
+            r.DESCRIPCIO.toUpperCase().includes(q) ||
+            r.NOMBREPRE.toUpperCase().includes(q))
+        : _preciosData;
+    renderTablaPrecios(filtrado);
+}
+
+function renderTablaPrecios(rows) {
+    const fmt   = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    const tbody = document.getElementById('tabla_precios');
+    const noMsg = document.getElementById('no_precios');
+    const count = document.getElementById('precios_count');
+    if (!tbody) return;
+    if (!rows.length) {
+        tbody.innerHTML = '';
+        if (noMsg) noMsg.style.display = 'block';
+        if (count) count.textContent = '';
+        return;
+    }
+    if (noMsg) noMsg.style.display = 'none';
+    if (count) count.textContent = rows.length.toLocaleString('es-VE') + ' registros';
+    tbody.innerHTML = rows.map(r => `
+        <tr>
+            <td class="ps-3 text-muted fw-bold small">${r.CODIGO || '-'}</td>
+            <td style="font-size:0.88rem;">${r.DESCRIPCIO || '-'}</td>
+            <td class="text-center"><span style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;">${r.CODIGOPRE || '-'}</span></td>
+            <td style="font-size:0.88rem;color:#166534;font-weight:600;">${r.NOMBREPRE || '-'}</td>
+            <td class="text-end pe-3 fw-bold text-pvp">${fmt(r.PRECIO)}</td>
+        </tr>
+    `).join('');
+}
 </script>
 
 {% endblock %}
