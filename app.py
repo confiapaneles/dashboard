@@ -1427,6 +1427,12 @@ def dbf_list():
         return jsonify({"error": str(e)}), 500
     return jsonify(resultado)
 
+@app.route('/debug-session')
+@login_required
+def debug_session():
+    acceso = current_user.acceso
+    return f"acceso={acceso} len={len(acceso)} pos18={acceso[17] if len(acceso)>=18 else 'NO_EXISTE'} permiso18={current_user.tiene_permiso(18)}"
+
 @app.route('/api/admin/dbf-fields', methods=['POST'])
 @login_required
 def dbf_fields():
