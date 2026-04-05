@@ -224,6 +224,8 @@
     </div>
 
     <nav style="padding: 0.75rem 0;">
+
+        <!-- VENTAS — pos 1 -->
         {% if current_user.tiene_permiso(1) %}
         <button class="nav-section {% if p.startswith('/ventas') %}open{% endif %}" onclick="toggleMenu(this, 'menu-ventas')">
             <span><i class="nav-section-icon bi bi-cart-check"></i>Ventas</span>
@@ -233,12 +235,15 @@
             <a class="nav-child-link {% if p == '/ventas' %}active{% endif %}" href="/ventas">
                 <i class="bi bi-bar-chart-line"></i> Panel de Ventas
             </a>
+            {% if current_user.tiene_permiso(2) %}
             <a class="nav-child-link {% if p == '/ventas/cobros-facturas' %}active{% endif %}" href="/ventas/cobros-facturas">
                 <i class="bi bi-receipt-cutoff"></i> Cobros de Facturas
             </a>
+            {% endif %}
         </div>
         {% endif %}
 
+        <!-- COMPRAS — pos 4 -->
         {% if current_user.tiene_permiso(4) %}
         <div class="nav-divider"></div>
         <a class="nav-section-link {% if p.startswith('/compras') %}active{% endif %}" href="/compras">
@@ -246,6 +251,7 @@
         </a>
         {% endif %}
 
+        <!-- INVENTARIO — pos 5 / Kardex — pos 8 -->
         {% if current_user.tiene_permiso(5) %}
         <div class="nav-divider"></div>
         <button class="nav-section {% if p.startswith('/inventario') %}open{% endif %}" onclick="toggleMenu(this, 'menu-inventario')">
@@ -264,6 +270,7 @@
         </div>
         {% endif %}
 
+        <!-- CxC — pos 6 / Cobros de Recibos — pos 2 -->
         {% if current_user.tiene_permiso(6) %}
         <div class="nav-divider"></div>
         <button class="nav-section {% if p.startswith('/cobros') or p.startswith('/cxc') %}open{% endif %}" onclick="toggleMenu(this, 'menu-cxc')">
@@ -274,12 +281,15 @@
             <a class="nav-child-link {% if p == '/cxc' %}active{% endif %}" href="/cxc">
                 <i class="bi bi-clipboard-data"></i> Panel CxC
             </a>
+            {% if current_user.tiene_permiso(2) %}
             <a class="nav-child-link {% if p == '/cobros' %}active{% endif %}" href="/cobros">
                 <i class="bi bi-wallet2"></i> Cobros de Recibos
             </a>
+            {% endif %}
         </div>
         {% endif %}
 
+        <!-- BANCOS — pos 7 -->
         {% if current_user.tiene_permiso(7) %}
         <div class="nav-divider"></div>
         <a class="nav-section-link {% if p.startswith('/bancos') %}active{% endif %}" href="/bancos">
@@ -287,12 +297,14 @@
         </a>
         {% endif %}
 
+        <!-- CxP — pos 9 -->
         {% if current_user.tiene_permiso(9) %}
         <div class="nav-divider"></div>
         <a class="nav-section-link {% if p.startswith('/cxp') %}active{% endif %}" href="/cxp">
             <i class="nav-section-icon bi bi-currency-dollar"></i>Cuentas por Pagar
         </a>
         {% endif %}
+
     </nav>
 </div>
 
