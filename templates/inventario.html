@@ -65,6 +65,14 @@
 
     .filtro-carac-col label { font-size: 0.82rem; font-weight: 600; color: #495057; margin-bottom: 4px; display: block; }
 
+    /* Pestaña Lista de Precios — dropdown no tape la tabla */
+    #precios-pane .ts-dropdown { z-index: 10; }
+    #precios-pane .table-responsive { overflow: visible !important; }
+    #precios-pane .table-responsive { overflow-y: auto !important; overflow-x: auto !important; max-height: 55vh; }
+    #precios-pane { position: relative; z-index: 1; }
+    #precios-pane .row { position: relative; z-index: 5; }
+    #precios_tabla_wrap { position: relative; z-index: 1; margin-top: 8px; }
+
     /* Paginación */
     .paginacion-bar {
         display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
