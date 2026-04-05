@@ -125,7 +125,6 @@
                     </div>
 
                     <!-- FILTROS PRINCIPALES -->
-                    <!-- inv_prod eliminado — Búsqueda General pasa al backend y filtra todo el DBF -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-3 col-sm-6 col-12">
                             <label class="form-label small fw-semibold">Valorizar por</label>
@@ -171,6 +170,14 @@
                     Gráfico por Clasificación
                 </button>
             </li>
+            {% if current_user.tiene_permiso(18) %}
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#precios-pane" type="button"
+                        onclick="cargarPrecios()">
+                    Lista de Precios
+                </button>
+            </li>
+            {% endif %}
         </ul>
         <div class="tab-content">
             <div class="tab-pane fade show active p-3" id="tabla-pane">
@@ -221,10 +228,45 @@
                 </div>
 
             </div>
+
             <div class="tab-pane fade p-4" id="grafico-pane">
                 <h5 class="panel-title mb-4" id="titulo-grafico">Gráfico por Clasificación</h5>
                 <div class="chart-container"><canvas id="chartInvMarca"></canvas></div>
             </div>
+
+            {% if current_user.tiene_permiso(18) %}
+            <div class="tab-pane fade p-3" id="precios-pane">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="panel-title mb-0">Lista de Precios</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="text" id="bus_precios"
+                            placeholder="Buscar código, descripción o nombre precio..."
+                            oninput="filtrarPreciosLocal(this.value)"
+                            style="padding:7px 12px;border:1px solid #dee2e6;border-radius:8px;font-size:0.9rem;width:320px;">
+                        <span id="precios_count" class="text-muted small fw-semibold"></span>
+                    </div>
+                </div>
+                <div class="table-responsive" style="max-height:65vh;">
+                    <table class="table table-hover table-sm mb-0" style="width:100%;">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th class="ps-3">Código</th>
+                                <th>Descripción</th>
+                                <th class="text-center">Cod. Precio</th>
+                                <th>Nombre Precio</th>
+                                <th class="text-end pe-3">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_precios"></tbody>
+                    </table>
+                </div>
+                <div id="no_precios" class="text-center text-muted py-5" style="display:none;">
+                    <i class="bi bi-search" style="font-size:2rem;opacity:0.3;"></i>
+                    <div class="mt-2">Sin resultados</div>
+                </div>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </div>
@@ -294,7 +336,6 @@ function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
     const container = document.getElementById('filtros-container');
 
     if (!caracteristicas || !Object.keys(caracteristicas).length) {
-        // Destruir todos y ocultar solo si no hay caracteristicas
         Object.values(tsCaracs).forEach(ts => ts.destroy());
         tsCaracs = {};
         container.innerHTML = '';
@@ -339,16 +380,13 @@ function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
         } else {
             // Ya existe — actualizar opciones SIN resetear el valor seleccionado
             const ts     = tsCaracs[idx];
-            const actual = ts.getValue();   // guardar selección actual
+            const actual = ts.getValue();
             ts.clearOptions();
             ts.addOption({ value: '', text: 'Todos' });
             valores.filter(v => v.trim()).forEach(v => ts.addOption({ value: v, text: v }));
             ts.refreshOptions(false);
-            // Restaurar selección si el valor sigue disponible en las nuevas opciones
-            if (actual && valores.includes(actual)) {
-                ts.setValue(actual, true);  // true = silencioso, no dispara onChange
-            }
-            // Si no está disponible se queda en vacío (Todos) sin recargar
+            if (actual && valores.includes(actual))
+                ts.setValue(actual, true);
         }
     });
 }
@@ -362,7 +400,6 @@ async function cargarInv(pagina) {
     try {
         const busqueda = document.getElementById('filtro_general').value.trim().toUpperCase();
         const params = {
-            // Búsqueda general pasa al backend — filtra TODO el DBF
             producto:    busqueda,
             valorizar_a: tsValorizar ? (tsValorizar.getValue() || 'costo') : 'costo',
             pagina:      pagina,
@@ -385,17 +422,14 @@ async function cargarInv(pagina) {
 
         const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // Actualizar estado de paginación
         const pag      = d.paginacion || {};
         paginaActual   = pag.pagina        || 1;
         totalPaginas   = pag.total_paginas || 1;
         porPagina      = pag.por_pagina    || 100;
         totalRegistros = pag.total_registros || 0;
 
-        // Guardar permisos globalmente para usar en encabezado y selector
         if (d.permisos_precio) window._permInventario = d.permisos_precio;
 
-        // Actualizar valorizar_a (solo primera vez para no perder selección)
         if (d.nombres_precios) {
             actualizarValorizarA(d.nombres_precios);
 
@@ -408,7 +442,6 @@ async function cargarInv(pagina) {
                     { t: 'DESCRIPCIÓN', c: '' },
                     { t: 'STOCK',       c: 'text-end fw-bold' },
                 ];
-                // Costo solo si tiene permiso
                 if (perm.ver_costo !== false)
                     cols1.push({ t: 'COSTO UNIT.', c: 'text-end text-costo' });
                 cols1.forEach(col => {
@@ -416,13 +449,11 @@ async function cargarInv(pagina) {
                     th.textContent = col.t; th.className = col.c;
                     head.appendChild(th);
                 });
-                // Precios según permisos
                 Object.entries(d.nombres_precios)
                     .sort((a, b) => Number(a[0]) - Number(b[0]))
                     .forEach(([k, nombre]) => {
                         if (!nombre?.trim()) return;
-                        const permKey = 'ver_precio' + k;
-                        if (perm[permKey] === false) return;  // sin permiso — ocultar
+                        if (perm['ver_precio' + k] === false) return;
                         const th = document.createElement('th');
                         th.className = 'text-end text-pvp';
                         th.textContent = nombre.trim();
@@ -449,10 +480,8 @@ async function cargarInv(pagina) {
             }
         }
 
-        // Filtros dinámicos (solo actualizan opciones, no resetean selección)
         actualizarFiltrosCarac(d.caracteristicas, d.filtros_dinamicos);
 
-        // KPIs (sobre TODOS los registros filtrados, no solo la página)
         document.getElementById('t_exi').textContent = Number(d.totales?.existencia || 0).toLocaleString('es-VE');
         document.getElementById('t_art').textContent = Number(d.totales?.articulos  || 0).toLocaleString('es-VE');
         document.getElementById('t_val').textContent = fmt(d.totales?.valor_total   || 0);
@@ -463,7 +492,6 @@ async function cargarInv(pagina) {
         const tGraf = document.getElementById('titulo-grafico');
         if (tGraf) tGraf.textContent = `Gráfico por Clasificación (${labelActual})`;
 
-        // Contador de búsqueda
         const countEl = document.getElementById('filtro_gral_count');
         if (busqueda && totalRegistros > 0) {
             countEl.textContent   = `${totalRegistros.toLocaleString()} resultados`;
@@ -472,7 +500,6 @@ async function cargarInv(pagina) {
             countEl.style.display = 'none';
         }
 
-        // Tabla — solo la página actual
         const perm      = d.permisos_precio || {};
         const precioKeys = Object.entries(d.nombres_precios || {})
             .filter(([k, n]) => n?.trim() && perm['ver_precio' + k] !== false)
@@ -497,14 +524,12 @@ async function cargarInv(pagina) {
             return `<tr>${h}</tr>`;
         }).join('');
 
-        // Gráfico
         renderInvChart(
             'chartInvMarca',
             d.marcas_chart?.map(x => x.MARCA) || [],
             d.marcas_chart?.map(x => x.V)     || []
         );
 
-        // Renderizar controles de paginación
         renderPaginacion();
 
     } catch (err) {
@@ -525,7 +550,6 @@ function renderPaginacion() {
         document.getElementById(`btn_sig_${sufijo}`).disabled = paginaActual >= totalPaginas;
         document.getElementById(`pag_info_${sufijo}`).textContent = info;
 
-        // Botones de páginas (máximo 7 visibles)
         const cont = document.getElementById(`btns_paginas_${sufijo}`);
         cont.innerHTML = '';
         const rango = paginasVisibles(paginaActual, totalPaginas);
@@ -567,17 +591,15 @@ function irPagina(p) {
     p = parseInt(p);
     if (isNaN(p) || p < 1 || p > totalPaginas || p === paginaActual) return;
     cargarInv(p);
-    // Scroll al top de la tabla
     document.getElementById('tabla-pane')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function cambiarPorPagina(val) {
-    porPagina  = parseInt(val);
-    preciosSync = false;   // rehacer encabezados si cambió valorización
+    porPagina   = parseInt(val);
+    preciosSync = false;
     cargarInv(1);
 }
 
-// ── Limpiar búsqueda ──────────────────────────────────────────────────────
 function limpiarFiltroGeneral() {
     const input = document.getElementById('filtro_general');
     input.value = '';
@@ -626,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarInv(1);
 });
 
-// ── PESTAÑA LISTA DE PRECIOS ──────────────────────────────────────────────
+// ── PESTAÑA LISTA DE PRECIOS — pos 18 ────────────────────────────────────
 let _preciosData    = [];
 let _preciosCargado = false;
 
