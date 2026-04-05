@@ -292,29 +292,64 @@ function actualizarValorizarA(nombresPrecios) {
 
 function actualizarFiltrosCarac(caracteristicas, filtrosDinamicos) {
     const container = document.getElementById('filtros-container');
-    container.innerHTML = '';
-    container.style.display = 'none';
-    Object.values(tsCaracs).forEach(ts => ts.destroy());
-    tsCaracs = {};
 
-    if (!caracteristicas || !Object.keys(caracteristicas).length) return;
+    if (!caracteristicas || !Object.keys(caracteristicas).length) {
+        // Destruir todos y ocultar solo si no hay caracteristicas
+        Object.values(tsCaracs).forEach(ts => ts.destroy());
+        tsCaracs = {};
+        container.innerHTML = '';
+        container.style.display = 'none';
+        return;
+    }
+
     container.style.display = 'flex';
+    const idxActuales = Object.keys(caracteristicas);
 
-    Object.entries(caracteristicas).forEach(([idx, nombre]) => {
+    // Destruir los que ya no existen
+    Object.keys(tsCaracs).forEach(idx => {
+        if (!idxActuales.includes(idx)) {
+            tsCaracs[idx].destroy();
+            delete tsCaracs[idx];
+            const col = document.getElementById(`col-carac-${idx}`);
+            if (col) col.remove();
+        }
+    });
+
+    // Crear o actualizar cada filtro CONSERVANDO la selección actual
+    idxActuales.forEach(idx => {
+        const nombre  = caracteristicas[idx];
         const valores = filtrosDinamicos?.[`filtro_carac${idx}`] || [];
-        const col = document.createElement('div');
-        col.className = 'col-md-3 col-sm-6 col-12 filtro-carac-col';
-        col.innerHTML = `<label>${nombre}</label><select id="filtro_carac${idx}"><option value="">Todos</option></select>`;
-        container.appendChild(col);
 
-        const ts = new TomSelect(`#filtro_carac${idx}`, {
-            placeholder: `Buscar ${nombre}...`,
-            allowEmptyOption: true, maxOptions: 200,
-            onChange: () => cargarInv(1)
-        });
-        valores.filter(v => v.trim()).forEach(v => ts.addOption({ value: v, text: v }));
-        ts.refreshOptions(false);
-        tsCaracs[idx] = ts;
+        if (!tsCaracs[idx]) {
+            // Primera vez — crear col y TomSelect
+            const col = document.createElement('div');
+            col.id        = `col-carac-${idx}`;
+            col.className = 'col-md-3 col-sm-6 col-12 filtro-carac-col';
+            col.innerHTML = `<label>${nombre}</label><select id="filtro_carac${idx}"><option value="">Todos</option></select>`;
+            container.appendChild(col);
+
+            const ts = new TomSelect(`#filtro_carac${idx}`, {
+                placeholder: `Buscar ${nombre}...`,
+                allowEmptyOption: true, maxOptions: 200,
+                onChange: () => cargarInv(1)
+            });
+            valores.filter(v => v.trim()).forEach(v => ts.addOption({ value: v, text: v }));
+            ts.refreshOptions(false);
+            tsCaracs[idx] = ts;
+        } else {
+            // Ya existe — actualizar opciones SIN resetear el valor seleccionado
+            const ts     = tsCaracs[idx];
+            const actual = ts.getValue();   // guardar selección actual
+            ts.clearOptions();
+            ts.addOption({ value: '', text: 'Todos' });
+            valores.filter(v => v.trim()).forEach(v => ts.addOption({ value: v, text: v }));
+            ts.refreshOptions(false);
+            // Restaurar selección si el valor sigue disponible en las nuevas opciones
+            if (actual && valores.includes(actual)) {
+                ts.setValue(actual, true);  // true = silencioso, no dispara onChange
+            }
+            // Si no está disponible se queda en vacío (Todos) sin recargar
+        }
     });
 }
 
