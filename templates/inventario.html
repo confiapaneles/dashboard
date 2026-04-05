@@ -264,6 +264,12 @@
                     <i class="bi bi-search" style="font-size:2rem;opacity:0.3;"></i>
                     <div class="mt-2">Sin resultados</div>
                 </div>
+                <!-- Paginación local -->
+                <div id="precios_pag" class="d-flex align-items-center gap-3 mt-3 px-1" style="display:none!important;">
+                    <button id="precios_btn_ant" class="btn btn-sm btn-outline-secondary" onclick="preciosCambiarPag(-1)" disabled>← Anterior</button>
+                    <span id="precios_pag_info" class="text-muted small fw-semibold"></span>
+                    <button id="precios_btn_sig" class="btn btn-sm btn-outline-secondary" onclick="preciosCambiarPag(1)" disabled>Siguiente →</button>
+                </div>
             </div>
             {% endif %}
 
@@ -684,21 +690,46 @@ function filtrarPreciosLocal(texto) {
     renderTablaPrecios(filtrado);
 }
 
+// Paginación local de precios
+let _preciosPagina    = 1;
+const _PRECIOS_X_PAG  = 200;
+let _preciosFiltrados = [];
+
 function renderTablaPrecios(rows) {
+    _preciosFiltrados = rows;
+    _preciosPagina    = 1;
+    _renderPaginaPrecios();
+}
+
+function _renderPaginaPrecios() {
     const fmt   = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    const rows  = _preciosFiltrados;
     const tbody = document.getElementById('tabla_precios');
     const noMsg = document.getElementById('no_precios');
     const count = document.getElementById('precios_count');
+    const pag   = document.getElementById('precios_pag');
     if (!tbody) return;
+
     if (!rows.length) {
         tbody.innerHTML = '';
         if (noMsg) noMsg.style.display = 'block';
         if (count) count.textContent = '';
+        if (pag)   pag.style.display = 'none';
         return;
     }
+
     if (noMsg) noMsg.style.display = 'none';
-    if (count) count.textContent = rows.length.toLocaleString('es-VE') + ' registros';
-    tbody.innerHTML = rows.map(r => `
+
+    const total    = rows.length;
+    const totalPag = Math.ceil(total / _PRECIOS_X_PAG);
+    _preciosPagina = Math.max(1, Math.min(_preciosPagina, totalPag));
+    const inicio   = (_preciosPagina - 1) * _PRECIOS_X_PAG;
+    const fin      = Math.min(inicio + _PRECIOS_X_PAG, total);
+    const pagina   = rows.slice(inicio, fin);
+
+    if (count) count.textContent = `${total.toLocaleString('es-VE')} registros — mostrando ${inicio+1}–${fin}`;
+
+    tbody.innerHTML = pagina.map(r => `
         <tr>
             <td class="ps-3 text-muted fw-bold small">${r.CODIGO || '-'}</td>
             <td style="font-size:0.88rem;">${r.DESCRIPCIO || '-'}</td>
@@ -707,6 +738,20 @@ function renderTablaPrecios(rows) {
             <td class="text-end pe-3 fw-bold text-pvp">${fmt(r.PRECIO)}</td>
         </tr>
     `).join('');
+
+    // Controles de paginación
+    if (pag) {
+        pag.style.display = totalPag > 1 ? 'flex' : 'none';
+        document.getElementById('precios_pag_info').textContent = `Página ${_preciosPagina} de ${totalPag}`;
+        document.getElementById('precios_btn_ant').disabled = _preciosPagina <= 1;
+        document.getElementById('precios_btn_sig').disabled = _preciosPagina >= totalPag;
+    }
+}
+
+function preciosCambiarPag(delta) {
+    _preciosPagina += delta;
+    _renderPaginaPrecios();
+    document.getElementById('precios-pane')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 
