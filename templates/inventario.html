@@ -238,15 +238,13 @@
             <div class="tab-pane fade p-3" id="precios-pane">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h5 class="panel-title mb-0">Lista de Precios</h5>
-                    <div class="d-flex gap-2 align-items-center">
-                        <input type="text" id="bus_precios"
-                            placeholder="Buscar código, descripción o nombre precio..."
-                            oninput="filtrarPreciosLocal(this.value)"
-                            style="padding:7px 12px;border:1px solid #dee2e6;border-radius:8px;font-size:0.9rem;width:320px;">
-                        <span id="precios_count" class="text-muted small fw-semibold"></span>
-                    </div>
+                    <span id="precios_count" class="text-muted small fw-semibold"></span>
                 </div>
-                <div class="table-responsive" style="max-height:65vh;">
+                <div id="precios_hint" class="text-center text-muted py-5">
+                    <i class="bi bi-search" style="font-size:2rem;opacity:0.3;"></i>
+                    <div class="mt-2">Usa la <b>Búsqueda General</b> o los filtros de arriba para buscar un producto,<br>luego vuelve a esta pestaña para ver sus precios.</div>
+                </div>
+                <div class="table-responsive" style="max-height:65vh; display:none;" id="precios_tabla_wrap">
                     <table class="table table-hover table-sm mb-0" style="width:100%;">
                         <thead class="table-light sticky-top">
                             <tr>
@@ -259,16 +257,6 @@
                         </thead>
                         <tbody id="tabla_precios"></tbody>
                     </table>
-                </div>
-                <div id="no_precios" class="text-center text-muted py-5" style="display:none;">
-                    <i class="bi bi-search" style="font-size:2rem;opacity:0.3;"></i>
-                    <div class="mt-2">Sin resultados</div>
-                </div>
-                <!-- Paginación local -->
-                <div id="precios_pag" class="d-flex align-items-center gap-3 mt-3 px-1" style="display:none!important;">
-                    <button id="precios_btn_ant" class="btn btn-sm btn-outline-secondary" onclick="preciosCambiarPag(-1)" disabled>← Anterior</button>
-                    <span id="precios_pag_info" class="text-muted small fw-semibold"></span>
-                    <button id="precios_btn_sig" class="btn btn-sm btn-outline-secondary" onclick="preciosCambiarPag(1)" disabled>Siguiente →</button>
                 </div>
             </div>
             {% endif %}
@@ -655,23 +643,37 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── PESTAÑA LISTA DE PRECIOS — pos 18 ────────────────────────────────────
-let _preciosData    = [];
-let _preciosCargado = false;
+// Usa el mismo filtro de búsqueda general del inventario — no carga todo
 
 async function cargarPrecios() {
-    if (_preciosCargado) return;
+    // Leer búsqueda activa del inventario
+    const busqueda = document.getElementById('filtro_general')?.value.trim().toUpperCase() || '';
+
+    // También leer filtros de clasificación activos
+    const filtrosCarac = {};
+    Object.entries(tsCaracs).forEach(([idx, ts]) => {
+        const v = ts.getValue();
+        if (v) filtrosCarac[idx] = v;
+    });
+
+    if (!busqueda && Object.keys(filtrosCarac).length === 0) {
+        // Sin filtro — mostrar hint
+        document.getElementById('precios_hint').style.display = 'block';
+        document.getElementById('precios_tabla_wrap').style.display = 'none';
+        document.getElementById('precios_count').textContent = '';
+        return;
+    }
+
     showLoading();
     try {
         const resp = await fetch('/api/precios_inventario', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ busqueda: '' })
+            body: JSON.stringify({ busqueda: busqueda })
         });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const d = await resp.json();
-        _preciosData    = d.data || [];
-        _preciosCargado = true;
-        renderTablaPrecios(_preciosData);
+        renderTablaPrecios(d.data || []);
     } catch(e) {
         console.error('Error precios:', e);
     } finally {
@@ -679,57 +681,27 @@ async function cargarPrecios() {
     }
 }
 
-function filtrarPreciosLocal(texto) {
-    const q = texto.trim().toUpperCase();
-    const filtrado = q
-        ? _preciosData.filter(r =>
-            r.CODIGO.includes(q) ||
-            r.DESCRIPCIO.toUpperCase().includes(q) ||
-            r.NOMBREPRE.toUpperCase().includes(q))
-        : _preciosData;
-    renderTablaPrecios(filtrado);
-}
-
-// Paginación local de precios
-let _preciosPagina    = 1;
-const _PRECIOS_X_PAG  = 200;
-let _preciosFiltrados = [];
-
 function renderTablaPrecios(rows) {
-    _preciosFiltrados = rows;
-    _preciosPagina    = 1;
-    _renderPaginaPrecios();
-}
-
-function _renderPaginaPrecios() {
-    const fmt   = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
-    const rows  = _preciosFiltrados;
+    const fmt  = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const tbody = document.getElementById('tabla_precios');
-    const noMsg = document.getElementById('no_precios');
+    const hint  = document.getElementById('precios_hint');
+    const wrap  = document.getElementById('precios_tabla_wrap');
     const count = document.getElementById('precios_count');
-    const pag   = document.getElementById('precios_pag');
     if (!tbody) return;
 
     if (!rows.length) {
-        tbody.innerHTML = '';
-        if (noMsg) noMsg.style.display = 'block';
+        if (hint)  hint.innerHTML = '<i class="bi bi-inbox" style="font-size:2rem;opacity:0.3;"></i><div class="mt-2">Sin precios para el filtro aplicado</div>';
+        if (hint)  hint.style.display = 'block';
+        if (wrap)  wrap.style.display = 'none';
         if (count) count.textContent = '';
-        if (pag)   pag.style.display = 'none';
         return;
     }
 
-    if (noMsg) noMsg.style.display = 'none';
+    if (hint)  hint.style.display = 'none';
+    if (wrap)  wrap.style.display = 'block';
+    if (count) count.textContent = rows.length.toLocaleString('es-VE') + ' registros';
 
-    const total    = rows.length;
-    const totalPag = Math.ceil(total / _PRECIOS_X_PAG);
-    _preciosPagina = Math.max(1, Math.min(_preciosPagina, totalPag));
-    const inicio   = (_preciosPagina - 1) * _PRECIOS_X_PAG;
-    const fin      = Math.min(inicio + _PRECIOS_X_PAG, total);
-    const pagina   = rows.slice(inicio, fin);
-
-    if (count) count.textContent = `${total.toLocaleString('es-VE')} registros — mostrando ${inicio+1}–${fin}`;
-
-    tbody.innerHTML = pagina.map(r => `
+    tbody.innerHTML = rows.map(r => `
         <tr>
             <td class="ps-3 text-muted fw-bold small">${r.CODIGO || '-'}</td>
             <td style="font-size:0.88rem;">${r.DESCRIPCIO || '-'}</td>
@@ -738,20 +710,6 @@ function _renderPaginaPrecios() {
             <td class="text-end pe-3 fw-bold text-pvp">${fmt(r.PRECIO)}</td>
         </tr>
     `).join('');
-
-    // Controles de paginación
-    if (pag) {
-        pag.style.display = totalPag > 1 ? 'flex' : 'none';
-        document.getElementById('precios_pag_info').textContent = `Página ${_preciosPagina} de ${totalPag}`;
-        document.getElementById('precios_btn_ant').disabled = _preciosPagina <= 1;
-        document.getElementById('precios_btn_sig').disabled = _preciosPagina >= totalPag;
-    }
-}
-
-function preciosCambiarPag(delta) {
-    _preciosPagina += delta;
-    _renderPaginaPrecios();
-    document.getElementById('precios-pane')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 
