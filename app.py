@@ -1336,18 +1336,24 @@ def get_compras():
             detalle_producto["monto_total"]        = round(detalle_producto["monto_total"], 2)
             detalle_producto["cantidad_total"]     = round(detalle_producto["cantidad_total"], 2)
 
-        def format_top(dico, label_key):
+        def format_top_monto(dico, label_key):
+            # Incluye registros con monto=0 (notas de entrega sin precio)
             return sorted(
-                [{label_key: k, "V": round(v, 2)} for k, v in dico.items() if v >= 0],
+                [{label_key: k, "V": round(v, 2)} for k, v in dico.items()],
+                key=lambda x: x["V"], reverse=True)[:top_n]
+
+        def format_top_cant(dico, label_key):
+            return sorted(
+                [{label_key: k, "V": round(v, 2)} for k, v in dico.items() if v > 0],
                 key=lambda x: x["V"], reverse=True)[:top_n]
 
         return jsonify({
             "totales":           {k: round(v, 2) for k, v in totales_compra.items()},
             "total_general":     round(total_gral, 2),
-            "proveedores":       format_top(por_proveedor,      "PROVEEDOR"),
-            "productos_monto":   format_top(por_producto_monto, "PRODUCTO"),
-            "productos_unid":    format_top(por_producto_unid,  "PRODUCTO"),
-            "marcas":            format_top(por_marca,          "MARCA"),
+            "proveedores":       format_top_monto(por_proveedor,      "PROVEEDOR"),
+            "productos_monto":   format_top_monto(por_producto_monto, "PRODUCTO"),
+            "productos_unid":    format_top_cant(por_producto_unid,   "PRODUCTO"),
+            "marcas":            format_top_monto(por_marca,          "MARCA"),
             "lista_proveedores": sorted(list(all_proveedores)),
             "lista_productos":   sorted(list(all_productos)),
             "detalle_producto":  detalle_producto,

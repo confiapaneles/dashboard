@@ -143,7 +143,7 @@
                         <div class="col-md-9 col-sm-12 col-12">
                             <label class="form-label small fw-semibold">
                                 <i class="bi bi-search me-1"></i>Búsqueda General
-                                <span style="font-size:0.75rem; color:#9ca3af; font-weight:400; margin-left:4px;">— busca por código, descripción o cualquier clasificación en todos los registros</span>
+                                <span style="font-size:0.75rem; color:#9ca3af; font-weight:400; margin-left:4px;">— aplica a Existencias, Almacenes y Lista de Precios</span>
                                 <span id="filtro_gral_count" style="display:none; font-size:0.75rem; color:#6c757d; margin-left:6px; font-weight:700;"></span>
                             </label>
                             <div style="position:relative;">
@@ -155,6 +155,16 @@
                                     onclick="limpiarFiltroGeneral()"
                                     style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#adb5bd; font-size:0.85rem;"></i>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón Limpiar Filtros — siempre visible en la barra de filtros -->
+                    <div class="row mb-2">
+                        <div class="col-12 d-flex align-items-center gap-3">
+                            <button onclick="limpiarTodosFiltros()" class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;font-size:0.82rem;font-weight:600;">
+                                ✕ Limpiar filtros
+                            </button>
+                            <span id="filtros_activos_badge" class="text-muted small"></span>
                         </div>
                     </div>
 
@@ -188,7 +198,7 @@
             {% endif %}
             <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#almacenes-pane" type="button"
-                        onclick="cargarAlmacenes()">
+                        onclick="cargarAlmacenes(true)">
                     Almacenes
                 </button>
             </li>
@@ -292,27 +302,15 @@
 
             <!-- ── PESTAÑA ALMACENES ── -->
             <div class="tab-pane fade p-3" id="almacenes-pane">
-                <!-- Filtros -->
+                <!-- Filtro de almacén — búsqueda de producto usa el filtro general de arriba -->
                 <div class="row g-3 mb-3 align-items-end">
-                    <div class="col-md-3 col-12">
+                    <div class="col-md-4 col-12">
                         <label class="form-label small fw-semibold">Almacén</label>
                         <select id="sel_almacen_inv"><option value="">Todos los almacenes</option></select>
                     </div>
-                    <div class="col-md-6 col-12">
-                        <label class="form-label small fw-semibold">Buscar Producto</label>
-                        <div style="position:relative;">
-                            <input type="text" id="bus_almacen"
-                                placeholder="Código o descripción..."
-                                oninput="filtrarAlmacenesLocal(this.value)"
-                                style="width:100%;padding:7px 34px 7px 12px;border:1px solid #dee2e6;border-radius:6px;font-size:0.92rem;">
-                            <i class="bi bi-x-lg" id="btn_limpiar_almacen"
-                                onclick="limpiarFiltroAlmacen()"
-                                style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#adb5bd;font-size:0.85rem;"></i>
-                        </div>
-                    </div>
                     <div class="col d-flex align-items-center gap-3">
                         <span id="almacen_count" class="text-muted small fw-semibold"></span>
-                        <button class="btn-limpiar-filtros oculto" id="btn_limpiar_alm" onclick="limpiarAlmacenFiltros()" style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">✕ Limpiar</button>
+                        <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>Usa la <b>Búsqueda General</b> de arriba para filtrar productos</span>
                     </div>
                 </div>
                 <!-- KPIs almacén -->
@@ -702,6 +700,27 @@ function limpiarFiltroGeneral() {
     input.focus();
 }
 
+function limpiarTodosFiltros() {
+    // Limpiar búsqueda general
+    const inp = document.getElementById('filtro_general');
+    if (inp) inp.value = '';
+    const btn = document.getElementById('btn_limpiar_gral');
+    if (btn) btn.style.display = 'none';
+    const count = document.getElementById('filtro_gral_count');
+    if (count) count.style.display = 'none';
+    // Limpiar filtros de clasificación
+    Object.values(tsCaracs).forEach(ts => ts.setValue('', true));
+    // Limpiar filtro de almacén
+    if (tsAlmacenInv) tsAlmacenInv.setValue('', true);
+    // Limpiar filtro de lista de precio
+    if (tsPrecioLista) tsPrecioLista.setValue('', true);
+    // Actualizar badge
+    const badge = document.getElementById('filtros_activos_badge');
+    if (badge) badge.textContent = '';
+    paginaActual = 1;
+    cargarInv(1);
+}
+
 // ── Gráfico ───────────────────────────────────────────────────────────────
 function renderInvChart(id, labels, values) {
     const canvas = document.getElementById(id);
@@ -871,16 +890,16 @@ function initTomSelectAlmacen() {
     });
 }
 
-async function cargarAlmacenes() {
-    if (!_almacenesInit) {
-        await _cargarAlmacenData();
-        _almacenesInit = true;
-    }
+async function cargarAlmacenes(forzar) {
+    // Recargar siempre para reflejar el filtro general activo
+    await _cargarAlmacenData();
+    _almacenesInit = true;
 }
 
 async function _cargarAlmacenData() {
     const almacen  = tsAlmacenInv ? tsAlmacenInv.getValue() : '';
-    const busqueda = (document.getElementById('bus_almacen')?.value || '').trim().toUpperCase();
+    // Reutilizar el filtro general — aplica a todas las pestañas
+    const busqueda = (document.getElementById('filtro_general')?.value || '').trim().toUpperCase();
     showLoading();
     try {
         const resp = await fetch('/api/almacenes', {
@@ -907,31 +926,8 @@ async function _cargarAlmacenData() {
     finally { hideLoading(); }
 }
 
-function filtrarAlmacenesLocal(texto) {
-    const btn = document.getElementById('btn_limpiar_almacen');
-    if (btn) btn.style.display = texto ? 'block' : 'none';
-    actualizarBtnLimpiarAlm();
-    _cargarAlmacenData();
-}
-
-function limpiarFiltroAlmacen() {
-    const inp = document.getElementById('bus_almacen');
-    if (inp) inp.value = '';
-    document.getElementById('btn_limpiar_almacen').style.display = 'none';
-    actualizarBtnLimpiarAlm();
-    _cargarAlmacenData();
-}
-
 function limpiarAlmacenFiltros() {
     if (tsAlmacenInv) tsAlmacenInv.setValue('', true);
-    limpiarFiltroAlmacen();
-}
-
-function actualizarBtnLimpiarAlm() {
-    const hay = (tsAlmacenInv && tsAlmacenInv.getValue() !== '') ||
-                (document.getElementById('bus_almacen')?.value || '') !== '';
-    const btn = document.getElementById('btn_limpiar_alm');
-    if (btn) btn.classList.toggle('oculto', !hay);
 }
 
 function renderTablaAlmacenes(rows, totales) {
