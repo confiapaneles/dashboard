@@ -186,6 +186,12 @@
                 </button>
             </li>
             {% endif %}
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#almacenes-pane" type="button"
+                        onclick="cargarAlmacenes()">
+                    Almacenes
+                </button>
+            </li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane fade show active p-3" id="tabla-pane">
@@ -283,6 +289,76 @@
 
             </div>
             {% endif %}
+
+            <!-- ── PESTAÑA ALMACENES ── -->
+            <div class="tab-pane fade p-3" id="almacenes-pane">
+                <!-- Filtros -->
+                <div class="row g-3 mb-3 align-items-end">
+                    <div class="col-md-3 col-12">
+                        <label class="form-label small fw-semibold">Almacén</label>
+                        <select id="sel_almacen_inv"><option value="">Todos los almacenes</option></select>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <label class="form-label small fw-semibold">Buscar Producto</label>
+                        <div style="position:relative;">
+                            <input type="text" id="bus_almacen"
+                                placeholder="Código o descripción..."
+                                oninput="filtrarAlmacenesLocal(this.value)"
+                                style="width:100%;padding:7px 34px 7px 12px;border:1px solid #dee2e6;border-radius:6px;font-size:0.92rem;">
+                            <i class="bi bi-x-lg" id="btn_limpiar_almacen"
+                                onclick="limpiarFiltroAlmacen()"
+                                style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#adb5bd;font-size:0.85rem;"></i>
+                        </div>
+                    </div>
+                    <div class="col d-flex align-items-center gap-3">
+                        <span id="almacen_count" class="text-muted small fw-semibold"></span>
+                        <button class="btn-limpiar-filtros oculto" id="btn_limpiar_alm" onclick="limpiarAlmacenFiltros()" style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">✕ Limpiar</button>
+                    </div>
+                </div>
+                <!-- KPIs almacén -->
+                <div class="row g-3 mb-3" id="almacen_kpis" style="display:none;">
+                    <div class="col-md-4">
+                        <div class="kpi-box text-center p-3">
+                            <small class="text-muted d-block fw-medium">Artículos</small>
+                            <h5 id="alm_art" class="fw-bold text-dark mb-0">0</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="kpi-box text-center p-3">
+                            <small class="text-muted d-block fw-medium">Stock Total</small>
+                            <h5 id="alm_exi" class="fw-bold text-dark mb-0">0</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="kpi-box text-center p-3 border border-primary">
+                            <small class="text-muted d-block fw-medium">Valor Total</small>
+                            <h5 id="alm_val" class="fw-bold text-primary mb-0">0,00</h5>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tabla -->
+                <div class="table-responsive" style="max-height:60vh;">
+                    <table class="table table-hover table-sm mb-0" style="width:100%;">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th class="ps-3">Almacén</th>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th class="text-end">Existencia</th>
+                                <th class="text-end">Disponible</th>
+                                <th class="text-end">Costo Unit.</th>
+                                <th class="text-end pe-3">Monto Total</th>
+                                <th>Ubicación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_almacenes"></tbody>
+                    </table>
+                </div>
+                <div id="no_almacenes" class="text-center text-muted py-5">
+                    <i class="bi bi-building" style="font-size:2rem;opacity:0.3;"></i>
+                    <div class="mt-2">Selecciona un almacén o busca un producto</div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -781,6 +857,127 @@ function initTomSelectsPrecios() {
         onChange: () => _cargarPreciosFiltrados()
     });
 }
+
+// ── PESTAÑA ALMACENES ─────────────────────────────────────────────────────
+let tsAlmacenInv    = null;
+let _almacenesData  = [];
+let _almacenesInit  = false;
+
+function initTomSelectAlmacen() {
+    tsAlmacenInv = new TomSelect('#sel_almacen_inv', {
+        placeholder: 'Todos los almacenes...',
+        allowEmptyOption: true, maxOptions: 50,
+        onChange: () => { _cargarAlmacenData(); actualizarBtnLimpiarAlm(); }
+    });
+}
+
+async function cargarAlmacenes() {
+    if (!_almacenesInit) {
+        await _cargarAlmacenData();
+        _almacenesInit = true;
+    }
+}
+
+async function _cargarAlmacenData() {
+    const almacen  = tsAlmacenInv ? tsAlmacenInv.getValue() : '';
+    const busqueda = (document.getElementById('bus_almacen')?.value || '').trim().toUpperCase();
+    showLoading();
+    try {
+        const resp = await fetch('/api/almacenes', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ almacen, busqueda })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const d = await resp.json();
+        _almacenesData = d.data || [];
+
+        // Poblar selector de almacenes
+        if (tsAlmacenInv && d.lista_almacenes?.length) {
+            const actual = tsAlmacenInv.getValue();
+            tsAlmacenInv.clearOptions();
+            tsAlmacenInv.addOption({value:'', text:'Todos los almacenes'});
+            d.lista_almacenes.forEach(a => tsAlmacenInv.addOption({value:a, text:a}));
+            tsAlmacenInv.refreshOptions(false);
+            if (actual && d.lista_almacenes.includes(actual)) tsAlmacenInv.setValue(actual, true);
+        }
+
+        renderTablaAlmacenes(_almacenesData, d.totales);
+    } catch(e) { console.error('Error almacenes:', e); }
+    finally { hideLoading(); }
+}
+
+function filtrarAlmacenesLocal(texto) {
+    const btn = document.getElementById('btn_limpiar_almacen');
+    if (btn) btn.style.display = texto ? 'block' : 'none';
+    actualizarBtnLimpiarAlm();
+    _cargarAlmacenData();
+}
+
+function limpiarFiltroAlmacen() {
+    const inp = document.getElementById('bus_almacen');
+    if (inp) inp.value = '';
+    document.getElementById('btn_limpiar_almacen').style.display = 'none';
+    actualizarBtnLimpiarAlm();
+    _cargarAlmacenData();
+}
+
+function limpiarAlmacenFiltros() {
+    if (tsAlmacenInv) tsAlmacenInv.setValue('', true);
+    limpiarFiltroAlmacen();
+}
+
+function actualizarBtnLimpiarAlm() {
+    const hay = (tsAlmacenInv && tsAlmacenInv.getValue() !== '') ||
+                (document.getElementById('bus_almacen')?.value || '') !== '';
+    const btn = document.getElementById('btn_limpiar_alm');
+    if (btn) btn.classList.toggle('oculto', !hay);
+}
+
+function renderTablaAlmacenes(rows, totales) {
+    const fmt  = v => (v||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const tbody = document.getElementById('tabla_almacenes');
+    const noMsg = document.getElementById('no_almacenes');
+    const count = document.getElementById('almacen_count');
+    const kpis  = document.getElementById('almacen_kpis');
+    if (!tbody) return;
+
+    if (!rows.length) {
+        tbody.innerHTML = '';
+        if (noMsg) noMsg.style.display = 'block';
+        if (count) count.textContent = '';
+        if (kpis)  kpis.style.display = 'none';
+        return;
+    }
+    if (noMsg) noMsg.style.display = 'none';
+    if (count) count.textContent = rows.length.toLocaleString('es-VE') + ' registros';
+    if (kpis) {
+        kpis.style.display = 'flex';
+        document.getElementById('alm_art').textContent = (totales?.articulos || 0).toLocaleString('es-VE');
+        document.getElementById('alm_exi').textContent = (totales?.existencia || 0).toLocaleString('es-VE');
+        document.getElementById('alm_val').textContent = fmt(totales?.valor || 0);
+    }
+
+    tbody.innerHTML = rows.map(r => `
+        <tr>
+            <td class="ps-3">
+                <div style="font-size:0.72rem;color:#6b7280;">${r.CODIGOALM||''}</div>
+                <span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:5px;font-size:0.8rem;font-weight:700;">${r.NOMBREALM||'-'}</span>
+            </td>
+            <td class="text-muted fw-bold small">${r.CODIGO||'-'}</td>
+            <td style="font-size:0.88rem;">${r.DESCRIPCIO||'-'}</td>
+            <td class="text-end fw-bold">${(r.EXISTENCIA||0).toLocaleString('es-VE')}</td>
+            <td class="text-end">${(r.DISPONIBLE||0).toLocaleString('es-VE')}</td>
+            <td class="text-end text-costo">${fmt(r.COSTO_UNIT)}</td>
+            <td class="text-end pe-3 fw-bold text-pvp">${fmt(r.MONTO)}</td>
+            <td style="font-size:0.82rem;color:#9ca3af;">${r.UBICACION||'-'}</td>
+        </tr>
+    `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTomSelectAlmacen();
+});
 </script>
 
 {% endblock %}

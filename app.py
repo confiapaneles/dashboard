@@ -1338,7 +1338,7 @@ def get_compras():
 
         def format_top(dico, label_key):
             return sorted(
-                [{label_key: k, "V": round(v, 2)} for k, v in dico.items() if v > 0],
+                [{label_key: k, "V": round(v, 2)} for k, v in dico.items() if v >= 0],
                 key=lambda x: x["V"], reverse=True)[:top_n]
 
         return jsonify({
@@ -1552,6 +1552,69 @@ def debug_session():
     acceso = str(current_user.acceso)
     p18 = current_user.tiene_permiso(3)
     return f"acceso={acceso} len={len(acceso)} pos18={acceso[17] if len(acceso)>=18 else 'NO_EXISTE'} permiso18={p18}"
+
+
+# ─── API: ALMACENES ────────────────────────────────────────────────────────
+@app.route('/api/almacenes', methods=['POST'])
+@login_required
+def get_almacenes():
+    params   = request.json or {}
+    busqueda = (params.get('busqueda') or '').strip().upper()
+    almacen  = (params.get('almacen')  or '').strip().upper()
+
+    data          = []
+    all_almacenes = set()
+    totales       = {"articulos": 0, "existencia": 0.0, "valor": 0.0}
+
+    try:
+        path = get_dbf_path('tablero_almacenes.DBF')
+        if not os.path.exists(path):
+            return jsonify({"error": "Archivo tablero_almacenes.DBF no encontrado"}), 404
+
+        for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
+            cod_alm  = str(rec.get('CODIGOALM', '')).strip()
+            nom_alm  = str(rec.get('NOMBREALM', '')).strip()
+            cod      = str(rec.get('CODIGO',    '')).strip()
+            desc     = str(rec.get('DESCRIPCIO','')).strip()
+            exi      = safe_float(rec.get('EXISTENCIA'))
+            disp     = safe_float(rec.get('DISPONIBLE'))
+            costo_u  = safe_float(rec.get('COSTOUNI'))
+            mont     = safe_float(rec.get('MONTOTOTAL'))
+            ubic     = str(rec.get('UBICACION', '')).strip()
+
+            alm_label = f"{cod_alm} - {nom_alm}" if cod_alm else nom_alm
+            if nom_alm: all_almacenes.add(alm_label)
+
+            if almacen  and alm_label.upper() != almacen.upper() and nom_alm.upper() != almacen.upper(): continue
+            if busqueda and busqueda not in cod.upper() and busqueda not in desc.upper(): continue
+
+            totales["articulos"]  += 1
+            totales["existencia"] += exi
+            totales["valor"]      += mont
+
+            data.append({
+                "CODIGOALM":  cod_alm,
+                "NOMBREALM":  nom_alm,
+                "CODIGO":     cod,
+                "DESCRIPCIO": desc,
+                "EXISTENCIA": round(exi, 2),
+                "DISPONIBLE": round(disp, 2),
+                "COSTO_UNIT": round(costo_u, 4),
+                "MONTO":      round(mont, 2),
+                "UBICACION":  ubic,
+            })
+
+        return jsonify({
+            "status":       "success",
+            "data":         data,
+            "total":        len(data),
+            "totales":      {k: round(v, 2) for k, v in totales.items()},
+            "lista_almacenes": sorted(list(all_almacenes)),
+        })
+    except Exception as e:
+        import traceback
+        print("Error en /api/almacenes:", traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
 port = int(os.environ.get('PORT', 5000))
