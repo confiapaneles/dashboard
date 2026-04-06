@@ -1497,19 +1497,18 @@ def dbf_fields():
 def get_precios_inventario():
     if not current_user.tiene_permiso(3):
         return jsonify({"error": "sin_permiso"}), 403
-    params        = request.json or {}
-    solo_productos = params.get('solo_productos', False)
-    codigo_filtro  = (params.get('codigo') or '').strip().upper()
-    lista_filtro   = (params.get('lista')  or '').strip().upper()
+    params       = request.json or {}
+    solo_listas  = params.get('solo_listas', False)
+    busqueda     = (params.get('busqueda') or '').strip().upper()
+    lista_filtro = (params.get('lista')    or '').strip().upper()
 
     try:
         path = get_dbf_path('tablero_precios.DBF')
         if not os.path.exists(path):
             return jsonify({"error": "Archivo no encontrado"}), 404
 
-        productos_dict = {}   # codigo -> nombre (para el selector)
-        listas_set     = set()
-        data           = []
+        listas_set = set()
+        data       = []
 
         for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
             codigo  = str(rec.get('CODIGO',    '')).strip()
@@ -1518,14 +1517,11 @@ def get_precios_inventario():
             nom_pre = str(rec.get('NOMBREPRE', '')).strip()
             precio  = safe_float(rec.get('PRECIO'))
 
-            if codigo: productos_dict[codigo] = desc
             if nom_pre: listas_set.add(nom_pre)
+            if solo_listas: continue
 
-            if solo_productos:
-                continue   # solo necesitamos productos y listas
-
-            # Filtro por código de producto (match exacto)
-            if codigo_filtro and codigo != codigo_filtro:
+            # Filtro por búsqueda — mismo criterio que el inventario
+            if busqueda and busqueda not in codigo.upper() and busqueda not in desc.upper():
                 continue
             # Filtro por nombre de lista de precio
             if lista_filtro and nom_pre.upper() != lista_filtro:
@@ -1539,16 +1535,8 @@ def get_precios_inventario():
                 "PRECIO":    round(precio, 2),
             })
 
-        if solo_productos:
-            productos = sorted(
-                [{"codigo": k, "nombre": v} for k, v in productos_dict.items()],
-                key=lambda x: x["codigo"]
-            )
-            return jsonify({
-                "status":    "success",
-                "productos": productos,
-                "listas":    sorted(list(listas_set))
-            })
+        if solo_listas:
+            return jsonify({"status": "success", "listas": sorted(list(listas_set))})
 
         return jsonify({"status": "success", "data": data, "total": len(data)})
 

@@ -245,18 +245,17 @@
             {% if current_user.tiene_permiso(3) %}
             <div class="tab-pane fade p-3" id="precios-pane">
 
-                <!-- Filtros independientes de la pestaña de precios -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md-7 col-12">
-                        <label class="form-label small fw-semibold">Producto</label>
-                        <select id="sel_precio_producto"><option value="">— Busca un producto —</option></select>
-                    </div>
+                <!-- Solo filtro de lista de precio — producto viene del filtro general del inventario -->
+                <div class="row g-3 mb-3 align-items-end">
                     <div class="col-md-4 col-12">
                         <label class="form-label small fw-semibold">Lista de Precio</label>
                         <select id="sel_precio_lista"><option value="">Todos los precios</option></select>
                     </div>
-                    <div class="col-md-1 col-12 d-flex align-items-end">
+                    <div class="col d-flex align-items-center gap-3">
                         <span id="precios_count" class="text-muted small fw-semibold"></span>
+                        <span class="text-muted small">
+                            <i class="bi bi-info-circle me-1"></i>El producto se filtra desde la <b>Búsqueda General</b> del inventario
+                        </span>
                     </div>
                 </div>
 
@@ -664,66 +663,63 @@ function renderInvChart(id, labels, values) {
 document.addEventListener('DOMContentLoaded', () => {
     initTomSelects();
     cargarInv(1);
-    initTomSelectsPrecios();   // TomSelects de la pestaña de precios
+    initTomSelectsPrecios();   // TomSelect de lista de precio
 });
 
-// ── PESTAÑA LISTA DE PRECIOS — pos 18 ────────────────────────────────────
-let tsPrecioProducto = null;
-let tsPrecioLista    = null;
-let _todosPrecios    = [];      // cache completo del producto seleccionado
-let _preciosInit     = false;   // flag para cargar productos solo una vez
+// ── PESTAÑA LISTA DE PRECIOS — pos 3 ─────────────────────────────────────
+// Comparte el filtro activo del inventario (Búsqueda General)
+// + TomSelect propio para lista de precio
 
+let tsPrecioLista  = null;
+let _todosPrecios  = [];
+let _preciosInit   = false;
+
+// Llamada desde el tab onclick — sincroniza con filtro activo del inventario
 async function cargarPrecios() {
-    // Cargar lista de productos solo la primera vez
+    // Inicializar TomSelect de lista de precio solo la primera vez
     if (!_preciosInit) {
-        await _cargarProductosPrecios();
+        await _cargarListasPrecios();
         _preciosInit = true;
     }
+    // Usar el filtro activo del inventario
+    await _cargarPreciosFiltrados();
 }
 
-async function _cargarProductosPrecios() {
-    showLoading();
+// Carga los nombres de listas de precio disponibles para el TomSelect
+async function _cargarListasPrecios() {
     try {
-        // Traer lista de productos únicos del DBF de precios
         const resp = await fetch('/api/precios_inventario', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ solo_productos: true })
+            body: JSON.stringify({ solo_listas: true })
         });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        if (!resp.ok) return;
         const d = await resp.json();
-
-        // Poblar TomSelect de producto
-        if (tsPrecioProducto) {
-            tsPrecioProducto.clearOptions();
-            tsPrecioProducto.addOption({value:'', text:'— Busca un producto —'});
-            (d.productos || []).forEach(p => {
-                tsPrecioProducto.addOption({value: p.codigo, text: p.codigo + ' — ' + p.nombre});
-            });
-            tsPrecioProducto.refreshOptions(false);
-        }
-
-        // Poblar TomSelect de lista de precio con todos los nombres únicos
         if (tsPrecioLista) {
             tsPrecioLista.clearOptions();
             tsPrecioLista.addOption({value:'', text:'Todos los precios'});
-            (d.listas || []).forEach(l => {
-                tsPrecioLista.addOption({value: l, text: l});
-            });
+            (d.listas || []).forEach(l => tsPrecioLista.addOption({value:l, text:l}));
             tsPrecioLista.refreshOptions(false);
         }
-    } catch(e) {
-        console.error('Error cargando productos de precios:', e);
-    } finally {
-        hideLoading();
-    }
+    } catch(e) { console.error('Error listas precios:', e); }
 }
 
-async function _cargarPreciosProducto() {
-    const codigo = tsPrecioProducto ? tsPrecioProducto.getValue() : '';
-    const lista  = tsPrecioLista    ? tsPrecioLista.getValue()    : '';
+// Carga precios usando el mismo filtro activo del inventario
+async function _cargarPreciosFiltrados() {
+    // Leer búsqueda activa del inventario
+    const busqueda = (document.getElementById('filtro_general')?.value || '').trim().toUpperCase();
+    // Leer filtros de clasificación activos
+    const filtrosCarac = {};
+    Object.entries(tsCaracs).forEach(([idx, ts]) => {
+        const v = ts.getValue(); if (v) filtrosCarac[idx] = v;
+    });
+    const lista = tsPrecioLista ? tsPrecioLista.getValue() : '';
 
-    if (!codigo) {
+    // Mostrar hint si no hay ningún filtro activo
+    if (!busqueda && Object.keys(filtrosCarac).length === 0) {
+        document.getElementById('precios_hint').innerHTML =
+            '<i class="bi bi-search" style="font-size:2rem;opacity:0.3;"></i>' +
+            '<div class="mt-2">Usa la <b>Búsqueda General</b> del inventario para filtrar productos,<br>luego vuelve aquí para ver sus precios.</div>';
         document.getElementById('precios_hint').style.display = 'block';
         document.getElementById('precios_tabla_wrap').style.display = 'none';
         document.getElementById('precios_count').textContent = '';
@@ -735,14 +731,14 @@ async function _cargarPreciosProducto() {
         const resp = await fetch('/api/precios_inventario', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ codigo: codigo, lista: lista })
+            body: JSON.stringify({ busqueda: busqueda, lista: lista })
         });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const d = await resp.json();
         _todosPrecios = d.data || [];
         renderTablaPrecios(_todosPrecios);
     } catch(e) {
-        console.error('Error cargando precios:', e);
+        console.error('Error precios:', e);
     } finally {
         hideLoading();
     }
@@ -757,7 +753,7 @@ function renderTablaPrecios(rows) {
     if (!tbody) return;
 
     if (!rows.length) {
-        hint.innerHTML = '<i class="bi bi-inbox" style="font-size:2rem;opacity:0.3;"></i><div class="mt-2">Sin precios para este filtro</div>';
+        hint.innerHTML = '<i class="bi bi-inbox" style="font-size:2rem;opacity:0.3;"></i><div class="mt-2">Sin precios para el filtro aplicado</div>';
         hint.style.display = 'block';
         wrap.style.display = 'none';
         count.textContent  = '';
@@ -779,16 +775,10 @@ function renderTablaPrecios(rows) {
 }
 
 function initTomSelectsPrecios() {
-    tsPrecioProducto = new TomSelect('#sel_precio_producto', {
-        placeholder: 'Buscar por código o nombre...',
-        allowEmptyOption: true, maxOptions: 500,
-        searchField: ['text','value'],
-        onChange: () => _cargarPreciosProducto()
-    });
     tsPrecioLista = new TomSelect('#sel_precio_lista', {
         placeholder: 'Todos los precios...',
         allowEmptyOption: true, maxOptions: 50,
-        onChange: () => _cargarPreciosProducto()
+        onChange: () => _cargarPreciosFiltrados()
     });
 }
 </script>
