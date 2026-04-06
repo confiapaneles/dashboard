@@ -114,10 +114,26 @@ def safe_float(value):
         return 0.0
 
 # ─── RUTAS DE NAVEGACIÓN ───────────────────────────────────────────────────
+def primera_pagina_con_permiso():
+    """Redirige al primer módulo que el usuario tiene habilitado."""
+    orden = [
+        (1,  'ventas_page'),
+        (4,  'compras_page'),
+        (5,  'inventario_page'),
+        (6,  'cxc_page'),
+        (7,  'bancos_page'),
+        (9,  'cxp_page'),
+        (8,  'movimientos_inventario_page'),
+    ]
+    for pos, vista in orden:
+        if current_user.tiene_permiso(pos):
+            return redirect(url_for(vista))
+    return redirect(url_for('logout'))   # sin ningún permiso → logout
+
 @app.route('/')
 @login_required
 def index():
-    return redirect(url_for('ventas_page'))
+    return primera_pagina_con_permiso()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -170,7 +186,7 @@ def login():
                             except Exception:
                                 session['bloqueo'] = 0
                                 session['periodo'] = 'M'
-                            return redirect(url_for('ventas_page'))
+                            return primera_pagina_con_permiso()
                     error = "Credenciales incorrectas"
                 except Exception as e:
                     error = f"Error de acceso: {str(e)}"
@@ -194,6 +210,8 @@ def logout():
 @app.route('/ventas')
 @login_required
 def ventas_page():
+    if not current_user.tiene_permiso(1):
+        return primera_pagina_con_permiso()
     return render_template('ventas.html', empresa=current_user.nombre_empresa, bloqueo=session.get('bloqueo',0), periodo=session.get('periodo','M'))
 
 @app.route('/ventas/cobros-facturas')
@@ -1477,7 +1495,7 @@ def dbf_fields():
 @app.route('/api/precios_inventario', methods=['POST'])
 @login_required
 def get_precios_inventario():
-    if not current_user.tiene_permiso(18):
+    if not current_user.tiene_permiso(3):
         return jsonify({"error": "sin_permiso"}), 403
     params        = request.json or {}
     solo_productos = params.get('solo_productos', False)
@@ -1544,7 +1562,7 @@ def get_precios_inventario():
 @login_required
 def debug_session():
     acceso = str(current_user.acceso)
-    p18 = current_user.tiene_permiso(18)
+    p18 = current_user.tiene_permiso(3)
     return f"acceso={acceso} len={len(acceso)} pos18={acceso[17] if len(acceso)>=18 else 'NO_EXISTE'} permiso18={p18}"
 
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
