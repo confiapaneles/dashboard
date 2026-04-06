@@ -30,7 +30,6 @@
         border-color: var(--primary); box-shadow: 0 0 0 3px rgba(230,126,34,0.15); outline: none;
     }
 
-    /* TomSelect — igual al inventario, color naranja para compras */
     .ts-wrapper.single .ts-control {
         padding: 8px 11px; border: 1px solid #d1d5db; border-radius: 8px;
         font-size: 0.92rem; cursor: text; background: white; min-height: unset;
@@ -60,7 +59,6 @@
     .btn-limpiar:hover { background: #fecaca; }
     .btn-limpiar.oculto { display: none; }
 
-    /* Pestañas */
     .tab-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
     .tab-btn {
         padding: 10px 22px; border: none; border-radius: 8px;
@@ -73,7 +71,6 @@
     .card-chart { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; height: 100%; }
     .chart-title { font-size: 1.05rem; font-weight: 700; color: #1f2937; border-left: 5px solid var(--primary); padding-left: 10px; margin-bottom: 12px; }
     .chart-container { position: relative; height: 420px; }
-    .info-tag { background: #fff7ed; color: #7c2d12; padding: 12px; border-radius: 8px; border-left: 5px solid var(--primary); margin: 8px 0; }
 
     #loadingOverlay {
         position: fixed; inset: 0; background: rgba(255,255,255,0.80);
@@ -112,14 +109,12 @@
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
-            <!-- Proveedor TomSelect -->
             <div class="filter-col" style="min-width:200px;">
                 <label>Proveedor</label>
                 <select id="bus_prov">
                     <option value="">Todos los proveedores</option>
                 </select>
             </div>
-            <!-- Producto TomSelect — busca por código O nombre -->
             <div class="filter-col" style="min-width:260px;">
                 <label>Producto <span style="font-weight:400; text-transform:none; font-size:0.75rem; color:#9ca3af;">— código o nombre</span></label>
                 <select id="bus_prod">
@@ -190,8 +185,6 @@
 let inst         = {};
 let tsProv       = null;
 let tsProd       = null;
-let provCargados = false;
-let prodCargados = false;
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
@@ -203,16 +196,16 @@ function debounce(func, wait = 600) {
 }
 const debouncedCargarCompras = debounce(cargarCompras);
 
-// ── Fechas ─────────────────────────────────────────────────────────────────
+// ── Fechas según PERIODO de la empresa ─────────────────────────────────────
 function fechasDefault() {
     const hoy     = new Date();
     const periodo = '{{ periodo | default("M") }}';
-    document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
+    document.getElementById('f_fin').value = hoy.toISOString().split('T')[0];
     if (periodo === 'D') {
-        document.getElementById('fecha_inicio').value = hoy.toISOString().split('T')[0];
+        document.getElementById('f_inicio').value = hoy.toISOString().split('T')[0];
     } else {
         const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-        document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+        document.getElementById('f_inicio').value = primero.toISOString().split('T')[0];
     }
 }
 
@@ -228,10 +221,13 @@ function limpiarFiltros() {
 
 function actualizarBtnLimpiar() {
     const hoy     = new Date();
-    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const periodo = '{{ periodo | default("M") }}';
+    const iniDef  = periodo === 'D'
+        ? hoy.toISOString().split('T')[0]
+        : new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
     const hay =
-        document.getElementById('f_inicio').value !== primero.toISOString().split('T')[0] ||
-        document.getElementById('f_fin').value    !== hoy.toISOString().split('T')[0]     ||
+        document.getElementById('f_inicio').value !== iniDef ||
+        document.getElementById('f_fin').value    !== hoy.toISOString().split('T')[0] ||
         document.getElementById('moneda_comp').value !== 'Bs' ||
         (tsProv && tsProv.getValue() !== '')  ||
         (tsProd && tsProd.getValue() !== '');
@@ -257,13 +253,11 @@ function initTomSelects() {
         onChange: () => { actualizarBtnLimpiar(); cargarCompras(); }
     });
 
-    // Producto: valueField y labelField, searchField busca en código Y nombre
     tsProd = new TomSelect('#bus_prod', {
         placeholder: 'Código o nombre del producto...',
         allowEmptyOption: true, maxOptions: 400,
-        valueField: 'value',
-        labelField:  'label',
-        searchField: ['value', 'label'],   // ← busca en código Y descripción
+        valueField: 'value', labelField: 'label',
+        searchField: ['value', 'label'],
         render: {
             option: (data) => `<div style="display:flex; gap:8px; align-items:baseline;">
                 <span style="font-size:0.78rem; color:#9ca3af; min-width:80px; font-weight:600;">${data.codigo || ''}</span>
@@ -275,7 +269,7 @@ function initTomSelects() {
     });
 }
 
-// ── Poblar selects desde API ───────────────────────────────────────────────
+// ── Poblar selects ─────────────────────────────────────────────────────────
 function poblarProv(lista) {
     if (!tsProv) return;
     const val = tsProv.getValue();
@@ -284,18 +278,14 @@ function poblarProv(lista) {
     lista.forEach(p => { if (p?.trim()) tsProv.addOption({ value: p.trim(), text: p.trim() }); });
     tsProv.refreshOptions(false);
     tsProv.setValue((val && lista.includes(val)) ? val : '', true);
-    provCargados = true;
 }
 
-// Poblar producto con objetos {value, label, codigo, nombre}
-// lista_productos viene del backend como ["COD||NOMBRE", ...]
 function poblarProd(lista) {
     if (!tsProd) return;
     const val = tsProd.getValue();
     tsProd.clearOptions();
     tsProd.addOption({ value: '', label: 'Todos los productos', codigo: '', nombre: 'Todos los productos' });
     lista.forEach(item => {
-        // item puede venir como "COD||NOMBRE" o solo "NOMBRE"
         const partes = item.split('||');
         const codigo = partes.length > 1 ? partes[0].trim() : '';
         const nombre = partes.length > 1 ? partes[1].trim() : partes[0].trim();
@@ -303,7 +293,6 @@ function poblarProd(lista) {
     });
     tsProd.refreshOptions(false);
     tsProd.setValue((val && lista.includes(val)) ? val : '', true);
-    prodCargados = true;
 }
 
 // ── Cargar compras ─────────────────────────────────────────────────────────
@@ -311,16 +300,14 @@ async function cargarCompras() {
     actualizarBtnLimpiar();
     showLoading();
 
-    const monedaSel  = document.getElementById('moneda_comp').value;
-    // El valor del TomSelect de producto es "COD||NOMBRE", enviamos tal cual al backend
-    const prodVal    = tsProd ? (tsProd.getValue() || '') : '';
+    const monedaSel = document.getElementById('moneda_comp').value;
     const params = {
-        moneda:       monedaSel,
-        fecha_inicio: document.getElementById('f_inicio').value,
-        fecha_fin:    document.getElementById('f_fin').value,
-        proveedor:    tsProv ? (tsProv.getValue() || '') : '',
-        producto:     prodVal,
-        top_n:        15,
+        moneda:        monedaSel,
+        fecha_inicio:  document.getElementById('f_inicio').value,
+        fecha_fin:     document.getElementById('f_fin').value,
+        proveedor:     tsProv ? (tsProv.getValue() || '') : '',
+        producto:      tsProd ? (tsProd.getValue() || '') : '',
+        top_n:         15,
         prod_criterio: document.getElementById('criterio_prod')?.value || 'monto'
     };
 
@@ -333,16 +320,13 @@ async function cargarCompras() {
         if (!resp.ok) throw new Error('Error HTTP');
         const d = await resp.json();
 
-        // Total
         const totalSuma = (d.totales?.Contado || 0) + (d.totales?.Crédito || 0) + (d.totales?.Otros || 0);
         document.getElementById('txt_total').textContent =
             totalSuma.toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' ' + monedaSel;
 
-        // Poblar selects desde API (primera carga o si cambian)
         if (d.lista_proveedores?.length) poblarProv(d.lista_proveedores);
         if (d.lista_productos?.length)   poblarProd(d.lista_productos);
 
-        // Gráficos
         renderChart('chartTipo', 'bar',
             ['Contado', 'Crédito', 'Otros'],
             [d.totales?.Contado || 0, d.totales?.Crédito || 0, d.totales?.Otros || 0],
@@ -388,8 +372,7 @@ function renderChart(id, type, labels, values, colores, indexAxis, moneda) {
         data: {
             labels,
             datasets: [{
-                label: id,
-                data: values,
+                label: id, data: values,
                 backgroundColor: colores || defaultPalette,
                 borderWidth:  type === 'pie' ? 2 : 0,
                 borderRadius: type === 'bar' ? 6 : 0,
