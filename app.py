@@ -1570,7 +1570,7 @@ def get_almacenes():
 
     data          = []
     all_almacenes = set()
-    totales       = {"articulos": 0, "existencia": 0.0, "valor": 0.0}
+    totales       = {"almacenes": 0, "disponible": 0.0, "valor": 0.0}
 
     try:
         path = get_dbf_path('tablero_almacenes.DBF')
@@ -1580,6 +1580,7 @@ def get_almacenes():
         for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
             cod_alm  = str(rec.get('CODIGOALM', '')).strip()
             nom_alm  = str(rec.get('NOMBREALM', '')).strip()
+            tipo_alm = str(rec.get('TIPOALM',   '')).strip().upper()
             cod      = str(rec.get('CODIGO',    '')).strip()
             desc     = str(rec.get('DESCRIPCIO','')).strip()
             exi      = safe_float(rec.get('EXISTENCIA'))
@@ -1594,13 +1595,14 @@ def get_almacenes():
             if almacen  and alm_label.upper() != almacen.upper() and nom_alm.upper() != almacen.upper(): continue
             if busqueda and busqueda not in cod.upper() and busqueda not in desc.upper(): continue
 
-            totales["articulos"]  += 1
-            totales["existencia"] += exi
+            totales["almacenes"] += 1
+            totales["disponible"] += disp
             totales["valor"]      += mont
 
             data.append({
                 "CODIGOALM":  cod_alm,
                 "NOMBREALM":  nom_alm,
+                "TIPOALM":    tipo_alm,   # 'M' = Movimiento, 'C' = Consulta
                 "CODIGO":     cod,
                 "DESCRIPCIO": desc,
                 "EXISTENCIA": round(exi, 2),
