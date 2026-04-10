@@ -874,7 +874,7 @@ def get_inventario():
     ver_costo   = current_user.tiene_permiso(15)
 
     data_tabla = []
-    totales = {"articulos": 0, "existencia": 0.0, "valor_total": 0.0, "kilos": 0.0}
+    totales = {"articulos": 0, "existencia": 0.0, "valor_total": 0.0, "peso_total": 0.0}
     por_marca           = defaultdict(float)
     nombres_precios     = {"1": "Precio 1", "2": "Precio 2", "3": "Precio 3"}
     nombres_carac       = {}
@@ -912,9 +912,10 @@ def get_inventario():
             for i in '1234':
                 if str(rec.get(f'CARAC{i}', '')).strip(): has_carac[i] = True
 
-            existencia = safe_float(rec.get('EXISTENCIA'))
-            monto      = safe_float(rec.get('MONTO'))
-            kilos      = safe_float(rec.get('KILOS'))
+            existencia    = safe_float(rec.get('EXISTENCIA'))
+            monto         = safe_float(rec.get('MONTO'))
+            peso          = safe_float(rec.get('PESO'))
+            total_empaque = round(peso * existencia, 4)
             precio1    = safe_float(rec.get('PRECIO1'))
             precio2    = safe_float(rec.get('PRECIO2'))
             precio3    = safe_float(rec.get('PRECIO3'))
@@ -930,12 +931,12 @@ def get_inventario():
             totales["articulos"]   += 1
             totales["existencia"]  += existencia
             totales["valor_total"] += valor_total_item
-            totales["kilos"]       += kilos
+            totales["peso_total"]  += peso
             por_marca[str(rec.get('CARAC1', 'Sin marca')).strip()] += valor_total_item
 
             item = {
                 "CODIGO": codigo, "DESCRIPCION": desc, "EXISTENCIA": existencia,
-                "VALOR_TOTAL": round(valor_total_item, 2), "TOTAL_EMPAQUE": kilos,
+                "VALOR_TOTAL": round(valor_total_item, 2), "TOTAL_EMPAQUE": total_empaque,
             }
             if ver_costo:   item["COSTO_UNITARIO"] = round(costo_unitario, 4)
             if ver_precio1: item["PRECIO1"] = precio1
@@ -972,7 +973,7 @@ def get_inventario():
                 "articulos":   totales["articulos"],
                 "existencia":  round(totales["existencia"], 2),
                 "valor_total": round(totales["valor_total"], 2),
-                "kilos":       round(totales["kilos"], 2)
+                "peso_total":  round(totales["peso_total"], 2)
             },
             "tabla": pagina_data,
             "paginacion": {
