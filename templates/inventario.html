@@ -65,6 +65,53 @@
 
     .filtro-carac-col label { font-size: 0.82rem; font-weight: 600; color: #495057; margin-bottom: 4px; display: block; }
 
+    /* ── RESPONSIVE INVENTARIO ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .container-fluid.py-3 { padding: 0.4rem !important; }
+        .card-body.p-4 { padding: 12px !important; }
+        /* KPIs — 2 por fila */
+        .col-md-3, .col-md-4 { flex: 0 0 50%; max-width: 50%; }
+        /* Filtros principales */
+        .col-md-3.col-sm-6, .col-md-9.col-sm-12 { flex: 0 0 100%; max-width: 100%; }
+        /* Filtros dinámicos de clasificación */
+        #filtros-container .col-md-3 { flex: 0 0 100%; max-width: 100%; }
+        /* Pestañas */
+        .inventario-tabs .nav-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .inventario-tabs .nav-tabs::-webkit-scrollbar { display: none; }
+        .inventario-tabs .nav-link { padding: 0.6rem 0.8rem !important; font-size: 0.75rem !important; white-space: nowrap; flex-shrink: 0; }
+        .inventario-tabs .tab-content { padding: 0.5rem !important; min-height: 300px !important; }
+        /* Tabla inventario — scroll horizontal */
+        .table-responsive { max-height: 55vh !important; }
+        .table td, .table th { font-size: 0.72rem !important; padding: 0.35rem 0.5rem !important; }
+        /* Paginación */
+        .paginacion-bar { gap: 4px !important; font-size: 0.78rem !important; flex-wrap: wrap !important; }
+        .paginacion-bar button { padding: 4px 8px !important; font-size: 0.75rem !important; }
+        .por-pagina-wrap { display: none; }
+        /* Gráfico */
+        .chart-container { height: 280px !important; max-width: 100% !important; }
+        /* Panel title */
+        .panel-title { font-size: 1rem !important; }
+        h4.mb-0 { font-size: clamp(0.9rem, 3vw, 1.1rem) !important; }
+        /* Búsqueda general */
+        #filtro_general { font-size: 0.88rem !important; }
+        /* KPIs de almacenes */
+        #almacen_kpis .col-md-4 { flex: 0 0 100%; max-width: 100%; margin-bottom: 6px; }
+        /* Selector valorizar */
+        .col-md-3 select { font-size: 0.85rem; }
+    }
+    @media (max-width: 480px) {
+        .inventario-tabs .nav-link { padding: 0.5rem 0.65rem !important; font-size: 0.7rem !important; }
+        .col-md-3, .col-md-4 { flex: 0 0 100%; max-width: 100%; }
+        .chart-container { height: 220px !important; }
+        .paginacion-bar { justify-content: center; }
+        #btns_paginas_top, #btns_paginas_bot { display: none; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .inventario-tabs .nav-link { padding: 0.7rem 1.2rem !important; font-size: 0.82rem !important; }
+        .chart-container { height: 380px !important; }
+        .col-md-3 { flex: 0 0 50%; max-width: 50%; }
+    }
+
     /* Pestaña Lista de Precios — dropdown no tape la tabla */
     #precios-pane .ts-dropdown { z-index: 10; }
     #precios-pane .table-responsive { overflow: visible !important; }

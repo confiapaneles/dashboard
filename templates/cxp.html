@@ -87,6 +87,54 @@
         align-items: center; justify-content: center;
     }
     .loading-content { text-align: center; background: white; padding: 2.5rem 4rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .dashboard-wrapper { padding: 0 8px !important; }
+        .filter-card { padding: 12px !important; margin-bottom: 12px !important; }
+        .filter-row { flex-direction: column !important; gap: 8px !important; }
+        .filter-col, .filter-col.select-col, .filter-col.text-col {
+            min-width: 100% !important; max-width: 100% !important;
+            flex: none !important; flex-basis: 100% !important;
+        }
+        .total-kpi { font-size: 1.3rem !important; padding: 5px 10px !important; white-space: normal !important; }
+        .tab-navigation {
+            flex-wrap: nowrap !important; overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch; padding-bottom: 4px;
+            gap: 5px !important; scrollbar-width: none;
+        }
+        .tab-navigation::-webkit-scrollbar { display: none; }
+        .tab-btn { white-space: nowrap !important; padding: 8px 12px !important; font-size: 0.78rem !important; flex-shrink: 0; }
+        .tab-btn.active, .tab-btn:hover { transform: none !important; }
+        .chart-container { height: 240px !important; }
+        .card-chart, .card-kpi { padding: 12px !important; margin-bottom: 12px !important; }
+        .chart-title { font-size: 0.95rem !important; }
+        .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+        .kpi-value { font-size: 1.1rem !important; }
+        .kpi-monto { font-size: 1rem !important; }
+        h4.fw-bold { font-size: clamp(0.95rem, 3vw, 1.2rem) !important; }
+        .row.g-4 { --bs-gutter-x: 0.5rem; --bs-gutter-y: 0.5rem; }
+        .btn-limpiar { padding: 6px 12px !important; font-size: 0.78rem !important; }
+        /* Tablas */
+        .table-responsive { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+        .table td, .table th { font-size: 0.75rem !important; padding: 0.4rem 0.5rem !important; }
+        /* Ocultar columnas menos importantes en móvil */
+        .col-hide-mobile { display: none !important; }
+        /* Tom Select */
+        .ts-wrapper.single .ts-control { font-size: 0.85rem !important; padding: 7px 10px !important; }
+    }
+    @media (max-width: 480px) {
+        .chart-container { height: 200px !important; }
+        .kpi-grid { grid-template-columns: 1fr 1fr !important; }
+        .tab-btn { padding: 7px 10px !important; font-size: 0.74rem !important; }
+        .total-kpi { font-size: 1.1rem !important; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .filter-row { flex-wrap: wrap !important; }
+        .filter-col { min-width: 45% !important; flex: 1 1 45% !important; }
+        .chart-container { height: 320px !important; }
+        .tab-btn { padding: 9px 16px !important; font-size: 0.83rem !important; }
+    }
 </style>
 
 <div class="dashboard-wrapper">
@@ -99,8 +147,8 @@
             <div class="filter-col">
                 <label>Moneda</label>
                 <select id="moneda" onchange="cargarCxP()">
-                    <option value="Bs">Bolivares (Bs)</option>
-                    <option value="USD">Dolares (USD)</option>
+                    <option value="Bs">Bolívares (Bs)</option>
+                    <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
             <div class="filter-col" style="flex-grow: 2; min-width: 350px;">
@@ -110,7 +158,7 @@
                     oninput="aplicarBusqueda()">
                 <span class="filtro-info" id="filtro_info_cxp"></span>
             </div>
-            <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">x Limpiar filtros</button>
+            <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
         </div>
     </div>
 
@@ -148,8 +196,8 @@
                             <th>Responsable</th>
                             <th>Documento</th>
                             <th class="fecha-col">Fecha</th>
-                            <th class="text-center">Dias Venc.</th>
-                            <th class="text-end pe-3" id="th_saldo_cxp">Saldo Pendiente (Bs)</th>
+                            <th class="text-center">Días Venc.</th>
+                            <th class="text-end pe-3">Saldo Pendiente</th>
                         </tr>
                     </thead>
                     <tbody id="tabla_cxp"></tbody>
@@ -173,14 +221,6 @@ let dataCache     = null;
 let tablaFiltrada = [];
 
 const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-// FIX: fechas dd/mm/yyyy
-function fmtFecha(f) {
-    if (!f || f === '-') return '-';
-    const p = String(f).split('-');
-    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-    return f;
-}
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
@@ -216,13 +256,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 async function cargarCxP() {
     actualizarBtnLimpiar();
     showLoading();
-    const moneda = document.getElementById('moneda').value;
-    // FIX: actualizar encabezado de columna con la moneda
-    document.getElementById('th_saldo_cxp').textContent = 'Saldo Pendiente (' + moneda + ')';
     try {
-        const params = { moneda: moneda };
+        const params = { moneda: document.getElementById('moneda').value };
         const r = await fetch('/api/cartera_cxp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
         dataCache = await r.json();
         aplicarBusqueda();
     } catch (e) { console.error('Error CxP:', e); }
@@ -241,7 +278,7 @@ function aplicarBusqueda() {
                 .some(val => String(val || '').toLowerCase().includes(bus))
         );
         inputEl.classList.add('activo');
-        infoEl.textContent = tablaFiltrada.length + ' registros de ' + dataCache.tabla.length;
+        infoEl.textContent = `${tablaFiltrada.length} registros de ${dataCache.tabla.length}`;
         infoEl.classList.add('visible');
     } else {
         tablaFiltrada = [...dataCache.tabla];
@@ -250,10 +287,8 @@ function aplicarBusqueda() {
     }
     actualizarBtnLimpiar();
 
-    const moneda = document.getElementById('moneda').value;
     const totalFiltrado = tablaFiltrada.reduce((s, r) => s + (r.SALDO || 0), 0);
-    // FIX: mostrar moneda en el KPI total
-    document.getElementById('total_cxp').textContent = fmt(totalFiltrado) + ' ' + moneda;
+    document.getElementById('total_cxp').textContent = fmt(totalFiltrado);
 
     const tabActiva = document.querySelector('.tab-btn.active')?.dataset.tab;
     if (tabActiva === 'tab_resumen') renderResumen(tablaFiltrada);
@@ -281,12 +316,10 @@ function renderResumen(rows) {
     const gruposDict = {};
     rows.forEach(row => { const g = row.GRUPO || 'Sin Grupo'; gruposDict[g] = (gruposDict[g] || 0) + (row.SALDO || 0); });
     const grupos = Object.entries(gruposDict).filter(([, v]) => Math.abs(v) > 0.01).sort((a, b) => b[1] - a[1]);
-    const moneda = document.getElementById('moneda').value;
 
-    document.getElementById('titulo_envej_cxp').textContent = bus ? 'Vencimiento de Pagos - Filtrado: "' + bus + '"' : 'Vencimiento de Pagos';
-    // FIX: moneda en grupos
+    document.getElementById('titulo_envej_cxp').textContent = bus ? `Vencimiento de Pagos — Filtrado: "${bus}"` : 'Vencimiento de Pagos';
     document.getElementById('resumen_grupos').innerHTML = grupos.length
-        ? grupos.map(([k, v]) => '<div class="grupo-item"><span class="grupo-nombre">' + k + '</span><span class="grupo-monto">' + fmt(v) + ' ' + moneda + '</span></div>').join('')
+        ? grupos.map(([k, v]) => `<div class="grupo-item"><span class="grupo-nombre">${k}</span><span class="grupo-monto">${fmt(v)}</span></div>`).join('')
         : '<p class="text-muted text-center p-3">Sin datos para el filtro aplicado</p>';
 
     if (chartEnvejCxp) { chartEnvejCxp.destroy(); chartEnvejCxp = null; }
@@ -300,16 +333,15 @@ function renderResumen(rows) {
 }
 
 function renderTabla(rows) {
-    const moneda = document.getElementById('moneda').value;
     document.getElementById('tabla_cxp').innerHTML = (rows || []).map(row => `
         <tr>
             <td class="ps-3"><small class="text-muted fw-bold">${row.GRUPO || '-'}</small></td>
             <td>${row.PROVEEDOR || '-'}</td>
             <td><small>${row.VENDEDOR || '-'}</small></td>
             <td><span class="badge badge-doc">${row.DOCUMENTO || '-'}</span></td>
-            <td class="fecha-col">${fmtFecha(row.FECHA)}</td>
+            <td class="fecha-col">${row.FECHA || '-'}</td>
             <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS || 0}</td>
-            <td class="text-end fw-bold pe-3">${fmt(row.SALDO)} ${moneda}</td>
+            <td class="text-end fw-bold pe-3">${fmt(row.SALDO)}</td>
         </tr>`).join('');
 }
 

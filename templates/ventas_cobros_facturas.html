@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
 <style>
     :root {
         --vcf-primary: #27ae60;
@@ -87,31 +84,6 @@
         white-space: nowrap;
     }
 
-    /* Tom Select overrides — color verde para este panel */
-    .ts-wrapper.single .ts-control {
-        padding: 8px 11px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.92rem;
-        background: white;
-        cursor: text;
-    }
-    .ts-wrapper.single.focus .ts-control {
-        border-color: var(--vcf-primary);
-        box-shadow: 0 0 0 3px rgba(39,174,96,0.15);
-    }
-    .ts-dropdown {
-        border-radius: 8px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        border: 1px solid #d1d5db;
-        font-size: 0.9rem;
-    }
-    .ts-dropdown .option { padding: 9px 14px; }
-    .ts-dropdown .option:hover,
-    .ts-dropdown .option.active { background: #f0fdf4; color: #166534; }
-    .ts-dropdown-content { max-height: 260px; }
-    .ts-wrapper { width: 100%; }
-
     #loadingOverlay {
         position: fixed; inset: 0; background: rgba(255,255,255,0.80);
         backdrop-filter: blur(4px); z-index: 9999; display: none;
@@ -122,6 +94,54 @@
         border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 320px;
     }
     .loading-content .spinner-border { width: 3rem; height: 3rem; }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .dashboard-wrapper { padding: 0 8px !important; }
+        .filter-card { padding: 12px !important; margin-bottom: 12px !important; }
+        .filter-row { flex-direction: column !important; gap: 8px !important; }
+        .filter-col, .filter-col.select-col, .filter-col.text-col {
+            min-width: 100% !important; max-width: 100% !important;
+            flex: none !important; flex-basis: 100% !important;
+        }
+        .total-kpi { font-size: 1.3rem !important; padding: 5px 10px !important; white-space: normal !important; }
+        .tab-navigation {
+            flex-wrap: nowrap !important; overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch; padding-bottom: 4px;
+            gap: 5px !important; scrollbar-width: none;
+        }
+        .tab-navigation::-webkit-scrollbar { display: none; }
+        .tab-btn { white-space: nowrap !important; padding: 8px 12px !important; font-size: 0.78rem !important; flex-shrink: 0; }
+        .tab-btn.active, .tab-btn:hover { transform: none !important; }
+        .chart-container { height: 240px !important; }
+        .card-chart, .card-kpi { padding: 12px !important; margin-bottom: 12px !important; }
+        .chart-title { font-size: 0.95rem !important; }
+        .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+        .kpi-value { font-size: 1.1rem !important; }
+        .kpi-monto { font-size: 1rem !important; }
+        h4.fw-bold { font-size: clamp(0.95rem, 3vw, 1.2rem) !important; }
+        .row.g-4 { --bs-gutter-x: 0.5rem; --bs-gutter-y: 0.5rem; }
+        .btn-limpiar { padding: 6px 12px !important; font-size: 0.78rem !important; }
+        /* Tablas */
+        .table-responsive { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+        .table td, .table th { font-size: 0.75rem !important; padding: 0.4rem 0.5rem !important; }
+        /* Ocultar columnas menos importantes en móvil */
+        .col-hide-mobile { display: none !important; }
+        /* Tom Select */
+        .ts-wrapper.single .ts-control { font-size: 0.85rem !important; padding: 7px 10px !important; }
+    }
+    @media (max-width: 480px) {
+        .chart-container { height: 200px !important; }
+        .kpi-grid { grid-template-columns: 1fr 1fr !important; }
+        .tab-btn { padding: 7px 10px !important; font-size: 0.74rem !important; }
+        .total-kpi { font-size: 1.1rem !important; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .filter-row { flex-wrap: wrap !important; }
+        .filter-col { min-width: 45% !important; flex: 1 1 45% !important; }
+        .chart-container { height: 320px !important; }
+        .tab-btn { padding: 9px 16px !important; font-size: 0.83rem !important; }
+    }
 </style>
 
 <div class="dashboard-wrapper">
@@ -147,17 +167,16 @@
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
-            <!-- Caja: Tom Select searchable -->
+            <!-- ✅ Mismo patrón que cobros.html — select poblado desde API -->
             <div class="filter-col">
                 <label>Caja / Punto</label>
-                <select id="caja">
+                <select id="caja" onchange="cargarDatos()">
                     <option value="TODAS">Todas las cajas</option>
                 </select>
             </div>
-            <!-- Forma de Pago: Tom Select searchable -->
             <div class="filter-col">
                 <label>Forma de Pago</label>
-                <select id="forma_pago">
+                <select id="forma_pago" onchange="cargarDatos()">
                     <option value="TODAS">Todas</option>
                     <option value="EFECTIVO">Efectivo</option>
                     <option value="TRANSFERENCIA">Transferencia</option>
@@ -170,18 +189,10 @@
                     <option value="OTRO">Otro</option>
                 </select>
             </div>
-            <!-- Vendedor: Tom Select searchable -->
             <div class="filter-col">
                 <label>Vendedor</label>
-                <select id="filtro_vendedor">
+                <select id="filtro_vendedor" onchange="cargarDatos()">
                     <option value="TODOS">Todos</option>
-                </select>
-            </div>
-            <!-- Cliente: Tom Select searchable -->
-            <div class="filter-col">
-                <label>Cliente</label>
-                <select id="filtro_cliente">
-                    <option value="TODAS">Todos los clientes</option>
                 </select>
             </div>
             <div class="filter-col" style="max-width:130px;">
@@ -266,22 +277,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-let charts  = {};
-let tsCaja    = null;
-let tsForma   = null;
-let tsVend    = null;
-let tsCliente = null;
+let charts = {};
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
-function hideLoading()  { loadingOverlay.style.display = 'none'; }
-
-function fmtFecha(f) {
-    if (!f || f === '-') return '-';
-    const p = String(f).split('-');
-    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-    return f;
-}
+function hideLoading() { loadingOverlay.style.display = 'none'; }
 
 function debounce(func, wait = 600) {
     let t;
@@ -289,107 +289,40 @@ function debounce(func, wait = 600) {
 }
 const debouncedCargarDatos = debounce(cargarDatos);
 
+// ✅ Mismo patrón que cobros.html
 function fechasDefault() {
-    const hoy = new Date();
+    const hoy     = new Date();
+    const periodo = '{{ periodo | default("M") }}';
     document.getElementById('fecha_fin').value = hoy.toISOString().split('T')[0];
-    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
-}
-
-// ── Inicializar Tom Selects ───────────────────────────────────────────────
-function initTomSelects() {
-    tsCaja = new TomSelect('#caja', {
-        allowEmptyOption: false,
-        placeholder: 'Buscar caja...',
-        maxOptions: 100,
-        onChange: () => cargarDatos()
-    });
-
-    tsForma = new TomSelect('#forma_pago', {
-        allowEmptyOption: false,
-        placeholder: 'Buscar forma de pago...',
-        onChange: () => cargarDatos()
-    });
-
-    tsVend = new TomSelect('#filtro_vendedor', {
-        allowEmptyOption: false,
-        placeholder: 'Buscar vendedor...',
-        maxOptions: 200,
-        onChange: () => cargarDatos()
-    });
-
-    tsCliente = new TomSelect('#filtro_cliente', {
-        allowEmptyOption: false,
-        placeholder: 'Buscar cliente...',
-        maxOptions: 300,
-        searchField: ['text', 'value'],
-        onChange: () => cargarDatos()
-    });
-}
-
-// ── Poblar cajas desde API ────────────────────────────────────────────────
-function poblarCajas(lista) {
-    if (!tsCaja || !lista?.length) return;
-    const actual = tsCaja.getValue();
-    tsCaja.clearOptions();
-    tsCaja.addOption({ value: 'TODAS', text: 'Todas las cajas' });
-    lista.forEach(c => {
-        if (c?.trim()) tsCaja.addOption({ value: c.trim(), text: c.trim() });
-    });
-    tsCaja.refreshOptions(false);
-    tsCaja.setValue(actual && lista.includes(actual) ? actual : 'TODAS', true);
-}
-
-// ── Poblar vendedores desde API ───────────────────────────────────────────
-function poblarVendedores(lista) {
-    if (!tsVend || !lista?.length) return;
-    const actual = tsVend.getValue();
-    tsVend.clearOptions();
-    tsVend.addOption({ value: 'TODOS', text: 'Todos' });
-    lista.forEach(v => {
-        if (v?.trim() && v !== 'TODOS')
-            tsVend.addOption({ value: v.trim().toUpperCase(), text: v.trim() });
-    });
-    tsVend.refreshOptions(false);
-    tsVend.setValue(actual || 'TODOS', true);
-}
-
-// ── Poblar clientes desde API ─────────────────────────────────────────────
-function poblarClientes(lista) {
-    if (!tsCliente || !lista?.length) return;
-    const actual = tsCliente.getValue();
-    tsCliente.clearOptions();
-    tsCliente.addOption({ value: 'TODAS', text: 'Todos los clientes' });
-    lista.forEach(c => {
-        if (c?.trim()) tsCliente.addOption({ value: c.trim().toUpperCase(), text: c.trim() });
-    });
-    tsCliente.refreshOptions(false);
-    tsCliente.setValue(actual && lista.map(x=>x.trim().toUpperCase()).includes(actual) ? actual : 'TODAS', true);
+    if (periodo === 'D') {
+        document.getElementById('fecha_inicio').value = hoy.toISOString().split('T')[0];
+    } else {
+        const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    }
 }
 
 function limpiarFiltros() {
     fechasDefault();
-    document.getElementById('moneda').value = 'Bs';
-    document.getElementById('top_n').value  = '10';
-    if (tsCaja)     tsCaja.setValue('TODAS', true);
-    if (tsForma)    tsForma.setValue('TODAS', true);
-    if (tsVend)     tsVend.setValue('TODOS', true);
-    if (tsCliente)  tsCliente.setValue('TODAS', true);
+    document.getElementById('moneda').value          = 'Bs';
+    document.getElementById('caja').value            = 'TODAS';
+    document.getElementById('forma_pago').value      = 'TODAS';
+    document.getElementById('filtro_vendedor').value = 'TODOS';
+    document.getElementById('top_n').value           = '10';
     actualizarBtnLimpiar();
     cargarDatos();
 }
 
 function actualizarBtnLimpiar() {
-    const hoy     = new Date();
+    const hoy    = new Date();
     const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     const hayFiltro =
         document.getElementById('fecha_inicio').value !== primero.toISOString().split('T')[0] ||
-        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0] ||
-        (tsCaja    && tsCaja.getValue()    !== 'TODAS') ||
-        (tsForma   && tsForma.getValue()   !== 'TODAS') ||
-        (tsVend    && tsVend.getValue()    !== 'TODOS') ||
-        (tsCliente && tsCliente.getValue() !== 'TODAS') ||
-        document.getElementById('top_n').value !== '10';
+        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0]     ||
+        document.getElementById('caja').value         !== 'TODAS' ||
+        document.getElementById('forma_pago').value   !== 'TODAS' ||
+        document.getElementById('filtro_vendedor').value !== 'TODOS' ||
+        document.getElementById('top_n').value        !== '10';
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -410,10 +343,9 @@ async function cargarDatos() {
         fecha_inicio: document.getElementById('fecha_inicio').value,
         fecha_fin:    document.getElementById('fecha_fin').value,
         moneda:       document.getElementById('moneda').value,
-        caja:         tsCaja    ? tsCaja.getValue()    : 'TODAS',
-        forma_pago:   tsForma  ? tsForma.getValue()  : 'TODAS',
-        vendedor:     tsVend   ? tsVend.getValue()   : 'TODOS',
-        cliente:      tsCliente? tsCliente.getValue(): 'TODAS',
+        caja:         document.getElementById('caja').value,
+        forma_pago:   document.getElementById('forma_pago').value,
+        vendedor:     document.getElementById('filtro_vendedor').value,
         top_n:        parseInt(document.getElementById('top_n').value)
     };
 
@@ -426,16 +358,35 @@ async function cargarDatos() {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
 
-        // Poblar selectores con datos del API
-        if (data.lista_cajas?.length)      poblarCajas(data.lista_cajas);
-        if (data.lista_vendedores?.length)  poblarVendedores(data.lista_vendedores);
-        if (data.lista_clientes?.length)    poblarClientes(data.lista_clientes);
+        // ✅ Poblar cajas solo la primera vez — igual a cobros.html
+        const selCaja = document.getElementById('caja');
+        if (selCaja.options.length === 1 && data.lista_cajas?.length) {
+            data.lista_cajas.forEach(c => {
+                if (c?.trim()) {
+                    const opt = document.createElement('option');
+                    opt.value = c; opt.textContent = c;
+                    selCaja.appendChild(opt);
+                }
+            });
+        }
+
+        // Poblar vendedores (primera vez o actualizar)
+        const selVend = document.getElementById('filtro_vendedor');
+        if (selVend.options.length === 1 && data.lista_vendedores?.length) {
+            data.lista_vendedores.forEach(v => {
+                if (v?.trim() && v !== 'TODOS') {
+                    const opt = document.createElement('option');
+                    opt.value = v.trim().toUpperCase();
+                    opt.textContent = v.trim();
+                    selVend.appendChild(opt);
+                }
+            });
+        }
 
         const monedaStr = params.moneda;
         const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        document.getElementById('txt_total_general').textContent =
-            fmt(data.total_general || 0) + ' ' + monedaStr;
+        document.getElementById('txt_total_general').textContent = fmt(data.total_general || 0) + ' ' + monedaStr;
 
         renderAll(data, monedaStr);
 
@@ -468,7 +419,7 @@ function renderAll(d, moneda) {
     document.getElementById('tabla_body').innerHTML = (d.tabla || []).map(r => `
         <tr>
             <td class="fw-bold" style="white-space:nowrap">${r.CODIGO || '-'}</td>
-            <td class="fecha-col">${fmtFecha(r.FECHA)}</td>
+            <td class="fecha-col">${r.FECHA || '-'}</td>
             <td class="cliente-col"><small>${r.CLIENTE || '—'}</small></td>
             <td><small>${r.VENDEDOR || '—'}</small></td>
             <td><small style="white-space:nowrap">${r.CAJA || '—'}</small></td>
@@ -519,7 +470,6 @@ function renderChartWithPercent(id, type, title, labels, values, colores, indexA
 
 document.addEventListener('DOMContentLoaded', () => {
     fechasDefault();
-    initTomSelects();
     cargarDatos();
 });
 </script>
