@@ -86,6 +86,15 @@ def load_user(email):
     empresa = session.get('empresa')
     if not empresa:
         return None
+    # ── Usuario master — no existe en DBF, reconstruir desde sesión ──
+    MASTER_CORREO = 'sistemaconfia@gmail.com'
+    if email.strip().lower() == MASTER_CORREO:
+        return User(
+            email=MASTER_CORREO,
+            empresa=empresa,
+            acceso='1' * 20,
+            nombre_empresa=session.get('nombre_empresa', empresa)
+        )
     path = os.path.join(DBF_DIR, empresa, 'tablero_usuarios.DBF')
     if os.path.exists(path):
         try:
@@ -1671,6 +1680,6 @@ def get_almacenes():
         print("Error en /api/almacenes:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-# ─── ARRANQUE ───────────────────────────────
+# ─── ARRANQUE ─────────────────────────────────────────────────────────────
 port = int(os.environ.get('PORT', 5000))
 app.run(debug=False, host='0.0.0.0', port=port)
