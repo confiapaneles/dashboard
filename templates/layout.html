@@ -182,7 +182,7 @@
             margin: 6px 0;
         }
 
-        .content-wrapper { padding: 1rem; }
+        .content-wrapper { padding: 0.75rem; }
         @media (min-width: 768px)  { .content-wrapper { padding: 1.5rem; } }
         @media (min-width: 992px)  { .content-wrapper { padding: 2rem 2.5rem; } }
 
@@ -195,6 +195,69 @@
             backdrop-filter: blur(2px);
         }
         .sidebar-overlay.active { display: block; }
+
+        /* ── RESPONSIVE GLOBAL ───────────────────────────────────────────── */
+
+        /* En móvil el sidebar NUNCA empuja el contenido — siempre overlay */
+        @media (max-width: 991px) {
+            .main-wrapper.sidebar-active { margin-left: 0 !important; }
+            .navbar-center { display: none !important; }
+            .navbar-custom { padding: 0.6rem 1rem; }
+            .brand-logo-box { width: 38px; height: 38px; font-size: 20px; }
+        }
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            :root { --sidebar-width: 260px; }
+            .content-wrapper { padding: 0.5rem; }
+
+            /* Filtros apilados en columna en móvil */
+            .filter-row { flex-direction: column; gap: 10px !important; }
+            .filter-col { min-width: 100% !important; max-width: 100% !important; flex: none !important; }
+            .filter-col select, .filter-col input[type="date"] { width: 100%; }
+
+            /* Tablas — scroll horizontal siempre */
+            .table-responsive { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+
+            /* KPI boxes — 2 por fila en móvil */
+            .kpi-box { margin-bottom: 8px; }
+
+            /* Gráficos — altura reducida en móvil */
+            .chart-container { height: 280px !important; }
+
+            /* Cards */
+            .card-chart { padding: 12px !important; }
+            .card-kpi   { padding: 12px !important; }
+
+            /* Tabs — scroll horizontal */
+            .tab-navigation { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+            .tab-btn { white-space: nowrap; flex-shrink: 0; padding: 8px 14px; font-size: 0.82rem; }
+
+            /* Texto más pequeño en tablas */
+            .table td, .table th { font-size: 0.78rem !important; padding: 0.45rem 0.6rem !important; }
+
+            /* Total KPI más pequeño */
+            .total-kpi { font-size: 1.2rem !important; padding: 6px 12px !important; }
+
+            /* Ocultar columnas secundarias en móvil si tienen clase d-mobile-none */
+            .d-mobile-none { display: none !important; }
+        }
+
+        /* Teléfono pequeño */
+        @media (max-width: 480px) {
+            .content-wrapper { padding: 0.4rem; }
+            .brand-name { font-size: 1rem; }
+            .chart-container { height: 220px !important; }
+            .nav-child-link { padding-left: 2rem; font-size: 0.82rem; }
+            .inventario-tabs .nav-link { padding: 0.6rem 0.9rem !important; font-size: 0.78rem !important; }
+        }
+
+        /* iPad / Tablet grande */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .filter-row { flex-wrap: wrap; }
+            .filter-col { min-width: 45% !important; flex: 1 1 45%; }
+            .chart-container { height: 340px !important; }
+        }
     </style>
 </head>
 
@@ -409,14 +472,18 @@
 
     function openSidebar() {
         sidebar.classList.add('active');
+        // Solo empujar el contenido en desktop — en móvil/tablet es overlay puro
         if (window.innerWidth >= 992) mainWrapper.classList.add('sidebar-active');
         overlay.classList.add('active');
+        // Evitar scroll del body cuando el sidebar está abierto en móvil
+        if (window.innerWidth < 992) document.body.style.overflow = 'hidden';
     }
 
     function closeSidebar() {
         sidebar.classList.remove('active');
         mainWrapper.classList.remove('sidebar-active');
         overlay.classList.remove('active');
+        document.body.style.overflow = '';
     }
 
     toggleBtn?.addEventListener('click', () => {
@@ -437,6 +504,23 @@
             btn.classList.add('open');
         }
     }
+
+    // Cerrar sidebar al hacer clic en un enlace (útil en móvil)
+    document.querySelectorAll('.nav-child-link, .nav-section-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 992) closeSidebar();
+        });
+    });
+
+    // Cerrar sidebar al rotar pantalla
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 992 && sidebar.classList.contains('active')) {
+            mainWrapper.classList.add('sidebar-active');
+            document.body.style.overflow = '';
+        } else if (window.innerWidth < 992) {
+            mainWrapper.classList.remove('sidebar-active');
+        }
+    });
 
     // ==================== MODAL SIN PERMISOS ====================
     document.addEventListener("DOMContentLoaded", () => {
