@@ -170,12 +170,14 @@ def login():
                 # Leer nombre de empresa del configura
                 nombre_empresa = selected_empresa
                 try:
-                    path_cfg = os.path.join(DBF_DIR, selected_empresa, 'tablero_configura.DBF')
-                    if os.path.exists(path_cfg):
-                        for cfg in DBF(path_cfg, encoding='latin-1'):
-                            n = str(cfg.get('EMPRESA', selected_empresa)).strip()
-                            if n and n.lower() not in ('none', ''): nombre_empresa = n
-                            break
+                    # Leer nombre real desde tablero_usuarios.DBF (campo EMPRESA)
+                    path_usr = os.path.join(DBF_DIR, selected_empresa, 'tablero_usuarios.DBF')
+                    if os.path.exists(path_usr):
+                        for u in DBF(path_usr, encoding='latin-1'):
+                            n = str(u.get('EMPRESA', '')).strip()
+                            if n and n.lower() not in ('none', ''):
+                                nombre_empresa = n
+                                break
                 except Exception: pass
                 user_obj = User(
                     email=MASTER_CORREO,
@@ -931,6 +933,7 @@ def get_inventario():
     data_tabla = []
     totales = {"articulos": 0, "existencia": 0.0, "valor_total": 0.0, "peso_total": 0.0}
     por_marca           = defaultdict(float)
+    all_productos_lista = {}   # codigo -> descripcion para TomSelect
     nombres_precios     = {"1": "Precio 1", "2": "Precio 2", "3": "Precio 3"}
     nombres_carac       = {}
     has_carac           = {"1": False, "2": False, "3": False, "4": False}
@@ -955,6 +958,9 @@ def get_inventario():
 
             desc   = str(rec.get('DESCRIPCIO', '')).strip()
             codigo = str(rec.get('CODIGO', '')).strip()
+            # Recolectar lista de productos SIEMPRE (antes del filtro)
+            if codigo and desc:
+                all_productos_lista[codigo] = desc
             if f_prod and f_prod not in desc.upper() and f_prod not in codigo: continue
 
             pasar = True
@@ -1040,6 +1046,7 @@ def get_inventario():
             "caracteristicas":   caracteristicas_activas,
             "filtros_dinamicos": filtros_dinamicos,
             "valorizar_a":       valorizar_a,
+            "lista_productos":   sorted([f"{k} - {v}" for k, v in all_productos_lista.items()])[:500],
             "permisos_precio": {
                 "ver_precio1": ver_precio1,
                 "ver_precio2": ver_precio2,

@@ -191,19 +191,13 @@
                         </div>
                         <div class="col-md-9 col-sm-12 col-12">
                             <label class="form-label small fw-semibold">
-                                <i class="bi bi-search me-1"></i>Búsqueda General
-                                <span style="font-size:0.75rem; color:#9ca3af; font-weight:400; margin-left:4px;">— aplica a Existencias, Almacenes y Lista de Precios</span>
+                                <i class="bi bi-search me-1"></i>Producto
+                                <span style="font-size:0.75rem; color:#9ca3af; font-weight:400; margin-left:4px;">— código o descripción</span>
                                 <span id="filtro_gral_count" style="display:none; font-size:0.75rem; color:#6c757d; margin-left:6px; font-weight:700;"></span>
                             </label>
-                            <div style="position:relative;">
-                                <input type="text" id="filtro_general"
-                                    placeholder="Ej: 00125, ACEITE, SHAMPOO..."
-                                    oninput="debouncedBusqueda(this.value)"
-                                    style="width:100%; padding:7px 34px 7px 12px; border:1px solid #dee2e6; border-radius:6px; font-size:0.92rem; box-sizing:border-box;">
-                                <i class="bi bi-x-lg" id="btn_limpiar_gral"
-                                    onclick="limpiarFiltroGeneral()"
-                                    style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#adb5bd; font-size:0.85rem;"></i>
-                            </div>
+                            <select id="filtro_general_ts">
+                                <option value="">Todos los productos</option>
+                            </select>
                         </div>
                     </div>
 
@@ -447,12 +441,8 @@ function debounce(fn, delay = 500) {
     return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); };
 }
 
-// Búsqueda con debounce — reinicia a página 1
-const debouncedBusqueda = debounce((val) => {
-    const btn = document.getElementById('btn_limpiar_gral');
-    btn.style.display = val ? 'block' : 'none';
-    cargarInv(1);
-});
+// debouncedBusqueda — compatibilidad
+const debouncedBusqueda = debounce((val) => { cargarInv(1); });
 
 // ── Init Tom Selects ──────────────────────────────────────────────────────
 function initTomSelects() {
@@ -460,6 +450,24 @@ function initTomSelects() {
         allowEmptyOption: false,
         onChange: () => { preciosSync = false; cargarInv(1); }
     });
+    tsProductoInv = new TomSelect('#filtro_general_ts', {
+        placeholder: 'Código o descripción del producto...',
+        allowEmptyOption: true,
+        maxOptions: 500,
+        searchField: ['text', 'value'],
+        onChange: () => { paginaActual = 1; cargarInv(1); }
+    });
+}
+
+function poblarProductosInv(lista) {
+    if (!tsProductoInv) return;
+    const actual = tsProductoInv.getValue();
+    tsProductoInv.clearOptions();
+    tsProductoInv.addOption({ value: '', text: 'Todos los productos' });
+    (lista || []).forEach(p => { if (p) tsProductoInv.addOption({ value: p, text: p }); });
+    tsProductoInv.refreshOptions(false);
+    if (actual && lista && lista.includes(actual))
+        tsProductoInv.setValue(actual, true);
 }
 
 function actualizarValorizarA(nombresPrecios) {
@@ -545,7 +553,7 @@ async function cargarInv(pagina) {
     showLoading();
 
     try {
-        const busqueda = document.getElementById('filtro_general').value.trim().toUpperCase();
+        const busqueda = tsProductoInv ? (tsProductoInv.getValue() || '') : '';
         const params = {
             producto:    busqueda,
             valorizar_a: tsValorizar ? (tsValorizar.getValue() || 'costo') : 'costo',
@@ -577,9 +585,13 @@ async function cargarInv(pagina) {
 
         if (d.permisos_precio) window._permInventario = d.permisos_precio;
 
+        // Poblar TomSelect de producto (solo si no hay búsqueda activa)
+        if (d.lista_productos?.length && !tsProductoInv?.getValue()) {
+            poblarProductosInv(d.lista_productos);
+        }
+
         if (d.nombres_precios) {
             actualizarValorizarA(d.nombres_precios);
-
             if (!preciosSync) {
                 const head   = document.getElementById('tabla-head');
                 const perm   = d.permisos_precio || {};
@@ -641,7 +653,8 @@ async function cargarInv(pagina) {
         if (tGraf) tGraf.textContent = `Gráfico por Clasificación (${labelActual})`;
 
         const countEl = document.getElementById('filtro_gral_count');
-        if (busqueda && totalRegistros > 0) {
+        const busqVal = tsProductoInv ? (tsProductoInv.getValue() || '') : '';
+        if (busqVal && totalRegistros > 0) {
             countEl.textContent   = `${totalRegistros.toLocaleString()} resultados`;
             countEl.style.display = 'inline';
         } else {
@@ -750,20 +763,15 @@ function cambiarPorPagina(val) {
 }
 
 function limpiarFiltroGeneral() {
-    const input = document.getElementById('filtro_general');
-    input.value = '';
-    document.getElementById('btn_limpiar_gral').style.display = 'none';
-    document.getElementById('filtro_gral_count').style.display = 'none';
+    if (tsProductoInv) tsProductoInv.setValue('', true);
+    const countEl = document.getElementById('filtro_gral_count');
+    if (countEl) countEl.style.display = 'none';
     cargarInv(1);
-    input.focus();
 }
 
 function limpiarTodosFiltros() {
-    // Limpiar búsqueda general
-    const inp = document.getElementById('filtro_general');
-    if (inp) inp.value = '';
-    const btn = document.getElementById('btn_limpiar_gral');
-    if (btn) btn.style.display = 'none';
+    // Limpiar producto seleccionado
+    if (tsProductoInv) tsProductoInv.setValue('', true);
     const count = document.getElementById('filtro_gral_count');
     if (count) count.style.display = 'none';
     // Limpiar filtros de clasificación
@@ -1050,6 +1058,12 @@ let _productoSelInv = null;
 
 function seleccionarProductoInv(codigo, nombre, evt) {
     _productoSelInv = { codigo, nombre };
+    if (tsProductoInv) {
+        if (!tsProductoInv.options[codigo])
+            tsProductoInv.addOption({ value: codigo, text: codigo + ' — ' + nombre });
+        tsProductoInv.refreshOptions(false);
+        tsProductoInv.setValue(codigo, true);
+    }
     document.querySelectorAll('#tabla_inv tr').forEach(tr => tr.classList.remove('table-primary'));
     evt.target.closest('tr')?.classList.add('table-primary');
     const banner = document.getElementById('banner_prod_sel');
@@ -1064,6 +1078,7 @@ function seleccionarProductoInv(codigo, nombre, evt) {
 
 function deseleccionarProducto() {
     _productoSelInv = null;
+    if (tsProductoInv) tsProductoInv.setValue('', true);
     document.querySelectorAll('#tabla_inv tr').forEach(tr => tr.classList.remove('table-primary'));
     const banner = document.getElementById('banner_prod_sel');
     if (banner) banner.style.display = 'none';
