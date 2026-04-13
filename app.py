@@ -1680,6 +1680,67 @@ def get_almacenes():
         print("Error en /api/almacenes:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
+
+# ─── API: DETALLE DE FACTURA ───────────────────────────────────────────────
+@app.route('/api/detalle_factura', methods=['POST'])
+@login_required
+def get_detalle_factura():
+    if not current_user.tiene_permiso(1):
+        return jsonify({"error": "sin_permiso"}), 403
+    params     = request.json or {}
+    nro_factura = (params.get('factura') or '').strip()
+    moneda      = params.get('moneda', 'Bs')
+
+    if not nro_factura:
+        return jsonify({"error": "Factura requerida"}), 400
+
+    productos = []
+    total     = 0.0
+
+    try:
+        path = get_dbf_path('tablero_facturas.DBF')
+        if not os.path.exists(path):
+            return jsonify({"error": "Archivo no encontrado"}), 404
+
+        for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
+            cod_fac = str(rec.get('CODIGO', '')).strip()
+            if cod_fac != nro_factura:
+                continue
+            cod_pro  = str(rec.get('CODIGOPRO', '')).strip()
+            nom_pro  = str(rec.get('NOMBREPRO', '')).strip()
+            cant     = safe_float(rec.get('CANTIDAD'))
+            precio   = safe_float(rec.get('PRECIO'))
+            monto    = safe_float(rec.get('MONTO'))
+            factor   = safe_float(rec.get('FACTOR')) or 1.0
+            almacen  = str(rec.get('ALMACEN', '')).strip()
+            clasi1   = str(rec.get('CLASI1', '')).strip()
+
+            if moneda == 'USD':
+                precio = precio / factor if factor else 0
+                monto  = monto  / factor if factor else 0
+
+            total += monto
+            productos.append({
+                "CODIGOPRO": cod_pro,
+                "NOMBREPRO": nom_pro,
+                "CANTIDAD":  round(cant, 2),
+                "PRECIO":    round(precio, 2),
+                "MONTO":     round(monto, 2),
+                "ALMACEN":   almacen,
+                "CLASI1":    clasi1,
+            })
+
+        return jsonify({
+            "factura":   nro_factura,
+            "productos": productos,
+            "total":     round(total, 2),
+            "moneda":    moneda,
+        })
+    except Exception as e:
+        import traceback
+        print("Error en /api/detalle_factura:", traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
 port = int(os.environ.get('PORT', 5000))
 app.run(debug=False, host='0.0.0.0', port=port)

@@ -225,6 +225,10 @@
         </div>
     </div>
 
+    <!-- Banner producto seleccionado -->
+    <div id="banner_prod_sel" class="alert alert-primary d-none d-flex align-items-center mb-2 py-2 px-3" style="border-radius:8px;font-size:0.88rem;">
+    </div>
+
     <div class="inventario-tabs card shadow-sm border-0 rounded-3 overflow-hidden">
         <ul class="nav nav-tabs mb-0" role="tablist">
             <li class="nav-item">
@@ -812,7 +816,8 @@ function renderInvChart(id, labels, values) {
 document.addEventListener('DOMContentLoaded', () => {
     initTomSelects();
     cargarInv(1);
-    initTomSelectsPrecios();   // TomSelect de lista de precio
+    initTomSelectsPrecios();
+    initTomSelectAlmacen();
 });
 
 // ── PESTAÑA LISTA DE PRECIOS — pos 3 ─────────────────────────────────────
@@ -855,8 +860,10 @@ async function _cargarListasPrecios() {
 
 // Carga precios usando el mismo filtro activo del inventario
 async function _cargarPreciosFiltrados() {
-    // Leer búsqueda activa del inventario
-    const busqueda = (document.getElementById('filtro_general')?.value || '').trim().toUpperCase();
+    // Si hay producto seleccionado, usarlo; si no, usar búsqueda general
+    const busqueda = _productoSelInv
+        ? _productoSelInv.codigo
+        : (document.getElementById('filtro_general')?.value || '').trim().toUpperCase();
     // Leer filtros de clasificación activos
     const filtrosCarac = {};
     Object.entries(tsCaracs).forEach(([idx, ts]) => {
@@ -952,8 +959,10 @@ async function cargarAlmacenes(forzar) {
 
 async function _cargarAlmacenData() {
     const almacen  = tsAlmacenInv ? tsAlmacenInv.getValue() : '';
-    // Reutilizar el filtro general — aplica a todas las pestañas
-    const busqueda = (document.getElementById('filtro_general')?.value || '').trim().toUpperCase();
+    // Si hay producto seleccionado, usarlo; si no, búsqueda general
+    const busqueda = _productoSelInv
+        ? _productoSelInv.codigo
+        : (document.getElementById('filtro_general')?.value || '').trim().toUpperCase();
     showLoading();
     try {
         const resp = await fetch('/api/almacenes', {
@@ -1035,6 +1044,30 @@ function renderTablaAlmacenes(rows, totales) {
 document.addEventListener('DOMContentLoaded', () => {
     initTomSelectAlmacen();
 });
+
+// ── SELECCIÓN DE PRODUCTO PARA PRECIOS Y ALMACENES ───────────────────────
+let _productoSelInv = null;
+
+function seleccionarProductoInv(codigo, nombre, evt) {
+    _productoSelInv = { codigo, nombre };
+    document.querySelectorAll('#tabla_inv tr').forEach(tr => tr.classList.remove('table-primary'));
+    evt.target.closest('tr')?.classList.add('table-primary');
+    const banner = document.getElementById('banner_prod_sel');
+    if (banner) {
+        banner.innerHTML = `<i class="bi bi-check-circle-fill me-2 text-primary"></i>Producto seleccionado: <b>${codigo}</b> — ${nombre} <button onclick="deseleccionarProducto()" class="btn btn-sm btn-outline-danger ms-3 py-0">✕</button>`;
+        banner.style.display = 'flex';
+    }
+    const tabActiva = document.querySelector('.inventario-tabs .nav-link.active')?.getAttribute('data-bs-target');
+    if (tabActiva === '#precios-pane')   cargarPrecios();
+    if (tabActiva === '#almacenes-pane') cargarAlmacenes(true);
+}
+
+function deseleccionarProducto() {
+    _productoSelInv = null;
+    document.querySelectorAll('#tabla_inv tr').forEach(tr => tr.classList.remove('table-primary'));
+    const banner = document.getElementById('banner_prod_sel');
+    if (banner) banner.style.display = 'none';
+}
 </script>
 
 {% endblock %}
