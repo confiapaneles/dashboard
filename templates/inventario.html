@@ -453,10 +453,19 @@ function initTomSelects() {
     tsProductoInv = new TomSelect('#filtro_general_ts', {
         placeholder: 'Código o descripción del producto...',
         allowEmptyOption: true,
-        maxOptions: 500,
+        maxOptions: 20000,
         searchField: ['text', 'value'],
         onChange: () => { paginaActual = 1; cargarInv(1); }
     });
+}
+
+async function cargarListaProductos() {
+    try {
+        const resp = await fetch('/api/productos_inventario');
+        if (!resp.ok) return;
+        const d = await resp.json();
+        poblarProductosInv(d.lista || []);
+    } catch(e) { console.error('Error cargando lista productos:', e); }
 }
 
 function poblarProductosInv(lista) {
@@ -823,6 +832,7 @@ function renderInvChart(id, labels, values) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initTomSelects();
+    cargarListaProductos();   // carga todos los productos para el TomSelect
     cargarInv(1);
     initTomSelectsPrecios();
     initTomSelectAlmacen();

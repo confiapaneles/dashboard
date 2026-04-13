@@ -1046,7 +1046,7 @@ def get_inventario():
             "caracteristicas":   caracteristicas_activas,
             "filtros_dinamicos": filtros_dinamicos,
             "valorizar_a":       valorizar_a,
-            "lista_productos":   sorted([f"{k} - {v}" for k, v in all_productos_lista.items()])[:500],
+            "lista_productos":   [],  # se carga por /api/productos_inventario
             "permisos_precio": {
                 "ver_precio1": ver_precio1,
                 "ver_precio2": ver_precio2,
@@ -1746,6 +1746,33 @@ def get_detalle_factura():
     except Exception as e:
         import traceback
         print("Error en /api/detalle_factura:", traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+# ─── API: LISTA COMPLETA DE PRODUCTOS PARA TOMSELECT ─────────────────────
+@app.route('/api/productos_inventario', methods=['GET'])
+@login_required
+def get_productos_inventario():
+    """Devuelve todos los productos únicos del DBF para poblar el TomSelect."""
+    if not current_user.tiene_permiso(5):
+        return jsonify({"error": "sin_permiso"}), 403
+    try:
+        path_inv = get_dbf_path('tablero_inventario.DBF')
+        if not os.path.exists(path_inv):
+            return jsonify({"error": "Archivo no encontrado"}), 404
+
+        productos = {}
+        for rec in DBF(path_inv, encoding='latin-1', ignore_missing_memofile=True):
+            codigo = str(rec.get('CODIGO',    '')).strip()
+            desc   = str(rec.get('DESCRIPCIO','')).strip()
+            if codigo and desc:
+                productos[codigo] = desc
+
+        lista = sorted([f"{k} - {v}" for k, v in productos.items()])
+        return jsonify({"status": "success", "lista": lista, "total": len(lista)})
+    except Exception as e:
+        import traceback
+        print("Error en /api/productos_inventario:", traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
