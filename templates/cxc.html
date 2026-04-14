@@ -170,9 +170,9 @@
             </div>
             <div class="filter-col" style="min-width:300px; flex-grow:2;">
                 <label>Buscar (Cliente, documento, grupo...)</label>
-                <input type="text" id="bus_cxc"
-                    placeholder="Escribe para filtrar tabla y resumen..."
-                    oninput="aplicarBusqueda()">
+                <select id="bus_cxc">
+                    <option value="">Todos los clientes / grupos...</option>
+                </select>
                 <span class="filtro-info" id="filtro_info_cxc"></span>
             </div>
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
@@ -231,6 +231,8 @@ let dataCache         = null;
 let tablaFiltrada     = [];
 let vendedoresCargados = false;
 let tsVendedor        = null;
+let tsCliente         = null;
+let clientesCargados  = false;
 
 const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -238,8 +240,8 @@ const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, ma
 function limpiarFiltros() {
     document.getElementById('moneda').value = 'Bs';
     if (tsVendedor) tsVendedor.setValue('TODOS', true);
-    document.getElementById('bus_cxc').value = '';
-    document.getElementById('bus_cxc').classList.remove('activo');
+    if (tsCliente)  tsCliente.setValue('', true);
+
     document.getElementById('filtro_info_cxc').classList.remove('visible');
     actualizarBtnLimpiar();
     cargarCxC();
@@ -249,7 +251,7 @@ function actualizarBtnLimpiar() {
     const hayFiltro =
         document.getElementById('moneda').value !== 'Bs' ||
         (tsVendedor && tsVendedor.getValue() !== 'TODOS') ||
-        document.getElementById('bus_cxc').value.trim() !== '';
+        (tsCliente && tsCliente.getValue() !== '') || false;
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -276,6 +278,17 @@ async function cargarCxC() {
         });
         dataCache = await r.json();
 
+        if (!clientesCargados && dataCache.clientes?.length && tsCliente) {
+            const actualC = tsCliente.getValue();
+            tsCliente.clearOptions();
+            tsCliente.addOption({ value: '', text: 'Todos los clientes / grupos...' });
+            dataCache.clientes.forEach(c => {
+                if (c?.trim()) tsCliente.addOption({ value: c.trim(), text: c.trim() });
+            });
+            tsCliente.refreshOptions(false);
+            tsCliente.setValue(actualC || '', true);
+            clientesCargados = true;
+        }
         if (!vendedoresCargados && dataCache.vendedores?.length && tsVendedor) {
             const actual = tsVendedor.getValue();
             tsVendedor.clearOptions();
@@ -294,23 +307,9 @@ async function cargarCxC() {
 
 function aplicarBusqueda() {
     if (!dataCache?.tabla) return;
-    const bus     = document.getElementById('bus_cxc').value.toLowerCase().trim();
-    const infoEl  = document.getElementById('filtro_info_cxc');
-    const inputEl = document.getElementById('bus_cxc');
-
-    if (bus) {
-        tablaFiltrada = dataCache.tabla.filter(row =>
-            [row.GRUPO, row.CLIENTE, row.DOCUMENTO, row.VENDEDOR]
-                .some(val => String(val || '').toLowerCase().includes(bus))
-        );
-        inputEl.classList.add('activo');
-        infoEl.textContent = `${tablaFiltrada.length} registros de ${dataCache.tabla.length}`;
-        infoEl.classList.add('visible');
-    } else {
-        tablaFiltrada = [...dataCache.tabla];
-        inputEl.classList.remove('activo');
-        infoEl.classList.remove('visible');
-    }
+    tablaFiltrada = [...dataCache.tabla];
+    const infoEl = document.getElementById('filtro_info_cxc');
+    if (infoEl) infoEl.classList.remove('visible');
     actualizarBtnLimpiar();
 
     const totalFiltrado = tablaFiltrada.reduce((s, r) => s + (r.SALDO || 0), 0);
@@ -376,6 +375,10 @@ function initTomSelects() {
     tsVendedor = new TomSelect('#filtro_vendedor', {
         allowEmptyOption: false, placeholder: 'Todos los vendedores...',
         maxOptions: 200, onChange: () => cargarCxC()
+    });
+    tsCliente = new TomSelect('#bus_cxc', {
+        allowEmptyOption: true, placeholder: 'Buscar cliente o grupo...',
+        maxOptions: 300, onChange: () => cargarCxC()
     });
 }
 

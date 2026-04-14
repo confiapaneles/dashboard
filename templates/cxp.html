@@ -164,9 +164,9 @@
             </div>
             <div class="filter-col" style="flex-grow: 2; min-width: 350px;">
                 <label>Buscar (Proveedor, documento, grupo, responsable...)</label>
-                <input type="text" id="bus_cxp"
-                    placeholder="Escribe para filtrar tabla y resumen..."
-                    oninput="aplicarBusqueda()">
+                <select id="bus_cxp">
+                    <option value="">Todos los proveedores...</option>
+                </select>
                 <span class="filtro-info" id="filtro_info_cxp"></span>
             </div>
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
@@ -227,9 +227,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-let chartEnvejCxp = null;
-let dataCache     = null;
-let tablaFiltrada = [];
+let chartEnvejCxp   = null;
+let dataCache       = null;
+let tablaFiltrada   = [];
+let tsProveedor     = null;
+let provCargados    = false;
 
 const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -239,8 +241,7 @@ function hideLoading() { loadingOverlay.style.display = 'none'; }
 
 function limpiarFiltros() {
     document.getElementById('moneda').value = 'Bs';
-    document.getElementById('bus_cxp').value = '';
-    document.getElementById('bus_cxp').classList.remove('activo');
+    if (tsProveedor) tsProveedor.setValue('', true);
     document.getElementById('filtro_info_cxp').classList.remove('visible');
     actualizarBtnLimpiar();
     cargarCxP();
@@ -249,7 +250,7 @@ function limpiarFiltros() {
 function actualizarBtnLimpiar() {
     const hayFiltro =
         document.getElementById('moneda').value !== 'Bs' ||
-        document.getElementById('bus_cxp').value.trim() !== '';
+        (tsProveedor && tsProveedor.getValue() !== '') || false;
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -272,6 +273,18 @@ async function cargarCxP() {
         const r = await fetch('/api/cartera_cxp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         dataCache = await r.json();
+        // Poblar TomSelect de proveedor desde API
+        if (!provCargados && dataCache.proveedores?.length && tsProveedor) {
+            const actual = tsProveedor.getValue();
+            tsProveedor.clearOptions();
+            tsProveedor.addOption({ value: '', text: 'Todos los proveedores...' });
+            dataCache.proveedores.forEach(p => {
+                if (p?.trim()) tsProveedor.addOption({ value: p.trim(), text: p.trim() });
+            });
+            tsProveedor.refreshOptions(false);
+            tsProveedor.setValue(actual || '', true);
+            provCargados = true;
+        }
         aplicarBusqueda();
     } catch (e) { console.error('Error CxP:', e); }
     finally { hideLoading(); }
@@ -356,7 +369,17 @@ function renderTabla(rows) {
         </tr>`).join('');
 }
 
-document.addEventListener('DOMContentLoaded', () => cargarCxP());
+function initTomSelects() {
+    tsProveedor = new TomSelect('#bus_cxp', {
+        allowEmptyOption: true, placeholder: 'Buscar proveedor o grupo...',
+        maxOptions: 300, onChange: () => cargarCxP()
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTomSelects();
+    cargarCxP();
+});
 </script>
 
 {% endblock %}

@@ -395,6 +395,8 @@ def get_cartera_cxc():
     total_gral = 0.0
     resumen_grupos_dict = defaultdict(float)
     all_vendedores = set()
+    all_clientes   = set()
+    cliente_filtro = params.get('cliente', '').strip().upper()
 
     try:
         path = get_dbf_path('tablero_cxc.DBF')
@@ -407,6 +409,11 @@ def get_cartera_cxc():
                 vend = str(rec.get('VENDEDOR', '')).strip().upper()
                 all_vendedores.add(vend)
                 if vendedor and vendedor != 'TODOS' and vendedor != vend:
+                    continue
+
+                cliente = str(rec.get('CLIENTE', '')).strip()
+                if cliente: all_clientes.add(cliente)
+                if cliente_filtro and cliente_filtro not in cliente.upper():
                     continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
@@ -443,7 +450,8 @@ def get_cartera_cxc():
             "envejecimiento": [{"label": k, "value": round(v, 2)} for k, v in enveje.items()],
             "resumen_grupos": resumen_final,
             "tabla": data_tabla[:800],
-            "vendedores": sorted(list(all_vendedores))
+            "vendedores": sorted(list(all_vendedores)),
+            "clientes":   sorted(list(all_clientes))[:300]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
