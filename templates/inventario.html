@@ -606,6 +606,7 @@ async function cargarInv(pagina) {
                 const perm   = d.permisos_precio || {};
                 head.innerHTML = '';
                 const cols1 = [
+                    { t: '',            c: 'text-center', style: 'width:50px;' },
                     { t: 'CÓDIGO',      c: 'ps-3' },
                     { t: 'DESCRIPCIÓN', c: '' },
                     { t: 'STOCK',       c: 'text-end fw-bold' },
@@ -615,6 +616,7 @@ async function cargarInv(pagina) {
                 cols1.forEach(col => {
                     const th = document.createElement('th');
                     th.textContent = col.t; th.className = col.c;
+                    if (col.style) th.style.cssText = col.style;
                     head.appendChild(th);
                 });
                 Object.entries(d.nombres_precios)
