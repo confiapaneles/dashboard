@@ -913,7 +913,9 @@ def get_vendedores():
 @login_required
 def get_inventario():
     params      = request.json or {}
-    f_prod      = (params.get('producto') or '').strip().upper()
+    f_prod_raw  = (params.get('producto') or '').strip()
+    # TomSelect envía "CODIGO - DESCRIPCION" — extraer solo el código
+    f_prod      = f_prod_raw.split(' - ')[0].strip().upper() if f_prod_raw else ''
     valorizar_a = params.get('valorizar_a', 'costo')
     pagina      = int(params.get('pagina', 1))
     por_pagina  = int(params.get('por_pagina', 100))

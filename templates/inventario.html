@@ -562,7 +562,7 @@ async function cargarInv(pagina) {
     showLoading();
 
     try {
-        const busqueda = tsProductoInv ? (tsProductoInv.getValue() || '') : '';
+        const busqueda = tsProductoInv ? (tsProductoInv.getValue() || '').split(' - ')[0].trim() : '';
         const params = {
             producto:    busqueda,
             valorizar_a: tsValorizar ? (tsValorizar.getValue() || 'costo') : 'costo',
@@ -678,6 +678,7 @@ async function cargarInv(pagina) {
 
         document.getElementById('tabla_inv').innerHTML = (d.tabla || []).map(i => {
             let h = '';
+            h += `<td class="text-center" style="width:50px;"><button onclick="seleccionarProductoInv('${(i.CODIGO||'').replace(/'/g,'')}','${(i.DESCRIPCION||'').replace(/'/g,'')}',event)" style="background:#2ecc71;color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.78rem;font-weight:600;">Ver</button></td>`;
             h += `<td class="ps-3 small text-muted fw-bold">${i.CODIGO || '-'}</td>`;
             h += `<td style="font-size:0.85rem;" class="fw-medium">${i.DESCRIPCION || ''}</td>`;
             h += `<td class="text-end fw-bold">${Number(i.EXISTENCIA || 0).toLocaleString('es-VE')}</td>`;
