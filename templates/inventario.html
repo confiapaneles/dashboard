@@ -455,7 +455,31 @@ function initTomSelects() {
         allowEmptyOption: true,
         maxOptions: 20000,
         searchField: ['text', 'value'],
-        onChange: () => { paginaActual = 1; cargarInv(1); }
+        onChange: (val) => {
+            // Actualizar _productoSelInv con el producto seleccionado
+            if (val) {
+                const codigo = val.split(' - ')[0].trim();
+                const nombre = val.split(' - ').slice(1).join(' - ').trim();
+                _productoSelInv = { codigo, nombre };
+                // Mostrar banner
+                const banner = document.getElementById('banner_prod_sel');
+                if (banner) {
+                    banner.innerHTML = `<i class="bi bi-check-circle-fill me-2 text-primary"></i>Producto: <b>${codigo}</b> — ${nombre} <button onclick="deseleccionarProducto()" class="btn btn-sm btn-outline-danger ms-3 py-0">✕</button>`;
+                    banner.style.display = 'flex';
+                    banner.classList.remove('d-none');
+                }
+            } else {
+                _productoSelInv = null;
+                const banner = document.getElementById('banner_prod_sel');
+                if (banner) banner.style.display = 'none';
+            }
+            paginaActual = 1;
+            cargarInv(1);
+            // Recargar pestaña activa si es precios o almacenes
+            const tabActiva = document.querySelector('.inventario-tabs .nav-link.active')?.getAttribute('data-bs-target');
+            if (tabActiva === '#precios-pane')   setTimeout(() => cargarPrecios(), 100);
+            if (tabActiva === '#almacenes-pane') setTimeout(() => cargarAlmacenes(true), 100);
+        }
     });
 }
 
@@ -606,7 +630,6 @@ async function cargarInv(pagina) {
                 const perm   = d.permisos_precio || {};
                 head.innerHTML = '';
                 const cols1 = [
-                    { t: '',            c: 'text-center', style: 'width:50px;' },
                     { t: 'CÓDIGO',      c: 'ps-3' },
                     { t: 'DESCRIPCIÓN', c: '' },
                     { t: 'STOCK',       c: 'text-end fw-bold' },
@@ -680,7 +703,6 @@ async function cargarInv(pagina) {
 
         document.getElementById('tabla_inv').innerHTML = (d.tabla || []).map(i => {
             let h = '';
-            h += `<td class="text-center" style="width:50px;"><button onclick="seleccionarProductoInv('${(i.CODIGO||'').replace(/'/g,'')}','${(i.DESCRIPCION||'').replace(/'/g,'')}',event)" style="background:#2ecc71;color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.78rem;font-weight:600;">Ver</button></td>`;
             h += `<td class="ps-3 small text-muted fw-bold">${i.CODIGO || '-'}</td>`;
             h += `<td style="font-size:0.85rem;" class="fw-medium">${i.DESCRIPCION || ''}</td>`;
             h += `<td class="text-end fw-bold">${Number(i.EXISTENCIA || 0).toLocaleString('es-VE')}</td>`;

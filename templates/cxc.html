@@ -137,6 +137,14 @@
         .chart-container { height: 320px !important; }
         .tab-btn { padding: 9px 16px !important; font-size: 0.83rem !important; }
     }
+    /* TomSelect CxC */
+    .ts-wrapper.single .ts-control { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.92rem; background: white; cursor: text; min-height: unset; }
+    .ts-wrapper.single.focus .ts-control { border-color: var(--cxc-primary); box-shadow: 0 0 0 3px rgba(156,39,176,0.15); }
+    .ts-dropdown { border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #d1d5db; font-size: 0.9rem; z-index: 1200 !important; }
+    .ts-dropdown .option { padding: 9px 14px; }
+    .ts-dropdown .option:hover, .ts-dropdown .option.active { background: var(--cxc-light); color: var(--cxc-primary); }
+    .ts-dropdown-content { max-height: 260px; }
+    .ts-wrapper { width: 100%; }
 </style>
 
 <div class="dashboard-wrapper">
@@ -222,13 +230,14 @@ let chartEnvej        = null;
 let dataCache         = null;
 let tablaFiltrada     = [];
 let vendedoresCargados = false;
+let tsVendedor        = null;
 
 const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // ✅ Limpiar filtros
 function limpiarFiltros() {
     document.getElementById('moneda').value = 'Bs';
-    document.getElementById('filtro_vendedor').value = 'TODOS';
+    if (tsVendedor) tsVendedor.setValue('TODOS', true);
     document.getElementById('bus_cxc').value = '';
     document.getElementById('bus_cxc').classList.remove('activo');
     document.getElementById('filtro_info_cxc').classList.remove('visible');
@@ -239,7 +248,7 @@ function limpiarFiltros() {
 function actualizarBtnLimpiar() {
     const hayFiltro =
         document.getElementById('moneda').value !== 'Bs' ||
-        document.getElementById('filtro_vendedor').value !== 'TODOS' ||
+        (tsVendedor && tsVendedor.getValue() !== 'TODOS') ||
         document.getElementById('bus_cxc').value.trim() !== '';
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
@@ -260,22 +269,23 @@ async function cargarCxC() {
     try {
         const params = {
             moneda:   document.getElementById('moneda').value,
-            vendedor: document.getElementById('filtro_vendedor').value
+            vendedor: tsVendedor ? tsVendedor.getValue() : 'TODOS'
         };
         const r = await fetch('/api/cartera_cxc', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params)
         });
         dataCache = await r.json();
 
-        if (!vendedoresCargados && dataCache.vendedores?.length) {
-            const sel = document.getElementById('filtro_vendedor');
+        if (!vendedoresCargados && dataCache.vendedores?.length && tsVendedor) {
+            const actual = tsVendedor.getValue();
+            tsVendedor.clearOptions();
+            tsVendedor.addOption({ value: 'TODOS', text: 'Todos los vendedores' });
             dataCache.vendedores.forEach(v => {
-                if (v?.trim() && v !== 'TODOS') {
-                    const opt = document.createElement('option');
-                    opt.value = v.trim(); opt.textContent = v.trim();
-                    sel.appendChild(opt);
-                }
+                if (v?.trim() && v !== 'TODOS')
+                    tsVendedor.addOption({ value: v.trim(), text: v.trim() });
             });
+            tsVendedor.refreshOptions(false);
+            tsVendedor.setValue(actual || 'TODOS', true);
             vendedoresCargados = true;
         }
         aplicarBusqueda();
@@ -362,7 +372,17 @@ function renderTabla(rows) {
         </tr>`).join('');
 }
 
-document.addEventListener('DOMContentLoaded', () => cargarCxC());
+function initTomSelects() {
+    tsVendedor = new TomSelect('#filtro_vendedor', {
+        allowEmptyOption: false, placeholder: 'Todos los vendedores...',
+        maxOptions: 200, onChange: () => cargarCxC()
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTomSelects();
+    cargarCxC();
+});
 </script>
 
 {% endblock %}
