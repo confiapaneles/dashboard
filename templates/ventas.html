@@ -485,7 +485,7 @@ async function cargarDatos() {
         if (d.facturas?.length > 0) {
             d.facturas.forEach(f => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="fecha-col">${fmtFecha(f.FECHA)}</td><td>${f.CLIENTE||'S/C'}</td><td>${f.VENDEDOR||'S/V'}</td><td>${f.ZONA||'Sin zona'}</td><td>${f.CAJA||'S/C'}</td><td>${f.DOCUMENTO||'-'}</td><td><span class="badge ${f.TIPO==='Contado'?'bg-success':'bg-warning text-dark'}">${f.TIPO}</span></td><td class="text-end fw-bold">${fmt(f.MONTO)} ${monedaStr}</td>`;
+                tr.innerHTML = `<td class="fecha-col">${fmtFecha(f.FECHA)}</td><td>${f.CLIENTE||'S/C'}</td><td>${f.VENDEDOR||'S/V'}</td><td>${f.ZONA||'Sin zona'}</td><td>${f.CAJA||'S/C'}</td><td>${f.DOCUMENTO||'-'}</td><td><span class="badge ${f.TIPO==='Contado'?'bg-success':'bg-warning text-dark'}">${f.TIPO}</span></td><td class="text-end fw-bold">${fmt(f.MONTO)} ${monedaStr}</td><td class="text-center"><button onclick="verDetalleFactura('${(f.DOCUMENTO||'').replace(/'/g,'')}','${monedaStr}')" style="background:#27ae60;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.8rem;font-weight:600;">Ver</button></td>`;
                 tbodyFact.appendChild(tr);
             });
             document.getElementById("no_facturas").style.display = 'none';
