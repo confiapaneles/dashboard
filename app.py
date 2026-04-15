@@ -406,13 +406,16 @@ def get_cartera_cxc():
                 if fecha_inicio and fecha_reg < fecha_inicio: continue
                 if fecha_fin    and fecha_reg > fecha_fin:    continue
 
-                vend = str(rec.get('VENDEDOR', '')).strip().upper()
+                vend    = str(rec.get('VENDEDOR', '')).strip().upper()
+                cliente = str(rec.get('CLIENTE', '')).strip()
+
+                # Recolectar SIEMPRE antes de filtrar
                 all_vendedores.add(vend)
+                if cliente: all_clientes.add(cliente)
+
+                # Filtros
                 if vendedor and vendedor != 'TODOS' and vendedor != vend:
                     continue
-
-                cliente = str(rec.get('CLIENTE', '')).strip()
-                if cliente: all_clientes.add(cliente)
                 if cliente_filtro and cliente_filtro not in cliente.upper():
                     continue
 
@@ -1269,7 +1272,8 @@ def get_cobros():
     por_caja     = defaultdict(float)
     por_cliente  = defaultdict(float)
     data_tabla   = []
-    cajas_unicas = set()
+    cajas_unicas    = set()
+    clientes_unicas = set()
     ultima_tasa_valida = 1.0
 
     try:
@@ -1283,6 +1287,7 @@ def get_cobros():
             if f_fin    and fecha_reg > f_fin:    continue
 
             cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
+            if cliente and cliente != 'S/C': clientes_unicas.add(cliente)
             if cliente_filtro and cliente_filtro not in cliente: continue
 
             caja = str(rec.get('CAJA', 'S/C')).strip().upper()
@@ -1325,7 +1330,8 @@ def get_cobros():
             "cajas":         format_chart(por_caja),
             "clientes":      format_chart(por_cliente)[:top_n],
             "tabla":         data_tabla,
-            "cajas_lista":   sorted([c for c in cajas_unicas if c and c != 'S/C'])
+            "cajas_lista":   sorted([c for c in cajas_unicas if c and c != 'S/C']),
+            "clientes_lista": sorted([c for c in clientes_unicas if c])[:400]
         })
     except Exception as e:
         import traceback
