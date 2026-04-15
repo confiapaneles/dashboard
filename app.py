@@ -211,15 +211,25 @@ def login():
             path_users = os.path.join(DBF_DIR, selected_empresa, 'tablero_usuarios.DBF')
             if os.path.exists(path_users):
                 try:
+                    # Si el input no tiene @ es un nombre de usuario — resolver el correo completo
+                    correo_resuelto = correo_input.strip()
+                    if '@' not in correo_resuelto:
+                        usuario_lower = correo_resuelto.lower()
+                        for u in DBF(path_users, encoding='latin-1'):
+                            correo_dbf = str(u.get('CORREO', '')).strip()
+                            if correo_dbf and correo_dbf.split('@')[0].lower() == usuario_lower:
+                                correo_resuelto = correo_dbf
+                                break
+
                     for u in DBF(path_users, encoding='latin-1'):
-                        if (str(u['CORREO']).strip() == correo_input and
+                        if (str(u['CORREO']).strip() == correo_resuelto and
                                 str(u['CLAVE']).strip() == clave_input):
                             empresa_usuario = selected_empresa
                             nombre_empresa = str(u.get('EMPRESA', selected_empresa)).strip()
                             if not nombre_empresa or nombre_empresa.lower() in ('none', ''):
                                 nombre_empresa = selected_empresa
                             user_obj = User(
-                                email=correo_input,
+                                email=correo_resuelto,
                                 empresa=empresa_usuario,
                                 acceso=str(u['ACCESO']),
                                 nombre_empresa=nombre_empresa
