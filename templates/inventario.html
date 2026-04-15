@@ -219,10 +219,6 @@
         </div>
     </div>
 
-    <!-- Banner producto seleccionado -->
-    <div id="banner_prod_sel" class="alert alert-primary d-none d-flex align-items-center mb-2 py-2 px-3" style="border-radius:8px;font-size:0.88rem;">
-    </div>
-
     <div class="inventario-tabs card shadow-sm border-0 rounded-3 overflow-hidden">
         <ul class="nav nav-tabs mb-0" role="tablist">
             <li class="nav-item">
@@ -1115,8 +1111,7 @@ function deseleccionarProducto() {
     _productoSelInv = null;
     if (tsProductoInv) tsProductoInv.setValue('', true);
     document.querySelectorAll('#tabla_inv tr').forEach(tr => tr.classList.remove('table-primary'));
-    const banner = document.getElementById('banner_prod_sel');
-    if (banner) banner.style.display = 'none';
+
 }
 </script>
 

@@ -157,7 +157,7 @@
         <div class="filter-row">
             <div class="filter-col">
                 <label>Moneda</label>
-                <select id="moneda" onchange="cargarCxC()">
+                <select id="moneda" onchange="actualizarBtnLimpiar(); cargarCxC()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
@@ -251,7 +251,7 @@ function actualizarBtnLimpiar() {
     const hayFiltro =
         document.getElementById('moneda').value !== 'Bs' ||
         (tsVendedor && tsVendedor.getValue() !== 'TODOS') ||
-        (tsCliente && tsCliente.getValue() !== '') || false;
+        (tsCliente  && tsCliente.getValue()  !== '');
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -278,7 +278,7 @@ async function cargarCxC() {
         });
         dataCache = await r.json();
 
-        if (!clientesCargados && dataCache.clientes?.length && tsCliente) {
+        if (dataCache.clientes?.length && tsCliente) {
             const actualC = tsCliente.getValue();
             tsCliente.clearOptions();
             tsCliente.addOption({ value: '', text: 'Todos los clientes / grupos...' });
@@ -286,10 +286,11 @@ async function cargarCxC() {
                 if (c?.trim()) tsCliente.addOption({ value: c.trim(), text: c.trim() });
             });
             tsCliente.refreshOptions(false);
-            tsCliente.setValue(actualC || '', true);
-            clientesCargados = true;
+            // Restaurar selección si sigue existiendo
+            if (actualC && dataCache.clientes.includes(actualC))
+                tsCliente.setValue(actualC, true);
         }
-        if (!vendedoresCargados && dataCache.vendedores?.length && tsVendedor) {
+        if (dataCache.vendedores?.length && tsVendedor) {
             const actual = tsVendedor.getValue();
             tsVendedor.clearOptions();
             tsVendedor.addOption({ value: 'TODOS', text: 'Todos los vendedores' });
@@ -298,8 +299,7 @@ async function cargarCxC() {
                     tsVendedor.addOption({ value: v.trim(), text: v.trim() });
             });
             tsVendedor.refreshOptions(false);
-            tsVendedor.setValue(actual || 'TODOS', true);
-            vendedoresCargados = true;
+            tsVendedor.setValue(actual && dataCache.vendedores.includes(actual) ? actual : 'TODOS', true);
         }
         aplicarBusqueda();
     } catch (e) { console.error('Error CxC:', e); }

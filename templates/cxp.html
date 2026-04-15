@@ -274,7 +274,7 @@ async function cargarCxP() {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         dataCache = await r.json();
         // Poblar TomSelect de proveedor desde API
-        if (!provCargados && dataCache.proveedores?.length && tsProveedor) {
+        if (dataCache.proveedores?.length && tsProveedor) {
             const actual = tsProveedor.getValue();
             tsProveedor.clearOptions();
             tsProveedor.addOption({ value: '', text: 'Todos los proveedores...' });
@@ -282,8 +282,8 @@ async function cargarCxP() {
                 if (p?.trim()) tsProveedor.addOption({ value: p.trim(), text: p.trim() });
             });
             tsProveedor.refreshOptions(false);
-            tsProveedor.setValue(actual || '', true);
-            provCargados = true;
+            if (actual && dataCache.proveedores.includes(actual))
+                tsProveedor.setValue(actual, true);
         }
         aplicarBusqueda();
     } catch (e) { console.error('Error CxP:', e); }
