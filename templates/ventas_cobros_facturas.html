@@ -3,8 +3,8 @@
 
 <style>
     :root {
-        --cob-primary: #9c27b0;
-        --cob-light:   #f3e5f5;
+        --vcf-primary: #27ae60;
+        --vcf-light:   #e8f5e9;
     }
 
     .dashboard-wrapper { max-width: 1600px; margin: 0 auto; padding: 0 15px; }
@@ -22,17 +22,16 @@
         border-radius: 8px; font-size: 0.92rem; background: white;
     }
     .filter-col input:focus, .filter-col select:focus {
-        border-color: var(--cob-primary);
-        box-shadow: 0 0 0 3px rgba(156,39,176,0.15); outline: none;
+        border-color: var(--vcf-primary);
+        box-shadow: 0 0 0 3px rgba(39,174,96,0.15); outline: none;
     }
 
     .total-kpi {
-        font-size: 1.8rem; font-weight: 800; color: var(--cob-primary);
-        background: var(--cob-light); padding: 8px 20px; border-radius: 10px;
+        font-size: 1.8rem; font-weight: 800; color: var(--vcf-primary);
+        background: var(--vcf-light); padding: 8px 20px; border-radius: 10px;
         white-space: nowrap;
     }
 
-    /* ✅ Botón limpiar filtros */
     .btn-limpiar {
         padding: 8px 16px; background: #fee2e2; color: #dc2626;
         border: 1px solid #fca5a5; border-radius: 8px;
@@ -48,7 +47,7 @@
         font-weight: 600; background: #f3f4f6; color: #374151;
         cursor: pointer; transition: all 0.25s;
     }
-    .tab-btn.active, .tab-btn:hover { background: var(--cob-primary); color: white; }
+    .tab-btn.active, .tab-btn:hover { background: var(--vcf-primary); color: white; }
 
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
@@ -57,10 +56,9 @@
         background: white; border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 0;
     }
-
     .chart-title {
         font-size: 1.05rem; font-weight: 700; color: #1f2937;
-        margin-bottom: 15px; border-left: 5px solid var(--cob-primary); padding-left: 10px;
+        margin-bottom: 15px; border-left: 5px solid var(--vcf-primary); padding-left: 10px;
     }
     .chart-container { position: relative; height: 380px; }
 
@@ -72,15 +70,17 @@
     }
     .table td { font-size: 0.9rem; vertical-align: middle; }
 
-    /* ✅ FIX: fecha en una línea siempre */
     .table td.fecha-col, .table th.fecha-col {
         white-space: nowrap !important;
         width: 115px !important; min-width: 115px !important; max-width: 115px !important;
         overflow: hidden; text-overflow: ellipsis;
     }
+    .table td.cliente-col, .table th.cliente-col {
+        max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
 
     .badge-forma {
-        background-color: var(--cob-light); color: var(--cob-primary); font-weight: 500;
+        background-color: var(--vcf-light); color: var(--vcf-primary); font-weight: 500;
         white-space: nowrap;
     }
 
@@ -147,35 +147,36 @@
 <div class="dashboard-wrapper">
     <div class="filter-card">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cobros y Recibos</h4>
-            <div class="total-kpi" id="total_general">0,00</div>
+            <h4 class="mb-0 fw-bold text-dark">{{ empresa }} | Cobros (Facturas)</h4>
+            <div class="total-kpi" id="txt_total_general">0,00</div>
         </div>
 
         <div class="filter-row">
             <div class="filter-col" style="max-width:145px;">
                 <label>Desde</label>
-                <input type="date" id="fecha_inicio" onchange="debouncedCargarCobros()">
+                <input type="date" id="fecha_inicio" onchange="debouncedCargarDatos()">
             </div>
             <div class="filter-col" style="max-width:145px;">
                 <label>Hasta</label>
-                <input type="date" id="fecha_fin" onchange="debouncedCargarCobros()">
+                <input type="date" id="fecha_fin" onchange="debouncedCargarDatos()">
             </div>
             <div class="filter-col" style="max-width:160px;">
                 <label>Moneda</label>
-                <select id="moneda" onchange="cargarCobros()">
+                <select id="moneda" onchange="cargarDatos()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                 </select>
             </div>
+            <!-- ✅ Mismo patrón que cobros.html — select poblado desde API -->
             <div class="filter-col">
                 <label>Caja / Punto</label>
-                <select id="caja" onchange="cargarCobros()">
+                <select id="caja" onchange="cargarDatos()">
                     <option value="TODAS">Todas las cajas</option>
                 </select>
             </div>
             <div class="filter-col">
                 <label>Forma de Pago</label>
-                <select id="forma_pago" onchange="cargarCobros()">
+                <select id="forma_pago" onchange="cargarDatos()">
                     <option value="TODAS">Todas</option>
                     <option value="EFECTIVO">Efectivo</option>
                     <option value="TRANSFERENCIA">Transferencia</option>
@@ -189,18 +190,19 @@
                 </select>
             </div>
             <div class="filter-col">
-                <label>Cliente</label>
-                <select id="filtro_cliente"><option value="">Todos los clientes...</option></select>
+                <label>Vendedor</label>
+                <select id="filtro_vendedor" onchange="cargarDatos()">
+                    <option value="TODOS">Todos</option>
+                </select>
             </div>
             <div class="filter-col" style="max-width:130px;">
                 <label>Top N</label>
-                <select id="top_n" onchange="cargarCobros()">
+                <select id="top_n" onchange="cargarDatos()">
                     <option value="5">Top 5</option>
                     <option value="10" selected>Top 10</option>
                     <option value="20">Top 20</option>
                 </select>
             </div>
-            <!-- ✅ Botón limpiar filtros -->
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">
                 ✕ Limpiar filtros
             </button>
@@ -209,11 +211,10 @@
 
     <div class="tab-navigation">
         <button class="tab-btn active" data-tab="tab_resumen">Resumen General</button>
-        <button class="tab-btn" data-tab="tab_clientes">Top Clientes</button>
-        <button class="tab-btn" data-tab="tab_detalle">Detalle Recibos</button>
+        <button class="tab-btn" data-tab="tab_vendedores">Top Vendedores</button>
+        <button class="tab-btn" data-tab="tab_detalle">Detalle Facturas</button>
     </div>
 
-    <!-- Resumen General -->
     <div id="tab_resumen" class="tab-pane active">
         <div class="row g-4">
             <div class="col-lg-4">
@@ -224,8 +225,8 @@
             </div>
             <div class="col-lg-4">
                 <div class="card-chart">
-                    <div class="chart-title">Cobradores</div>
-                    <div class="chart-container"><canvas id="chartCobradores"></canvas></div>
+                    <div class="chart-title">Cobros por Vendedor</div>
+                    <div class="chart-container"><canvas id="chartVendedores"></canvas></div>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -237,28 +238,26 @@
         </div>
     </div>
 
-    <!-- Top Clientes -->
-    <div id="tab_clientes" class="tab-pane">
+    <div id="tab_vendedores" class="tab-pane">
         <div class="card-chart">
-            <div class="chart-title">Top Clientes por Monto Recaudado</div>
-            <div class="chart-container" style="height: 520px;"><canvas id="chartClientes"></canvas></div>
+            <div class="chart-title">Ranking de Vendedores (Monto Cobrado)</div>
+            <div class="chart-container" style="height: 520px;"><canvas id="chartTopVendedores"></canvas></div>
         </div>
     </div>
 
-    <!-- Detalle Recibos -->
     <div id="tab_detalle" class="tab-pane">
         <div class="card-chart">
-            <div class="chart-title">Detalle de Recibos</div>
+            <div class="chart-title">Detalle de Facturas Cobradas</div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Recibo</th>
+                            <th>Código</th>
                             <th class="fecha-col">Fecha</th>
-                            <th>Cliente</th>
-                            <th>Forma Pago</th>
+                            <th class="cliente-col">Cliente</th>
+                            <th>Vendedor</th>
                             <th>Caja</th>
-                            <th>Cobrador</th>
+                            <th>Forma Pago</th>
                             <th class="text-end pe-3">Monto</th>
                         </tr>
                     </thead>
@@ -271,8 +270,8 @@
 
 <div id="loadingOverlay">
     <div class="loading-content">
-        <div class="spinner-border text-primary" role="status"></div>
-        <div class="mt-3 fw-bold text-primary fs-5">Cargando cobros y recibos, por favor espere...</div>
+        <div class="spinner-border text-success" role="status"></div>
+        <div class="mt-3 fw-bold text-success fs-5">Cargando cobros de facturas, por favor espere...</div>
     </div>
 </div>
 
@@ -288,9 +287,9 @@ function debounce(func, wait = 600) {
     let t;
     return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); };
 }
-const debouncedCargarCobros = debounce(cargarCobros);
+const debouncedCargarDatos = debounce(cargarDatos);
 
-// ✅ Fechas de inicio de mes y fin hoy
+// ✅ Mismo patrón que cobros.html
 function fechasDefault() {
     const hoy     = new Date();
     const periodo = '{{ periodo | default("M") }}';
@@ -303,33 +302,27 @@ function fechasDefault() {
     }
 }
 
-// ✅ Limpiar filtros — devuelve todo a estado inicial
 function limpiarFiltros() {
     fechasDefault();
-    document.getElementById('moneda').value     = 'Bs';
-    document.getElementById('caja').value        = 'TODAS';
-    document.getElementById('forma_pago').value  = 'TODAS';
-    if (tsCliente) tsCliente.setValue('', true);
-    document.getElementById('top_n').value       = '10';
+    document.getElementById('moneda').value          = 'Bs';
+    document.getElementById('caja').value            = 'TODAS';
+    document.getElementById('forma_pago').value      = 'TODAS';
+    document.getElementById('filtro_vendedor').value = 'TODOS';
+    document.getElementById('top_n').value           = '10';
     actualizarBtnLimpiar();
-    cargarCobros();
+    cargarDatos();
 }
 
-// ✅ Mostrar/ocultar botón limpiar según filtros activos
 function actualizarBtnLimpiar() {
     const hoy    = new Date();
     const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    const fechaInicioDefault = primero.toISOString().split('T')[0];
-    const fechaFinDefault    = hoy.toISOString().split('T')[0];
-
     const hayFiltro =
-        document.getElementById('fecha_inicio').value !== fechaInicioDefault ||
-        document.getElementById('fecha_fin').value    !== fechaFinDefault    ||
-        document.getElementById('caja').value        !== 'TODAS'            ||
-        document.getElementById('forma_pago').value  !== 'TODAS'            ||
-        (tsCliente && tsCliente.getValue() !== '')                           ||
-        document.getElementById('top_n').value       !== '10';
-
+        document.getElementById('fecha_inicio').value !== primero.toISOString().split('T')[0] ||
+        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0]     ||
+        document.getElementById('caja').value         !== 'TODAS' ||
+        document.getElementById('forma_pago').value   !== 'TODAS' ||
+        document.getElementById('filtro_vendedor').value !== 'TODOS' ||
+        document.getElementById('top_n').value        !== '10';
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -342,7 +335,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-async function cargarCobros() {
+async function cargarDatos() {
     actualizarBtnLimpiar();
     showLoading();
 
@@ -350,51 +343,55 @@ async function cargarCobros() {
         fecha_inicio: document.getElementById('fecha_inicio').value,
         fecha_fin:    document.getElementById('fecha_fin').value,
         moneda:       document.getElementById('moneda').value,
+        caja:         document.getElementById('caja').value,
         forma_pago:   document.getElementById('forma_pago').value,
-        cliente:      tsCliente ? (tsCliente.getValue() || '') : '',
-        top_n:        parseInt(document.getElementById('top_n').value),
-        caja:         document.getElementById('caja').value
+        vendedor:     document.getElementById('filtro_vendedor').value,
+        top_n:        parseInt(document.getElementById('top_n').value)
     };
 
     try {
-        const r = await fetch('/api/cobros', {
+        const r = await fetch('/api/cobros-facturas', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(params)
         });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
-
         const data = await r.json();
 
-        // Llenar cajas (solo primera vez)
+        // ✅ Poblar cajas solo la primera vez — igual a cobros.html
         const selCaja = document.getElementById('caja');
-        if (selCaja.options.length === 1 && data.cajas_lista) {
-            data.cajas_lista.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c; opt.textContent = c;
-                selCaja.appendChild(opt);
+        if (selCaja.options.length === 1 && data.lista_cajas?.length) {
+            data.lista_cajas.forEach(c => {
+                if (c?.trim()) {
+                    const opt = document.createElement('option');
+                    opt.value = c; opt.textContent = c;
+                    selCaja.appendChild(opt);
+                }
             });
         }
 
-        // Poblar clientes TomSelect
-        if (data.clientes_lista?.length && tsCliente) {
-            const actual = tsCliente.getValue();
-            tsCliente.clearOptions();
-            tsCliente.addOption({ value: '', text: 'Todos los clientes...' });
-            data.clientes_lista.forEach(c => { if (c) tsCliente.addOption({ value: c, text: c }); });
-            tsCliente.refreshOptions(false);
-            if (actual && data.clientes_lista.includes(actual)) tsCliente.setValue(actual, true);
+        // Poblar vendedores (primera vez o actualizar)
+        const selVend = document.getElementById('filtro_vendedor');
+        if (selVend.options.length === 1 && data.lista_vendedores?.length) {
+            data.lista_vendedores.forEach(v => {
+                if (v?.trim() && v !== 'TODOS') {
+                    const opt = document.createElement('option');
+                    opt.value = v.trim().toUpperCase();
+                    opt.textContent = v.trim();
+                    selVend.appendChild(opt);
+                }
+            });
         }
 
         const monedaStr = params.moneda;
         const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        document.getElementById('total_general').textContent = fmt(data.total_general || 0) + ' ' + monedaStr;
+        document.getElementById('txt_total_general').textContent = fmt(data.total_general || 0) + ' ' + monedaStr;
 
         renderAll(data, monedaStr);
 
     } catch (e) {
-        console.error('Error cargando cobros:', e);
+        console.error('Error cargando cobros-facturas:', e);
     } finally {
         hideLoading();
     }
@@ -403,32 +400,31 @@ async function cargarCobros() {
 function renderAll(d, moneda) {
     const fmt = n => (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    renderChartWithPercent('chartFormas',    'doughnut', 'Formas de Pago',
+    renderChartWithPercent('chartFormas', 'doughnut', 'Formas de Pago',
         d.formas_pago?.map(x => x.label) || [], d.formas_pago?.map(x => x.value) || [],
-        ['#9c27b0','#a855f7','#c084fc','#d8b4fe','#e9d5ff']);
+        ['#27ae60','#2ecc71','#58d68d','#a9dfbf','#1abc9c']);
 
-    renderChartWithPercent('chartCobradores', 'bar', 'Cobradores',
-        d.cobradores?.map(x => x.label) || [], d.cobradores?.map(x => x.value) || [],
-        ['#10b981','#34d399','#6ee7b7','#a7f3d0'], 'y');
+    renderChartWithPercent('chartVendedores', 'bar', 'Cobros por Vendedor',
+        d.vendedores?.map(x => x.label) || [], d.vendedores?.map(x => x.value) || [],
+        ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe'], 'y');
 
     renderChartWithPercent('chartCajas', 'pie', 'Cajas / Puntos',
         d.cajas?.map(x => x.label) || [], d.cajas?.map(x => x.value) || [],
         ['#f59e0b','#fbbf24','#fcd34d','#fde68a']);
 
-    renderChartWithPercent('chartClientes', 'bar', 'Top Clientes',
-        d.clientes?.map(x => x.label) || [], d.clientes?.map(x => x.value) || [],
+    renderChartWithPercent('chartTopVendedores', 'bar', 'Ranking Vendedores',
+        d.vendedores?.map(x => x.label) || [], d.vendedores?.map(x => x.value) || [],
         ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe'], 'y');
 
-    // ✅ Tabla con fecha en clase fecha-col → nowrap garantizado por CSS
     document.getElementById('tabla_body').innerHTML = (d.tabla || []).map(r => `
         <tr>
-            <td class="fw-bold" style="white-space:nowrap">${r.RECIBO || '-'}</td>
+            <td class="fw-bold" style="white-space:nowrap">${r.CODIGO || '-'}</td>
             <td class="fecha-col">${r.FECHA || '-'}</td>
-            <td><small>${r.CLIENTE || '—'}</small></td>
-            <td><span class="badge badge-forma" style="white-space:nowrap">${r.FORMA || '—'}</span></td>
+            <td class="cliente-col"><small>${r.CLIENTE || '—'}</small></td>
+            <td><small>${r.VENDEDOR || '—'}</small></td>
             <td><small style="white-space:nowrap">${r.CAJA || '—'}</small></td>
-            <td><small>${r.COBRADOR || '—'}</small></td>
-            <td class="text-end fw-bold pe-3" style="white-space:nowrap;color:var(--cob-primary)">${fmt(r.MONTO)} ${moneda}</td>
+            <td><span class="badge badge-forma" style="white-space:nowrap">${r.FORMAPAGO || '—'}</span></td>
+            <td class="text-end fw-bold pe-3" style="white-space:nowrap;color:var(--vcf-primary)">${fmt(r.MONTO)} ${moneda}</td>
         </tr>
     `).join('');
 }
@@ -472,19 +468,9 @@ function renderChartWithPercent(id, type, title, labels, values, colores, indexA
     });
 }
 
-let tsCliente = null;
-
-function initTomSelects() {
-    tsCliente = new TomSelect('#filtro_cliente', {
-        allowEmptyOption: true, placeholder: 'Buscar cliente...',
-        maxOptions: 400, onChange: () => cargarCobros()
-    });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     fechasDefault();
-    initTomSelects();
-    cargarCobros();
+    cargarDatos();
 });
 </script>
 

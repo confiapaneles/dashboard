@@ -190,7 +190,7 @@
             </div>
             <div class="filter-col">
                 <label>Cliente</label>
-                <input type="text" id="filtro_cliente" placeholder="Nombre o código..." oninput="debouncedCargarCobros()">
+                <select id="filtro_cliente"><option value="">Todos los clientes...</option></select>
             </div>
             <div class="filter-col" style="max-width:130px;">
                 <label>Top N</label>
@@ -309,7 +309,7 @@ function limpiarFiltros() {
     document.getElementById('moneda').value     = 'Bs';
     document.getElementById('caja').value        = 'TODAS';
     document.getElementById('forma_pago').value  = 'TODAS';
-    document.getElementById('filtro_cliente').value = '';
+    if (tsCliente) tsCliente.setValue('', true);
     document.getElementById('top_n').value       = '10';
     actualizarBtnLimpiar();
     cargarCobros();
@@ -327,7 +327,7 @@ function actualizarBtnLimpiar() {
         document.getElementById('fecha_fin').value    !== fechaFinDefault    ||
         document.getElementById('caja').value        !== 'TODAS'            ||
         document.getElementById('forma_pago').value  !== 'TODAS'            ||
-        document.getElementById('filtro_cliente').value.trim() !== ''       ||
+        (tsCliente && tsCliente.getValue() !== '')                           ||
         document.getElementById('top_n').value       !== '10';
 
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
@@ -351,7 +351,7 @@ async function cargarCobros() {
         fecha_fin:    document.getElementById('fecha_fin').value,
         moneda:       document.getElementById('moneda').value,
         forma_pago:   document.getElementById('forma_pago').value,
-        cliente:      document.getElementById('filtro_cliente').value.trim().toUpperCase(),
+        cliente:      tsCliente ? (tsCliente.getValue() || '') : '',
         top_n:        parseInt(document.getElementById('top_n').value),
         caja:         document.getElementById('caja').value
     };
@@ -374,6 +374,16 @@ async function cargarCobros() {
                 opt.value = c; opt.textContent = c;
                 selCaja.appendChild(opt);
             });
+        }
+
+        // Poblar clientes TomSelect
+        if (data.clientes_lista?.length && tsCliente) {
+            const actual = tsCliente.getValue();
+            tsCliente.clearOptions();
+            tsCliente.addOption({ value: '', text: 'Todos los clientes...' });
+            data.clientes_lista.forEach(c => { if (c) tsCliente.addOption({ value: c, text: c }); });
+            tsCliente.refreshOptions(false);
+            if (actual && data.clientes_lista.includes(actual)) tsCliente.setValue(actual, true);
         }
 
         const monedaStr = params.moneda;
@@ -462,9 +472,18 @@ function renderChartWithPercent(id, type, title, labels, values, colores, indexA
     });
 }
 
+let tsCliente = null;
+
+function initTomSelects() {
+    tsCliente = new TomSelect('#filtro_cliente', {
+        allowEmptyOption: true, placeholder: 'Buscar cliente...',
+        maxOptions: 400, onChange: () => cargarCobros()
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // ✅ Fecha: 01 del mes actual → hoy
     fechasDefault();
+    initTomSelects();
     cargarCobros();
 });
 </script>
