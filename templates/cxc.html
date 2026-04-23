@@ -274,7 +274,8 @@ async function cargarCxC() {
     try {
         const params = {
             moneda:   document.getElementById('moneda').value,
-            vendedor: tsVendedor ? tsVendedor.getValue() : 'TODOS'
+            vendedor: tsVendedor ? tsVendedor.getValue().trim() : 'TODOS',
+            cliente:  tsCliente  ? tsCliente.getValue().trim() : ''
         };
         const r = await fetch('/api/cartera_cxc', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params)
@@ -286,7 +287,8 @@ async function cargarCxC() {
             tsCliente.clearOptions();
             tsCliente.addOption({ value: '', text: 'Todos los clientes / grupos...' });
             dataCache.clientes.forEach(c => {
-                if (c?.trim()) tsCliente.addOption({ value: c.trim(), text: c.trim() });
+                const ct = c?.trim();
+                if (ct) tsCliente.addOption({ value: ct, text: ct });
             });
             tsCliente.refreshOptions(false);
             // Restaurar selección si sigue existiendo
@@ -381,7 +383,12 @@ function initTomSelects() {
     });
     tsCliente = new TomSelect('#bus_cxc', {
         allowEmptyOption: true, placeholder: 'Buscar cliente o grupo...',
-        maxOptions: 300, onChange: () => cargarCxC()
+        maxOptions: 300,
+        render: {
+            option: (data, escape) => `<div>${escape(data.text.trim())}</div>`,
+            item:   (data, escape) => `<div>${escape(data.text.trim())}</div>`,
+        },
+        onChange: () => cargarCxC()
     });
 }
 

@@ -426,7 +426,7 @@ def get_cartera_cxc():
                 # Filtros
                 if vendedor and vendedor != 'TODOS' and vendedor != vend:
                     continue
-                if cliente_filtro and cliente_filtro not in cliente.upper():
+                if cliente_filtro and cliente_filtro.strip() not in cliente.strip().upper():
                     continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
