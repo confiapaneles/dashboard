@@ -1449,13 +1449,17 @@ def get_compras():
                 fecha_reg  = parse_fecha(rec.get('FECHA'))
                 prod_label = (cod_prod + " - " + prod_reg) if cod_prod else prod_reg
 
+                # Filtrar por FECHA primero
+                if f_inicio and fecha_reg < f_inicio: continue
+                if f_fin    and fecha_reg > f_fin:    continue
+
+                # Recolectar listas solo del período
                 if prov_reg and prov_reg != 'S/P': all_proveedores.add(prov_reg)
                 if prod_reg and prod_reg != 'S/P': all_productos.add(prod_label)
 
+                # Filtrar por selección
                 if f_prov and f_prov != prov_reg:    continue
                 if f_prod and f_prod != prod_label:  continue
-                if f_inicio and fecha_reg < f_inicio: continue
-                if f_fin    and fecha_reg > f_fin:    continue
 
                 m_raw  = safe_float(rec.get('MONTO'))
                 factor  = safe_float(rec.get('FACTOR')) or 1.0
