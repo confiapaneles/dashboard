@@ -431,7 +431,13 @@ def get_cartera_cxc():
 
                 saldo_raw = safe_float(rec.get('SALDO'))
                 factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
-                saldo     = saldo_raw if moneda == 'Bs' else (round(saldo_raw / factor, 2) if factor > 0 else saldo_raw)
+                factor2   = safe_float(rec.get('FACTOR2')) or 0.0
+                if moneda == 'USDT' and factor2 > 0:
+                    saldo = round(saldo_raw / factor2, 2)
+                elif moneda == 'USD' and factor > 0:
+                    saldo = round(saldo_raw / factor, 2)
+                else:
+                    saldo = saldo_raw
 
                 total_gral += saldo
                 nombre_grupo = str(rec.get('GRUPO', 'SIN GRUPO')).strip()
@@ -484,6 +490,12 @@ def get_ventas():
     caja_filtro       = (params.get('filtro_caja') or '').strip().upper()
     status_filtro     = params.get('status', 'TODOS')
 
+    # Filtros de clasificación (CLASI1-4 del tablero_facturas)
+    filtros_clasi = {}
+    for i in '1234':
+        v = (params.get(f'clasi{i}') or '').strip().upper()
+        if v: filtros_clasi[i] = v
+
     nombres_completos = {}
     try:
         path_inv = get_dbf_path('tablero_inventario.DBF')
@@ -513,6 +525,10 @@ def get_ventas():
     all_clientes    = set()
     all_productos   = set()
     all_cajas       = set()
+    all_clasi       = {"1": set(), "2": set(), "3": set(), "4": set()}
+    nombres_clasi   = {}
+    total_kilos     = 0.0
+    por_producto_kilos = defaultdict(float)
     clientes_unicos = set()
     por_dia_hist    = defaultdict(lambda: {"monto": 0.0, "cantidad": 0.0, "facturas": 0})
 
@@ -555,15 +571,43 @@ def get_ventas():
                 if caja: all_cajas.add(caja)
                 if caja_filtro and caja != caja_filtro: continue
 
+                # Recolectar clasificaciones y filtrar
+                for ci in '1234':
+                    cv = str(rec.get(f'CLASI{ci}', '')).strip()
+                    if cv:
+                        all_clasi[ci].add(cv)
+                        if not nombres_clasi.get(ci): nombres_clasi[ci] = f'Clasificación {ci}'
+
+                clasi_pasar = True
+                for ci, cf in filtros_clasi.items():
+                    if cf and cf != str(rec.get(f'CLASI{ci}', '')).strip().upper():
+                        clasi_pasar = False
+                        break
+                if not clasi_pasar: continue
+
                 m_raw    = safe_float(rec.get('MONTO'))
                 factor   = safe_float(rec.get('FACTOR')) or 1.0
-                monto    = m_raw if moneda == 'Bs' else (m_raw / factor)
+                factor2  = safe_float(rec.get('FACTOR2')) or 1.0
+                if moneda == 'Bs':
+                    monto = m_raw
+                elif moneda == 'USDT':
+                    monto = m_raw / factor2 if factor2 else 0
+                else:
+                    monto = m_raw / factor if factor else 0
                 igtf_raw = safe_float(rec.get('IGTF', 0))
-                igtf     = igtf_raw if moneda == 'Bs' else (igtf_raw / factor)
+                if moneda == 'Bs':
+                    igtf = igtf_raw
+                elif moneda == 'USDT':
+                    igtf = igtf_raw / factor2 if factor2 else 0
+                else:
+                    igtf = igtf_raw / factor if factor else 0
                 total_igtf += igtf
 
-                # ── Cantidad (nueva) ──────────────────────────────────────
-                cant = safe_float(rec.get('CANTIDAD'))
+                # ── Cantidad y Kilos ──────────────────────────────────────
+                cant  = safe_float(rec.get('CANTIDAD'))
+                kilos = safe_float(rec.get('KILOS'))
+                total_kilos += kilos
+                por_producto_kilos[producto] += kilos
 
                 tipo_fact  = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo_fact == '1' else "Crédito"
@@ -670,9 +714,15 @@ def get_ventas():
                 if busqueda_producto not in prod_label: continue
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja_filtro and caja != caja_filtro: continue
-                m_raw  = safe_float(rec.get('MONTO'))
-                factor = safe_float(rec.get('FACTOR')) or 1.0
-                monto  = m_raw if moneda == 'Bs' else (m_raw / factor)
+                m_raw   = safe_float(rec.get('MONTO'))
+                factor  = safe_float(rec.get('FACTOR')) or 1.0
+                factor2 = safe_float(rec.get('FACTOR2')) or 1.0
+                if moneda == 'Bs':
+                    monto = m_raw
+                elif moneda == 'USDT':
+                    monto = m_raw / factor2 if factor2 else 0
+                else:
+                    monto = m_raw / factor if factor else 0
                 cant   = safe_float(rec.get('CANTIDAD'))
                 detalle_producto["cantidad_total"] += cant
                 detalle_producto["monto_total"]    += monto
@@ -716,6 +766,13 @@ def get_ventas():
             "lista_clientes":   sorted(list(all_clientes)),
             "lista_productos":  sorted(list(all_productos)),
             "lista_cajas":      sorted([c for c in all_cajas if c]),
+            "clasificaciones":  {k: sorted(list(v)) for k, v in all_clasi.items() if v},
+            "nombres_clasi":    nombres_clasi,
+            "total_kilos":      round(total_kilos, 2),
+            "productos_kilos":  sorted(
+                [{"label": k, "value": round(v, 2)} for k, v in por_producto_kilos.items()],
+                key=lambda x: x["value"], reverse=True
+            )[:top_n],
             "facturas":         facturas_lista[:1000],
             "detalle_producto": detalle_producto,
             "historico_ventas": historico_ventas,
@@ -1220,7 +1277,13 @@ def get_cartera_cxp():
 
                 saldo_raw = safe_float(rec.get('SALDO'))
                 factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
-                saldo     = saldo_raw if moneda == 'Bs' else (round(saldo_raw / factor, 2) if factor > 0 else saldo_raw)
+                factor2   = safe_float(rec.get('FACTOR2')) or 0.0
+                if moneda == 'USDT' and factor2 > 0:
+                    saldo = round(saldo_raw / factor2, 2)
+                elif moneda == 'USD' and factor > 0:
+                    saldo = round(saldo_raw / factor, 2)
+                else:
+                    saldo = saldo_raw
 
                 total_gral += saldo
                 grupo = str(rec.get('GRUPO', 'SIN GRUPO')).strip()
@@ -1395,8 +1458,14 @@ def get_compras():
                 if f_fin    and fecha_reg > f_fin:    continue
 
                 m_raw  = safe_float(rec.get('MONTO'))
-                factor = safe_float(rec.get('FACTOR')) or 1.0
-                monto  = m_raw if moneda == 'Bs' else (m_raw / factor)
+                factor  = safe_float(rec.get('FACTOR')) or 1.0
+                factor2 = safe_float(rec.get('FACTOR2')) or 1.0
+                if moneda == 'Bs':
+                    monto = m_raw
+                elif moneda == 'USDT':
+                    monto = m_raw / factor2 if factor2 else 0
+                else:
+                    monto = m_raw / factor if factor else 0
                 cant   = safe_float(rec.get('CANTIDAD'))
                 tipo   = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo == '1' else ("Crédito" if tipo == '2' else "Otros")
