@@ -399,6 +399,8 @@ def get_cartera_cxc():
     fecha_fin   = params.get('fecha_fin', '')
     moneda      = params.get('moneda', 'Bs')
     vendedor    = params.get('vendedor', '').strip().upper()
+    cliente_filtro = params.get('cliente', '').strip().upper()
+    grupo_filtro   = params.get('grupo', '').strip().upper()
 
     data_tabla = []
     enveje = {"No Vencido": 0, "1-7 Dias": 0, "8-14 Dias": 0, "15-21 Dias": 0, "22-30 Dias": 0, "+30 Dias": 0}
@@ -406,7 +408,7 @@ def get_cartera_cxc():
     resumen_grupos_dict = defaultdict(float)
     all_vendedores = set()
     all_clientes   = set()
-    cliente_filtro = params.get('cliente', '').strip().upper()
+    all_grupos     = set()
 
     try:
         path = get_dbf_path('tablero_cxc.DBF')
@@ -418,16 +420,17 @@ def get_cartera_cxc():
 
                 vend    = str(rec.get('VENDEDOR', '')).strip().upper()
                 cliente = str(rec.get('CLIENTE', '')).strip()
+                grupo   = str(rec.get('GRUPO', '')).strip()
 
                 # Recolectar SIEMPRE antes de filtrar
                 all_vendedores.add(vend)
                 if cliente: all_clientes.add(cliente)
+                if grupo:   all_grupos.add(grupo)
 
                 # Filtros
-                if vendedor and vendedor != 'TODOS' and vendedor != vend:
-                    continue
-                if cliente_filtro and cliente_filtro.strip() not in cliente.strip().upper():
-                    continue
+                if vendedor and vendedor != 'TODOS' and vendedor != vend: continue
+                if cliente_filtro and cliente_filtro not in cliente.upper(): continue
+                if grupo_filtro and grupo_filtro not in grupo.upper(): continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
                 factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
@@ -440,10 +443,13 @@ def get_cartera_cxc():
                     saldo = saldo_raw
 
                 total_gral += saldo
-                nombre_grupo = str(rec.get('GRUPO', 'SIN GRUPO')).strip()
+                nombre_grupo = grupo if grupo else 'SIN GRUPO'
                 resumen_grupos_dict[nombre_grupo] += saldo
 
-                def conv(v): return v if moneda == 'Bs' else (round(v / factor, 2) if factor > 0 else v)
+                def conv(v):
+                    if moneda == 'USDT' and factor2 > 0: return round(v / factor2, 2)
+                    elif moneda == 'USD' and factor > 0: return round(v / factor, 2)
+                    return v
                 enveje["No Vencido"]  += conv(safe_float(rec.get('NOVENCIDO')))
                 enveje["1-7 Dias"]    += conv(safe_float(rec.get('VENCIDO1')))
                 enveje["8-14 Dias"]   += conv(safe_float(rec.get('VENCIDO2')))
@@ -470,7 +476,8 @@ def get_cartera_cxc():
             "resumen_grupos": resumen_final,
             "tabla": data_tabla[:800],
             "vendedores": sorted(list(all_vendedores)),
-            "clientes":   sorted(list(all_clientes))[:300]
+            "clientes":   sorted(list(all_clientes))[:300],
+            "grupos":     sorted(list(all_grupos))[:100]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -485,7 +492,7 @@ def get_ventas():
     fecha_inicio      = params.get('fecha_inicio', '')
     fecha_fin         = params.get('fecha_fin', '')
     vendedor          = params.get('vendedor', '').strip()
-    busqueda_cliente  = params.get('busqueda_cliente', '').strip().upper()
+    busqueda_cliente  = (params.get('cliente') or params.get('busqueda_cliente', '')).strip().upper()
     busqueda_producto = params.get('busqueda_producto', '').strip().upper()
     caja_filtro       = (params.get('filtro_caja') or '').strip().upper()
     status_filtro     = params.get('status', 'TODOS')
@@ -1244,16 +1251,17 @@ def get_cartera_cxp():
     fecha_inicio = params.get('fecha_inicio', '')
     fecha_fin    = params.get('fecha_fin', '')
     moneda       = params.get('moneda', 'Bs')
-    proveedor    = params.get('proveedor', '').upper().strip()
-    vendedor     = params.get('vendedor', '').upper().strip()
-    busqueda     = params.get('busqueda', '').upper().strip()
+    f_proveedor  = params.get('proveedor', '').strip().upper()
+    f_grupo      = params.get('grupo', '').strip().upper()
+    f_responsable = params.get('responsable', '').strip().upper()
 
     data_tabla = []
     enveje = {"No Vencido": 0, "1-7 Dias": 0, "8-14 Dias": 0, "15-21 Dias": 0, "22-30 Dias": 0, "+30 Dias": 0}
     total_gral = 0.0
     resumen_grupos_dict = defaultdict(float)
-    all_proveedores = set()
-    all_vendedores  = set()
+    all_proveedores  = set()
+    all_grupos       = set()
+    all_responsables = set()
 
     try:
         path = get_dbf_path('tablero_cxp.DBF')
@@ -1263,17 +1271,19 @@ def get_cartera_cxp():
                 if fecha_inicio and fecha_reg < fecha_inicio: continue
                 if fecha_fin    and fecha_reg > fecha_fin:    continue
 
-                prov = str(rec.get('PROVEEDOR', '')).strip().upper()
-                all_proveedores.add(prov)
-                if proveedor and proveedor != 'TODOS' and proveedor not in prov: continue
+                prov  = str(rec.get('PROVEEDOR', '')).strip()
+                grupo = str(rec.get('GRUPO', '')).strip()
+                resp  = str(rec.get('VENDEDOR', '')).strip()
 
-                vend = str(rec.get('VENDEDOR', '')).strip().upper()
-                all_vendedores.add(vend)
-                if vendedor and vendedor != 'TODOS' and vendedor != vend: continue
+                # Recolectar antes de filtrar
+                if prov:  all_proveedores.add(prov)
+                if grupo: all_grupos.add(grupo)
+                if resp:  all_responsables.add(resp)
 
-                if busqueda:
-                    if not any(busqueda in str(val).upper() for val in [prov, rec.get('GRUPO',''), rec.get('CODIGO',''), vend]):
-                        continue
+                # Filtros separados
+                if f_proveedor and f_proveedor not in prov.upper(): continue
+                if f_grupo and f_grupo not in grupo.upper(): continue
+                if f_responsable and f_responsable not in resp.upper(): continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
                 factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
@@ -1286,10 +1296,13 @@ def get_cartera_cxp():
                     saldo = saldo_raw
 
                 total_gral += saldo
-                grupo = str(rec.get('GRUPO', 'SIN GRUPO')).strip()
-                resumen_grupos_dict[grupo] += saldo
+                nombre_grupo = grupo if grupo else 'SIN GRUPO'
+                resumen_grupos_dict[nombre_grupo] += saldo
 
-                def conv(v): return v if moneda == 'Bs' else (round(v / factor, 2) if factor > 0 else v)
+                def conv(v):
+                    if moneda == 'USDT' and factor2 > 0: return round(v / factor2, 2)
+                    elif moneda == 'USD' and factor > 0: return round(v / factor, 2)
+                    return v
                 enveje["No Vencido"]  += conv(safe_float(rec.get('NOVENCIDO')))
                 enveje["1-7 Dias"]    += conv(safe_float(rec.get('VENCIDO1')))
                 enveje["8-14 Dias"]   += conv(safe_float(rec.get('VENCIDO2')))
@@ -1297,9 +1310,9 @@ def get_cartera_cxp():
                 enveje["22-30 Dias"]  += conv(safe_float(rec.get('VENCIDO4')))
                 enveje["+30 Dias"]    += conv(safe_float(rec.get('VENCIDO5')))
                 data_tabla.append({
-                    "GRUPO":     grupo, "PROVEEDOR": prov, "VENDEDOR": vend,
+                    "GRUPO":     nombre_grupo, "PROVEEDOR": prov, "VENDEDOR": resp,
                     "DOCUMENTO": str(rec.get('CODIGO', '')).strip(),
-                    "FECHA":     fecha_reg, "DIAS": int(rec.get('DIAS_VENC', 0)),
+                    "FECHA":     fecha_reg, "DIAS": int(rec.get('DIAS_VENC', 0) or 0),
                     "SALDO":     round(saldo, 2)
                 })
 
@@ -1311,9 +1324,10 @@ def get_cartera_cxp():
             "total": round(total_gral, 2),
             "envejecimiento": [{"label": k, "value": round(v, 2)} for k, v in enveje.items()],
             "resumen_grupos": resumen_final,
-            "tabla":      data_tabla[:1000],
-            "proveedores": sorted(list(all_proveedores)),
-            "vendedores":  sorted(list(all_vendedores))
+            "tabla":          data_tabla[:1000],
+            "proveedores":    sorted(list(all_proveedores)),
+            "grupos":         sorted(list(all_grupos)),
+            "responsables":   sorted(list(all_responsables))
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

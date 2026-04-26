@@ -802,6 +802,7 @@ function limpiarFiltroGeneral() {
 function limpiarTodosFiltros() {
     // Limpiar producto seleccionado
     if (tsProductoInv) tsProductoInv.setValue('', true);
+    _productoSelInv = null;
     const count = document.getElementById('filtro_gral_count');
     if (count) count.style.display = 'none';
     // Limpiar filtros de clasificación
@@ -815,6 +816,10 @@ function limpiarTodosFiltros() {
     if (badge) badge.textContent = '';
     paginaActual = 1;
     cargarInv(1);
+    // Recargar pestaña activa (precios o almacenes)
+    const tabActiva = document.querySelector('.inventario-tabs .nav-link.active')?.getAttribute('data-bs-target');
+    if (tabActiva === '#precios-pane')   setTimeout(() => cargarPrecios(), 200);
+    if (tabActiva === '#almacenes-pane') setTimeout(() => cargarAlmacenes(true), 200);
 }
 
 // ── Gráfico ───────────────────────────────────────────────────────────────

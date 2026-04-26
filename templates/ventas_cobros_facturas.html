@@ -195,6 +195,12 @@
                     <option value="TODOS">Todos</option>
                 </select>
             </div>
+            <div class="filter-col" style="min-width:200px;">
+                <label>Cliente</label>
+                <select id="filtro_cliente">
+                    <option value="">Todos los clientes</option>
+                </select>
+            </div>
             <div class="filter-col" style="max-width:130px;">
                 <label>Top N</label>
                 <select id="top_n" onchange="cargarDatos()">
@@ -278,6 +284,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let charts = {};
+let tsCaja  = null;
+let tsForma = null;
+let tsVend  = null;
+let tsCliente = null;
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
@@ -288,6 +298,48 @@ function debounce(func, wait = 600) {
     return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); };
 }
 const debouncedCargarDatos = debounce(cargarDatos);
+
+function initTomSelects() {
+    tsCaja = new TomSelect('#caja', {
+        allowEmptyOption: false, placeholder: 'Buscar caja...', maxOptions: 100,
+        onChange: () => cargarDatos()
+    });
+    tsForma = new TomSelect('#forma_pago', {
+        allowEmptyOption: false, placeholder: 'Buscar forma de pago...',
+        onChange: () => cargarDatos()
+    });
+    tsVend = new TomSelect('#filtro_vendedor', {
+        allowEmptyOption: false, placeholder: 'Buscar vendedor...', maxOptions: 200,
+        onChange: () => cargarDatos()
+    });
+    tsCliente = new TomSelect('#filtro_cliente', {
+        allowEmptyOption: true, placeholder: 'Buscar cliente...',
+        maxOptions: 300, onChange: () => cargarDatos()
+    });
+}
+
+function poblarCajas(lista) {
+    if (!tsCaja || !lista?.length) return;
+    const actual = tsCaja.getValue();
+    tsCaja.clearOptions();
+    tsCaja.addOption({ value: 'TODAS', text: 'Todas las cajas' });
+    lista.forEach(c => { if (c?.trim()) tsCaja.addOption({ value: c.trim(), text: c.trim() }); });
+    tsCaja.refreshOptions(false);
+    tsCaja.setValue(actual && lista.includes(actual) ? actual : 'TODAS', true);
+}
+
+function poblarVendedores(lista) {
+    if (!tsVend || !lista?.length) return;
+    const actual = tsVend.getValue();
+    tsVend.clearOptions();
+    tsVend.addOption({ value: 'TODOS', text: 'Todos' });
+    lista.forEach(v => {
+        if (v?.trim() && v !== 'TODOS')
+            tsVend.addOption({ value: v.trim().toUpperCase(), text: v.trim() });
+    });
+    tsVend.refreshOptions(false);
+    tsVend.setValue(actual || 'TODOS', true);
+}
 
 // ✅ Mismo patrón que cobros.html
 function fechasDefault() {
@@ -304,25 +356,30 @@ function fechasDefault() {
 
 function limpiarFiltros() {
     fechasDefault();
-    document.getElementById('moneda').value          = 'Bs';
-    document.getElementById('caja').value            = 'TODAS';
-    document.getElementById('forma_pago').value      = 'TODAS';
-    document.getElementById('filtro_vendedor').value = 'TODOS';
-    document.getElementById('top_n').value           = '10';
+    document.getElementById('moneda').value = 'Bs';
+    document.getElementById('top_n').value  = '10';
+    if (tsCaja)  tsCaja.setValue('TODAS', true);
+    if (tsForma) tsForma.setValue('TODAS', true);
+    if (tsVend)  tsVend.setValue('TODOS', true);
+    if (tsCliente) tsCliente.setValue('', true);
     actualizarBtnLimpiar();
     cargarDatos();
 }
 
 function actualizarBtnLimpiar() {
     const hoy    = new Date();
-    const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const periodo = '{{ periodo | default("M") }}';
+    const iniDef  = periodo === 'D'
+        ? hoy.toISOString().split('T')[0]
+        : new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
     const hayFiltro =
-        document.getElementById('fecha_inicio').value !== primero.toISOString().split('T')[0] ||
-        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0]     ||
-        document.getElementById('caja').value         !== 'TODAS' ||
-        document.getElementById('forma_pago').value   !== 'TODAS' ||
-        document.getElementById('filtro_vendedor').value !== 'TODOS' ||
-        document.getElementById('top_n').value        !== '10';
+        document.getElementById('fecha_inicio').value !== iniDef ||
+        document.getElementById('fecha_fin').value    !== hoy.toISOString().split('T')[0] ||
+        (tsCaja  && tsCaja.getValue()  !== 'TODAS') ||
+        (tsForma && tsForma.getValue() !== 'TODAS') ||
+        (tsVend  && tsVend.getValue()  !== 'TODOS') ||
+        (tsCliente && tsCliente.getValue() !== '') ||
+        document.getElementById('top_n').value !== '10';
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -343,9 +400,10 @@ async function cargarDatos() {
         fecha_inicio: document.getElementById('fecha_inicio').value,
         fecha_fin:    document.getElementById('fecha_fin').value,
         moneda:       document.getElementById('moneda').value,
-        caja:         document.getElementById('caja').value,
-        forma_pago:   document.getElementById('forma_pago').value,
-        vendedor:     document.getElementById('filtro_vendedor').value,
+        caja:         tsCaja  ? tsCaja.getValue()  : 'TODAS',
+        forma_pago:   tsForma ? tsForma.getValue() : 'TODAS',
+        vendedor:     tsVend  ? tsVend.getValue()  : 'TODOS',
+        cliente:      tsCliente ? tsCliente.getValue().trim() : '',
         top_n:        parseInt(document.getElementById('top_n').value)
     };
 
@@ -358,29 +416,17 @@ async function cargarDatos() {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
 
-        // ✅ Poblar cajas solo la primera vez — igual a cobros.html
-        const selCaja = document.getElementById('caja');
-        if (selCaja.options.length === 1 && data.lista_cajas?.length) {
-            data.lista_cajas.forEach(c => {
-                if (c?.trim()) {
-                    const opt = document.createElement('option');
-                    opt.value = c; opt.textContent = c;
-                    selCaja.appendChild(opt);
-                }
-            });
-        }
-
-        // Poblar vendedores (primera vez o actualizar)
-        const selVend = document.getElementById('filtro_vendedor');
-        if (selVend.options.length === 1 && data.lista_vendedores?.length) {
-            data.lista_vendedores.forEach(v => {
-                if (v?.trim() && v !== 'TODOS') {
-                    const opt = document.createElement('option');
-                    opt.value = v.trim().toUpperCase();
-                    opt.textContent = v.trim();
-                    selVend.appendChild(opt);
-                }
-            });
+        // Poblar TomSelects desde API
+        if (data.lista_cajas?.length)      poblarCajas(data.lista_cajas);
+        if (data.lista_vendedores?.length) poblarVendedores(data.lista_vendedores);
+        // Poblar clientes TomSelect
+        if (data.lista_clientes?.length && tsCliente) {
+            const actual = tsCliente.getValue();
+            tsCliente.clearOptions();
+            tsCliente.addOption({ value: '', text: 'Todos los clientes' });
+            data.lista_clientes.forEach(c => { const ct = c?.trim(); if (ct) tsCliente.addOption({ value: ct, text: ct }); });
+            tsCliente.refreshOptions(false);
+            if (actual && data.lista_clientes.includes(actual)) tsCliente.setValue(actual, true);
         }
 
         const monedaStr = params.moneda;
@@ -470,6 +516,7 @@ function renderChartWithPercent(id, type, title, labels, values, colores, indexA
 
 document.addEventListener('DOMContentLoaded', () => {
     fechasDefault();
+    initTomSelects();
     cargarDatos();
 });
 </script>

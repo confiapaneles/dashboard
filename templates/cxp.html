@@ -157,18 +157,23 @@
         <div class="filter-row">
             <div class="filter-col">
                 <label>Moneda</label>
-                <select id="moneda" onchange="cargarCxP()">
+                <select id="moneda" onchange="actualizarBtnLimpiar(); cargarCxP()">
                     <option value="Bs">Bolívares (Bs)</option>
                     <option value="USD">Dólares (USD)</option>
                     <option value="USDT">Dólar USDT</option>
                 </select>
             </div>
-            <div class="filter-col" style="flex-grow: 2; min-width: 350px;">
-                <label>Buscar (Proveedor, documento, grupo, responsable...)</label>
-                <select id="bus_cxp">
-                    <option value="">Todos los proveedores...</option>
-                </select>
-                <span class="filtro-info" id="filtro_info_cxp"></span>
+            <div class="filter-col" style="min-width:200px;">
+                <label>Grupo</label>
+                <select id="filtro_grupo"><option value="">Todos los grupos</option></select>
+            </div>
+            <div class="filter-col" style="min-width:250px; flex-grow:2;">
+                <label>Proveedor</label>
+                <select id="filtro_proveedor"><option value="">Todos los proveedores</option></select>
+            </div>
+            <div class="filter-col" style="min-width:200px;">
+                <label>Responsable</label>
+                <select id="filtro_responsable"><option value="">Todos</option></select>
             </div>
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
         </div>
@@ -232,7 +237,8 @@ let chartEnvejCxp   = null;
 let dataCache       = null;
 let tablaFiltrada   = [];
 let tsProveedor     = null;
-let provCargados    = false;
+let tsGrupo         = null;
+let tsResponsable   = null;
 
 const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -240,10 +246,36 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
 function hideLoading() { loadingOverlay.style.display = 'none'; }
 
+function initTomSelects() {
+    tsProveedor = new TomSelect('#filtro_proveedor', {
+        allowEmptyOption: true, placeholder: 'Buscar proveedor...',
+        maxOptions: 300, onChange: () => cargarCxP()
+    });
+    tsGrupo = new TomSelect('#filtro_grupo', {
+        allowEmptyOption: true, placeholder: 'Buscar grupo...',
+        maxOptions: 100, onChange: () => cargarCxP()
+    });
+    tsResponsable = new TomSelect('#filtro_responsable', {
+        allowEmptyOption: true, placeholder: 'Buscar responsable...',
+        maxOptions: 100, onChange: () => cargarCxP()
+    });
+}
+
+function poblarTS(ts, lista, textoVacio) {
+    if (!ts || !lista?.length) return;
+    const actual = ts.getValue();
+    ts.clearOptions();
+    ts.addOption({ value: '', text: textoVacio });
+    lista.forEach(v => { const t = v?.trim(); if (t) ts.addOption({ value: t, text: t }); });
+    ts.refreshOptions(false);
+    if (actual && lista.includes(actual)) ts.setValue(actual, true);
+}
+
 function limpiarFiltros() {
     document.getElementById('moneda').value = 'Bs';
-    if (tsProveedor) tsProveedor.setValue('', true);
-    document.getElementById('filtro_info_cxp').classList.remove('visible');
+    if (tsProveedor)   tsProveedor.setValue('', true);
+    if (tsGrupo)       tsGrupo.setValue('', true);
+    if (tsResponsable) tsResponsable.setValue('', true);
     actualizarBtnLimpiar();
     cargarCxP();
 }
@@ -251,7 +283,9 @@ function limpiarFiltros() {
 function actualizarBtnLimpiar() {
     const hayFiltro =
         document.getElementById('moneda').value !== 'Bs' ||
-        (tsProveedor && tsProveedor.getValue() !== '') || false;
+        (tsProveedor   && tsProveedor.getValue()   !== '') ||
+        (tsGrupo       && tsGrupo.getValue()       !== '') ||
+        (tsResponsable && tsResponsable.getValue() !== '');
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -270,22 +304,20 @@ async function cargarCxP() {
     actualizarBtnLimpiar();
     showLoading();
     try {
-        const params = { moneda: document.getElementById('moneda').value };
+        const params = {
+            moneda:       document.getElementById('moneda').value,
+            proveedor:    tsProveedor   ? tsProveedor.getValue().trim()   : '',
+            grupo:        tsGrupo       ? tsGrupo.getValue().trim()       : '',
+            responsable:  tsResponsable ? tsResponsable.getValue().trim() : ''
+        };
         const r = await fetch('/api/cartera_cxp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         dataCache = await r.json();
-        // Poblar TomSelect de proveedor desde API
-        if (dataCache.proveedores?.length && tsProveedor) {
-            const actual = tsProveedor.getValue();
-            tsProveedor.clearOptions();
-            tsProveedor.addOption({ value: '', text: 'Todos los proveedores...' });
-            dataCache.proveedores.forEach(p => {
-                if (p?.trim()) tsProveedor.addOption({ value: p.trim(), text: p.trim() });
-            });
-            tsProveedor.refreshOptions(false);
-            if (actual && dataCache.proveedores.includes(actual))
-                tsProveedor.setValue(actual, true);
-        }
+
+        poblarTS(tsProveedor,   dataCache.proveedores,   'Todos los proveedores');
+        poblarTS(tsGrupo,       dataCache.grupos,        'Todos los grupos');
+        poblarTS(tsResponsable, dataCache.responsables,  'Todos');
+
         aplicarBusqueda();
     } catch (e) { console.error('Error CxP:', e); }
     finally { hideLoading(); }
@@ -293,23 +325,7 @@ async function cargarCxP() {
 
 function aplicarBusqueda() {
     if (!dataCache?.tabla) return;
-    const bus     = document.getElementById('bus_cxp').value.toLowerCase().trim();
-    const infoEl  = document.getElementById('filtro_info_cxp');
-    const inputEl = document.getElementById('bus_cxp');
-
-    if (bus) {
-        tablaFiltrada = dataCache.tabla.filter(row =>
-            [row.GRUPO, row.PROVEEDOR, row.DOCUMENTO, row.VENDEDOR, row.FECHA || '']
-                .some(val => String(val || '').toLowerCase().includes(bus))
-        );
-        inputEl.classList.add('activo');
-        infoEl.textContent = `${tablaFiltrada.length} registros de ${dataCache.tabla.length}`;
-        infoEl.classList.add('visible');
-    } else {
-        tablaFiltrada = [...dataCache.tabla];
-        inputEl.classList.remove('activo');
-        infoEl.classList.remove('visible');
-    }
+    tablaFiltrada = [...dataCache.tabla];
     actualizarBtnLimpiar();
 
     const totalFiltrado = tablaFiltrada.reduce((s, r) => s + (r.SALDO || 0), 0);
@@ -321,10 +337,10 @@ function aplicarBusqueda() {
 }
 
 function renderResumen(rows) {
-    const bus = document.getElementById('bus_cxp').value.trim();
+    const hayFiltro = (tsProveedor && tsProveedor.getValue()) || (tsGrupo && tsGrupo.getValue()) || (tsResponsable && tsResponsable.getValue());
     const enveje = { 'No Vencido': 0, '1-7 Dias': 0, '8-14 Dias': 0, '15-21 Dias': 0, '22-30 Dias': 0, '+30 Dias': 0 };
 
-    if (!bus && dataCache?.envejecimiento) {
+    if (!hayFiltro && dataCache?.envejecimiento) {
         dataCache.envejecimiento.forEach(x => { if (enveje.hasOwnProperty(x.label)) enveje[x.label] = x.value; });
     } else {
         rows.forEach(row => {
@@ -368,13 +384,6 @@ function renderTabla(rows) {
             <td class="text-center ${row.DIAS > 0 ? 'text-vencido fw-bold' : 'text-success'}">${row.DIAS || 0}</td>
             <td class="text-end fw-bold pe-3">${fmt(row.SALDO)}</td>
         </tr>`).join('');
-}
-
-function initTomSelects() {
-    tsProveedor = new TomSelect('#bus_cxp', {
-        allowEmptyOption: true, placeholder: 'Buscar proveedor o grupo...',
-        maxOptions: 300, onChange: () => cargarCxP()
-    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -172,12 +172,17 @@
                     <option value="TODOS">Todos los vendedores</option>
                 </select>
             </div>
-            <div class="filter-col" style="min-width:300px; flex-grow:2;">
-                <label>Buscar (Cliente, documento, grupo...)</label>
-                <select id="bus_cxc">
-                    <option value="">Todos los clientes / grupos...</option>
+            <div class="filter-col" style="min-width:200px;">
+                <label>Grupo / Institución</label>
+                <select id="filtro_grupo">
+                    <option value="">Todos los grupos</option>
                 </select>
-                <span class="filtro-info" id="filtro_info_cxc"></span>
+            </div>
+            <div class="filter-col" style="min-width:250px; flex-grow:2;">
+                <label>Cliente</label>
+                <select id="bus_cxc">
+                    <option value="">Todos los clientes</option>
+                </select>
             </div>
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
         </div>
@@ -236,7 +241,7 @@ let tablaFiltrada     = [];
 let vendedoresCargados = false;
 let tsVendedor        = null;
 let tsCliente         = null;
-let clientesCargados  = false;
+let tsGrupo           = null;
 
 const fmt = v => (v || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -245,6 +250,7 @@ function limpiarFiltros() {
     document.getElementById('moneda').value = 'Bs';
     if (tsVendedor) tsVendedor.setValue('TODOS', true);
     if (tsCliente)  tsCliente.setValue('', true);
+    if (tsGrupo)    tsGrupo.setValue('', true);
 
     document.getElementById('filtro_info_cxc').classList.remove('visible');
     actualizarBtnLimpiar();
@@ -255,7 +261,8 @@ function actualizarBtnLimpiar() {
     const hayFiltro =
         document.getElementById('moneda').value !== 'Bs' ||
         (tsVendedor && tsVendedor.getValue() !== 'TODOS') ||
-        (tsCliente  && tsCliente.getValue()  !== '');
+        (tsCliente  && tsCliente.getValue()  !== '') ||
+        (tsGrupo    && tsGrupo.getValue()    !== '');
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hayFiltro);
 }
 
@@ -276,7 +283,8 @@ async function cargarCxC() {
         const params = {
             moneda:   document.getElementById('moneda').value,
             vendedor: tsVendedor ? tsVendedor.getValue().trim() : 'TODOS',
-            cliente:  tsCliente  ? tsCliente.getValue().trim() : ''
+            cliente:  tsCliente  ? tsCliente.getValue().trim() : '',
+            grupo:    tsGrupo    ? tsGrupo.getValue().trim()   : ''
         };
         const r = await fetch('/api/cartera_cxc', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params)
@@ -286,15 +294,26 @@ async function cargarCxC() {
         if (dataCache.clientes?.length && tsCliente) {
             const actualC = tsCliente.getValue();
             tsCliente.clearOptions();
-            tsCliente.addOption({ value: '', text: 'Todos los clientes / grupos...' });
+            tsCliente.addOption({ value: '', text: 'Todos los clientes' });
             dataCache.clientes.forEach(c => {
                 const ct = c?.trim();
                 if (ct) tsCliente.addOption({ value: ct, text: ct });
             });
             tsCliente.refreshOptions(false);
-            // Restaurar selección si sigue existiendo
             if (actualC && dataCache.clientes.includes(actualC))
                 tsCliente.setValue(actualC, true);
+        }
+        if (dataCache.grupos?.length && tsGrupo) {
+            const actualG = tsGrupo.getValue();
+            tsGrupo.clearOptions();
+            tsGrupo.addOption({ value: '', text: 'Todos los grupos' });
+            dataCache.grupos.forEach(g => {
+                const gt = g?.trim();
+                if (gt) tsGrupo.addOption({ value: gt, text: gt });
+            });
+            tsGrupo.refreshOptions(false);
+            if (actualG && dataCache.grupos.includes(actualG))
+                tsGrupo.setValue(actualG, true);
         }
         if (dataCache.vendedores?.length && tsVendedor) {
             const actual = tsVendedor.getValue();
@@ -383,13 +402,12 @@ function initTomSelects() {
         maxOptions: 200, onChange: () => cargarCxC()
     });
     tsCliente = new TomSelect('#bus_cxc', {
-        allowEmptyOption: true, placeholder: 'Buscar cliente o grupo...',
-        maxOptions: 300,
-        render: {
-            option: (data, escape) => `<div>${escape(data.text.trim())}</div>`,
-            item:   (data, escape) => `<div>${escape(data.text.trim())}</div>`,
-        },
-        onChange: () => cargarCxC()
+        allowEmptyOption: true, placeholder: 'Buscar cliente...',
+        maxOptions: 300, onChange: () => cargarCxC()
+    });
+    tsGrupo = new TomSelect('#filtro_grupo', {
+        allowEmptyOption: true, placeholder: 'Buscar grupo...',
+        maxOptions: 100, onChange: () => cargarCxC()
     });
 }
 
