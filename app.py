@@ -1424,6 +1424,12 @@ def get_compras():
     f_prod        = (params.get('producto')  or '').strip().upper()
     prod_criterio = params.get('prod_criterio', 'monto')
 
+    # Filtros de clasificación
+    filtros_clasi = {}
+    for i in '1234':
+        v = (params.get(f'clasi{i}') or '').strip().upper()
+        if v: filtros_clasi[i] = v
+
     totales_compra      = {"Contado": 0.0, "Crédito": 0.0, "Otros": 0.0}
     por_proveedor       = defaultdict(float)
     por_producto_monto  = defaultdict(float)
@@ -1431,7 +1437,9 @@ def get_compras():
     por_marca           = defaultdict(float)
     all_proveedores     = set()
     all_productos       = set()
+    all_clasi           = {"1": set(), "2": set(), "3": set(), "4": set()}
     total_gral          = 0.0
+    facturas_dict       = {}   # nro_doc -> datos de factura
 
     detalle_producto = {
         "cantidad_total": 0.0, "monto_total": 0.0,
@@ -1443,19 +1451,41 @@ def get_compras():
         path = get_dbf_path('tablero_compras.DBF')
         if os.path.exists(path):
             for rec in DBF(path, encoding='latin-1', ignore_missing_memofile=True):
-                prov_reg   = str(rec.get('PROVEEDOR', 'S/P')).strip().upper()
-                prod_reg   = str(rec.get('NOMBREPRO', 'S/P')).strip().upper()
+                prov_reg   = str(rec.get('PROVEEDOR', '')).strip().upper()
+                prod_reg   = str(rec.get('NOMBREPRO', '')).strip().upper()
                 cod_prod   = str(rec.get('CODIGOPRO', '')).strip().upper()
                 fecha_reg  = parse_fecha(rec.get('FECHA'))
-                prod_label = (cod_prod + " - " + prod_reg) if cod_prod else prod_reg
+
+                # Fix UNDEFINED: construir label solo si hay datos reales
+                if cod_prod and prod_reg:
+                    prod_label = cod_prod + " - " + prod_reg
+                elif prod_reg:
+                    prod_label = prod_reg
+                elif cod_prod:
+                    prod_label = cod_prod
+                else:
+                    prod_label = 'SIN PRODUCTO'
 
                 # Filtrar por FECHA primero
                 if f_inicio and fecha_reg < f_inicio: continue
                 if f_fin    and fecha_reg > f_fin:    continue
 
                 # Recolectar listas solo del período
-                if prov_reg and prov_reg != 'S/P': all_proveedores.add(prov_reg)
-                if prod_reg and prod_reg != 'S/P': all_productos.add(prod_label)
+                if prov_reg: all_proveedores.add(prov_reg)
+                if prod_label != 'SIN PRODUCTO': all_productos.add(prod_label)
+
+                # Recolectar clasificaciones
+                for ci in '1234':
+                    cv = str(rec.get(f'CLASI{ci}', '')).strip()
+                    if cv: all_clasi[ci].add(cv)
+
+                # Filtrar por clasificación
+                clasi_ok = True
+                for ci, cf in filtros_clasi.items():
+                    if cf and cf != str(rec.get(f'CLASI{ci}', '')).strip().upper():
+                        clasi_ok = False
+                        break
+                if not clasi_ok: continue
 
                 # Filtrar por selección
                 if f_prov and f_prov != prov_reg:    continue
@@ -1473,20 +1503,36 @@ def get_compras():
                 cant   = safe_float(rec.get('CANTIDAD'))
                 tipo   = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo == '1' else ("Crédito" if tipo == '2' else "Otros")
+                nro_doc = str(rec.get('CODIGO', '')).strip()
 
                 totales_compra[tipo_texto]   += monto
                 total_gral                   += monto
                 por_proveedor[prov_reg]      += monto
                 por_producto_monto[prod_reg] += monto
                 por_producto_unid[prod_reg]  += cant
-                por_marca[str(rec.get('CLASI1', 'SIN MARCA')).strip()] += monto
+                marca = str(rec.get('CLASI1', '')).strip()
+                por_marca[marca if marca else 'SIN MARCA'] += monto
+
+                # Acumular facturas únicas
+                if nro_doc and nro_doc not in facturas_dict:
+                    montotal = safe_float(rec.get('MONTOTAL'))
+                    if moneda == 'USDT':
+                        montotal = montotal / factor2 if factor2 else 0
+                    elif moneda == 'USD':
+                        montotal = montotal / factor if factor else 0
+                    facturas_dict[nro_doc] = {
+                        "DOCUMENTO": nro_doc, "FECHA": fecha_reg,
+                        "PROVEEDOR": prov_reg,
+                        "RESPONSABLE": str(rec.get('RESPONSA', '')).strip(),
+                        "TIPO": tipo_texto, "MONTO": round(montotal, 2)
+                    }
 
                 if f_prod and detalle_producto is not None:
                     detalle_producto["cantidad_total"] += cant
                     detalle_producto["monto_total"]    += monto
                     detalle_producto["proveedores_unicos"].add(prov_reg)
                     detalles_temp.append({
-                        "FECHA": fecha_reg, "DOCUMENTO": str(rec.get('CODIGO', '')).strip(),
+                        "FECHA": fecha_reg, "DOCUMENTO": nro_doc,
                         "PROVEEDOR": prov_reg, "TIPO": tipo_texto,
                         "CANTIDAD": round(cant, 2), "MONTO": round(monto, 2),
                     })
@@ -1498,8 +1544,10 @@ def get_compras():
             detalle_producto["monto_total"]        = round(detalle_producto["monto_total"], 2)
             detalle_producto["cantidad_total"]     = round(detalle_producto["cantidad_total"], 2)
 
+        # Facturas ordenadas
+        facturas_lista = sorted(facturas_dict.values(), key=lambda x: x["FECHA"], reverse=True)
+
         def format_top_monto(dico, label_key):
-            # Incluye registros con monto=0 (notas de entrega sin precio)
             return sorted(
                 [{label_key: k, "V": round(v, 2)} for k, v in dico.items()],
                 key=lambda x: x["V"], reverse=True)[:top_n]
@@ -1518,6 +1566,8 @@ def get_compras():
             "marcas":            format_top_monto(por_marca,          "MARCA"),
             "lista_proveedores": sorted(list(all_proveedores)),
             "lista_productos":   sorted(list(all_productos)),
+            "clasificaciones":   {k: sorted(list(v)) for k, v in all_clasi.items() if v},
+            "facturas":          facturas_lista[:1000],
             "detalle_producto":  detalle_producto,
         })
     except Exception as e:

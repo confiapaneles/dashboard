@@ -172,6 +172,10 @@
             </div>
             <button class="btn-limpiar oculto" id="btn_limpiar" onclick="limpiarFiltros()">✕ Limpiar</button>
         </div>
+
+        <!-- Filtros de clasificación dinámicos -->
+        <div class="filter-row" id="filtros_clasi_row" style="display:none;">
+        </div>
     </div>
 
     <!-- ══ PESTAÑAS ══ -->
@@ -179,6 +183,7 @@
         <button class="tab-btn active" data-tab="tab_res">Resumen General</button>
         <button class="tab-btn" data-tab="tab_prov">Top Proveedores</button>
         <button class="tab-btn" data-tab="tab_prod">Top Productos</button>
+        <button class="tab-btn" data-tab="tab_facturas">Facturas del Período</button>
     </div>
 
     <!-- Resumen -->
@@ -221,6 +226,25 @@
         </div>
     </div>
 
+    <!-- Facturas del Período -->
+    <div id="tab_facturas" class="tab-pane">
+        <div class="card-chart">
+            <div class="chart-title mb-3">Listado de Compras del Período</div>
+            <div class="table-responsive" style="max-height:600px; overflow-y:auto;">
+                <table class="table table-hover table-sm mb-0">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th>Fecha</th><th>Proveedor</th><th>Responsable</th>
+                            <th>Documento</th><th>Tipo</th><th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_facturas_compras"></tbody>
+                </table>
+            </div>
+            <div id="no_facturas_compras" class="text-center text-muted mt-3" style="display:none;">No se encontraron compras</div>
+        </div>
+    </div>
+
 </div>
 
 <div id="loadingOverlay">
@@ -234,6 +258,7 @@
 let inst         = {};
 let tsProv       = null;
 let tsProd       = null;
+let tsClasi      = {};   // TomSelects dinámicos de clasificación
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() { loadingOverlay.style.display = 'flex'; }
@@ -264,6 +289,7 @@ function limpiarFiltros() {
     document.getElementById('moneda_comp').value = 'Bs';
     if (tsProv) tsProv.setValue('', true);
     if (tsProd) tsProd.setValue('', true);
+    Object.values(tsClasi).forEach(ts => ts.setValue('', true));
     actualizarBtnLimpiar();
     cargarCompras();
 }
@@ -274,13 +300,57 @@ function actualizarBtnLimpiar() {
     const iniDef  = periodo === 'D'
         ? hoy.toISOString().split('T')[0]
         : new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
-    const hay =
+    let hay =
         document.getElementById('f_inicio').value !== iniDef ||
         document.getElementById('f_fin').value    !== hoy.toISOString().split('T')[0] ||
         document.getElementById('moneda_comp').value !== 'Bs' ||
         (tsProv && tsProv.getValue() !== '')  ||
         (tsProd && tsProd.getValue() !== '');
+    if (!hay) Object.values(tsClasi).forEach(ts => { if (ts.getValue()) hay = true; });
     document.getElementById('btn_limpiar').classList.toggle('oculto', !hay);
+}
+
+// ── Filtros de clasificación dinámicos ─────────────────────────────────────
+function actualizarFiltrosClasi(clasificaciones) {
+    const row = document.getElementById('filtros_clasi_row');
+    if (!clasificaciones || !Object.keys(clasificaciones).length) { row.style.display = 'none'; return; }
+    row.style.display = 'flex';
+    const idxActuales = Object.keys(clasificaciones);
+    Object.keys(tsClasi).forEach(idx => {
+        if (!idxActuales.includes(idx)) { tsClasi[idx].destroy(); delete tsClasi[idx]; const c = document.getElementById(`col-clasi-${idx}`); if (c) c.remove(); }
+    });
+    idxActuales.forEach(idx => {
+        const valores = clasificaciones[idx] || [];
+        if (!tsClasi[idx]) {
+            const col = document.createElement('div'); col.className = 'filter-col select-col'; col.id = `col-clasi-${idx}`;
+            col.innerHTML = `<label>Clasificación ${idx}</label><select id="sel_clasi_${idx}"><option value="">Todas</option></select>`;
+            row.appendChild(col);
+            tsClasi[idx] = new TomSelect(`#sel_clasi_${idx}`, { allowEmptyOption: true, placeholder: `Clasif. ${idx}...`, maxOptions: 200, onChange: () => { actualizarBtnLimpiar(); cargarCompras(); } });
+        }
+        const actual = tsClasi[idx].getValue();
+        tsClasi[idx].clearOptions();
+        tsClasi[idx].addOption({ value: '', text: 'Todas' });
+        valores.forEach(v => { if (v) tsClasi[idx].addOption({ value: v, text: v }); });
+        tsClasi[idx].refreshOptions(false);
+        if (actual && valores.includes(actual)) tsClasi[idx].setValue(actual, true);
+    });
+}
+
+// ── Renderizar tabla de facturas del período ──────────────────────────────
+function renderFacturasCompras(facturas, moneda) {
+    const tbody = document.getElementById('tabla_facturas_compras');
+    const noData = document.getElementById('no_facturas_compras');
+    const fmt = v => (v||0).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2});
+    if (!facturas?.length) { tbody.innerHTML = ''; noData.style.display = 'block'; return; }
+    noData.style.display = 'none';
+    tbody.innerHTML = facturas.map(f => `<tr>
+        <td>${f.FECHA||'-'}</td>
+        <td>${f.PROVEEDOR||'-'}</td>
+        <td>${f.RESPONSABLE||'-'}</td>
+        <td><span class="badge bg-primary">${f.DOCUMENTO||'-'}</span></td>
+        <td><span class="badge ${f.TIPO==='Contado'?'bg-success':'bg-warning text-dark'}">${f.TIPO}</span></td>
+        <td class="text-end fw-bold">${fmt(f.MONTO)} ${moneda}</td>
+    </tr>`).join('');
 }
 
 // ── Pestañas ───────────────────────────────────────────────────────────────
@@ -359,6 +429,10 @@ async function cargarCompras() {
         top_n:         15,
         prod_criterio: document.getElementById('criterio_prod')?.value || 'monto'
     };
+    // Agregar filtros de clasificación
+    Object.entries(tsClasi).forEach(([idx, ts]) => {
+        const v = ts.getValue(); if (v) params[`clasi${idx}`] = v;
+    });
 
     try {
         const resp = await fetch('/api/compras', {
@@ -375,6 +449,9 @@ async function cargarCompras() {
 
         if (d.lista_proveedores?.length) poblarProv(d.lista_proveedores);
         if (d.lista_productos?.length)   poblarProd(d.lista_productos);
+
+        // Poblar filtros de clasificación dinámicos
+        actualizarFiltrosClasi(d.clasificaciones || {});
 
         renderChart('chartTipo', 'bar',
             ['Contado', 'Crédito', 'Otros'],
@@ -397,6 +474,9 @@ async function cargarCompras() {
             dataProd.map(x => x.PRODUCTO),
             dataProd.map(x => x.V),
             defaultPalette, 'y', monedaSel);
+
+        // Renderizar facturas del período
+        renderFacturasCompras(d.facturas || [], monedaSel);
 
     } catch (err) {
         console.error('Error cargando compras:', err);
