@@ -422,15 +422,19 @@ def get_cartera_cxc():
                 cliente = str(rec.get('CLIENTE', '')).strip()
                 grupo   = str(rec.get('GRUPO', '')).strip()
 
-                # Recolectar SIEMPRE antes de filtrar
+                # Vendedores: recolectar siempre
                 all_vendedores.add(vend)
+
+                # Filtrar por vendedor
+                if vendedor and vendedor != 'TODOS' and vendedor != vend: continue
+
+                # Clientes y grupos: recolectar DESPUÉS del filtro de vendedor
                 if cliente: all_clientes.add(cliente)
                 if grupo:   all_grupos.add(grupo)
 
-                # Filtros
-                if vendedor and vendedor != 'TODOS' and vendedor != vend: continue
-                if cliente_filtro and cliente_filtro not in cliente.upper(): continue
-                if grupo_filtro and grupo_filtro not in grupo.upper(): continue
+                # Filtros de cliente y grupo — match exacto (trim)
+                if cliente_filtro and cliente_filtro != cliente.strip().upper(): continue
+                if grupo_filtro and grupo_filtro != grupo.strip().upper(): continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
                 factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
@@ -566,7 +570,7 @@ def get_ventas():
 
                 cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
                 all_clientes.add(cliente)
-                if busqueda_cliente and busqueda_cliente not in cliente: continue
+                if busqueda_cliente and busqueda_cliente != cliente: continue
 
                 cod_pro  = str(rec.get('CODIGOPRO', '')).strip()
                 producto = nombres_completos.get(cod_pro, str(rec.get('NOMBREPRO', 'S/N')).strip()).upper()
@@ -1275,15 +1279,23 @@ def get_cartera_cxp():
                 grupo = str(rec.get('GRUPO', '')).strip()
                 resp  = str(rec.get('VENDEDOR', '')).strip()
 
-                # Recolectar antes de filtrar
-                if prov:  all_proveedores.add(prov)
+                # Grupos: recolectar siempre
                 if grupo: all_grupos.add(grupo)
-                if resp:  all_responsables.add(resp)
 
-                # Filtros separados
-                if f_proveedor and f_proveedor not in prov.upper(): continue
-                if f_grupo and f_grupo not in grupo.upper(): continue
-                if f_responsable and f_responsable not in resp.upper(): continue
+                # Filtrar por grupo
+                if f_grupo and f_grupo != grupo.strip().upper(): continue
+
+                # Proveedores: recolectar después de filtro grupo
+                if prov: all_proveedores.add(prov)
+
+                # Filtrar por proveedor — match exacto
+                if f_proveedor and f_proveedor != prov.strip().upper(): continue
+
+                # Responsables: recolectar después de filtro proveedor
+                if resp: all_responsables.add(resp)
+
+                # Filtrar por responsable — match exacto
+                if f_responsable and f_responsable != resp.strip().upper(): continue
 
                 saldo_raw = safe_float(rec.get('SALDO'))
                 factor    = safe_float(rec.get('FACTOR')) or safe_float(rec.get('TASA')) or safe_float(rec.get('TASADOLAR')) or 0.0
@@ -1375,7 +1387,7 @@ def get_cobros():
 
             cliente = str(rec.get('CLIENTE', 'S/C')).strip().upper()
             if cliente and cliente != 'S/C': clientes_unicas.add(cliente)
-            if cliente_filtro and cliente_filtro not in cliente: continue
+            if cliente_filtro and cliente_filtro != cliente: continue
 
             caja = str(rec.get('CAJA', 'S/C')).strip().upper()
             cajas_unicas.add(caja)

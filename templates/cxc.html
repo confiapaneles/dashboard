@@ -283,8 +283,8 @@ async function cargarCxC() {
         const params = {
             moneda:   document.getElementById('moneda').value,
             vendedor: tsVendedor ? tsVendedor.getValue().trim() : 'TODOS',
-            cliente:  tsCliente  ? tsCliente.getValue().trim() : '',
-            grupo:    tsGrupo    ? tsGrupo.getValue().trim()   : ''
+            cliente:  tsCliente  ? tsCliente.getValue().trim().toUpperCase() : '',
+            grupo:    tsGrupo    ? tsGrupo.getValue().trim().toUpperCase()   : ''
         };
         const r = await fetch('/api/cartera_cxc', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params)
