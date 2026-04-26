@@ -375,15 +375,7 @@ function initTomSelects() {
     tsProd = new TomSelect('#bus_prod', {
         placeholder: 'Código o nombre del producto...',
         allowEmptyOption: true, maxOptions: 400,
-        valueField: 'value', labelField: 'label',
-        searchField: ['value', 'label'],
-        render: {
-            option: (data) => `<div style="display:flex; gap:8px; align-items:baseline;">
-                <span style="font-size:0.78rem; color:#9ca3af; min-width:80px; font-weight:600;">${data.codigo || ''}</span>
-                <span>${data.nombre || data.label}</span>
-            </div>`,
-            item: (data) => `<span><b style="color:#9a3412; font-size:0.85rem;">${data.codigo}</b> ${data.nombre || data.label}</span>`
-        },
+        searchField: ['text', 'value'],
         onChange: () => { actualizarBtnLimpiar(); cargarCompras(); }
     });
 }
@@ -403,12 +395,9 @@ function poblarProd(lista) {
     if (!tsProd) return;
     const val = tsProd.getValue();
     tsProd.clearOptions();
-    tsProd.addOption({ value: '', label: 'Todos los productos', codigo: '', nombre: 'Todos los productos' });
+    tsProd.addOption({ value: '', text: 'Todos los productos' });
     lista.forEach(item => {
-        const partes = item.split('||');
-        const codigo = partes.length > 1 ? partes[0].trim() : '';
-        const nombre = partes.length > 1 ? partes[1].trim() : partes[0].trim();
-        tsProd.addOption({ value: item, label: `${codigo} ${nombre}`.trim(), codigo, nombre });
+        if (item) tsProd.addOption({ value: item, text: item });
     });
     tsProd.refreshOptions(false);
     tsProd.setValue((val && lista.includes(val)) ? val : '', true);
