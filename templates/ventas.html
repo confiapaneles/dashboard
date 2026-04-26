@@ -163,6 +163,10 @@
                 ✕ Limpiar filtros
             </button>
         </div>
+
+        <!-- Filtros de clasificación dinámicos -->
+        <div class="filter-row" id="filtros_clasi_row" style="display:none;">
+        </div>
     </div>
 
     <div class="tab-navigation">
@@ -219,6 +223,7 @@
                         <div class="kpi-item"><div class="kpi-label">Contado</div><div class="kpi-value kpi-small" id="val_fact_cont_cant">0</div><div class="kpi-monto" id="val_fact_cont_monto">0,00</div></div>
                         <div class="kpi-item"><div class="kpi-label">Crédito</div><div class="kpi-value kpi-small" id="val_fact_cred_cant">0</div><div class="kpi-monto" id="val_fact_cred_monto">0,00</div></div>
                         <div class="kpi-item"><div class="kpi-label">IGTF</div><div class="kpi-monto" style="color:#e67e22;" id="val_total_igtf">0,00</div></div>
+                        <div class="kpi-item"><div class="kpi-label">Total Empaque (Kg)</div><div class="kpi-monto" style="color:#8e44ad;" id="val_total_kilos">0,00</div></div>
                     </div>
                 </div>
             </div>
@@ -323,6 +328,7 @@ let chartsInst = {};
 let vendedoresCargados = false;
 let tsCaja = null, tsProducto = null, tsCliente = null;
 let cajasSeleccionada = '', productoSeleccionado = '', clienteSeleccionado = '';
+let tsClasi = {};  // TomSelects dinámicos de clasificación
 let ultimosDatosVentas = null, ultimaMonedaVentas = 'Bs';
 
 // ── Métrica activa (monto / cantidad) ─────────────────────────────────────
@@ -389,12 +395,16 @@ function actualizarBtnLimpiar() {
     const periodo = '{{ periodo | default("M") }}';
     const iniDef  = periodo === 'D' ? hoy.toISOString().split('T')[0] : new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
     const hoyStr  = hoy.toISOString().split('T')[0];
-    const hayFiltro =
+    let hayFiltro =
         document.getElementById('fecha_inicio').value !== iniDef ||
         document.getElementById('fecha_fin').value    !== hoyStr    ||
         document.getElementById('filtro_status').value !== 'TODOS'  ||
         document.getElementById('filtro_vendedor').value !== 'TODOS'||
         cajasSeleccionada !== '' || productoSeleccionado !== '' || clienteSeleccionado !== '';
+    // Verificar filtros de clasificación
+    if (!hayFiltro) {
+        Object.values(tsClasi).forEach(ts => { if (ts.getValue()) hayFiltro = true; });
+    }
     document.getElementById('btn_limpiar').style.display = hayFiltro ? 'inline-block' : 'none';
 }
 
@@ -407,9 +417,55 @@ function limpiarFiltros() {
     if (tsCaja)     tsCaja.setValue('', true);
     if (tsProducto) tsProducto.setValue('', true);
     if (tsCliente)  tsCliente.setValue('', true);
+    // Limpiar clasificaciones
+    Object.values(tsClasi).forEach(ts => ts.setValue('', true));
     cajasSeleccionada = ''; productoSeleccionado = ''; clienteSeleccionado = '';
     actualizarBtnLimpiar();
     cargarDatos();
+}
+
+// ── Filtros de clasificación dinámicos ─────────────────────────────────────
+function actualizarFiltrosClasi(clasificaciones) {
+    const row = document.getElementById('filtros_clasi_row');
+    if (!clasificaciones || !Object.keys(clasificaciones).length) {
+        row.style.display = 'none';
+        return;
+    }
+    row.style.display = 'flex';
+    const idxActuales = Object.keys(clasificaciones);
+
+    // Destruir los que ya no existen
+    Object.keys(tsClasi).forEach(idx => {
+        if (!idxActuales.includes(idx)) {
+            tsClasi[idx].destroy();
+            delete tsClasi[idx];
+            const col = document.getElementById(`col-clasi-${idx}`);
+            if (col) col.remove();
+        }
+    });
+
+    idxActuales.forEach(idx => {
+        const valores = clasificaciones[idx] || [];
+        if (!tsClasi[idx]) {
+            // Crear nuevo
+            const col = document.createElement('div');
+            col.className = 'filter-col select-col';
+            col.id = `col-clasi-${idx}`;
+            col.innerHTML = `<label>Clasificación ${idx}</label><select id="sel_clasi_${idx}"><option value="">Todas</option></select>`;
+            row.appendChild(col);
+            tsClasi[idx] = new TomSelect(`#sel_clasi_${idx}`, {
+                allowEmptyOption: true, placeholder: `Clasificación ${idx}...`,
+                maxOptions: 200, onChange: () => { actualizarBtnLimpiar(); cargarDatos(); }
+            });
+        }
+        // Poblar conservando selección
+        const actual = tsClasi[idx].getValue();
+        tsClasi[idx].clearOptions();
+        tsClasi[idx].addOption({ value: '', text: 'Todas' });
+        valores.forEach(v => { if (v) tsClasi[idx].addOption({ value: v, text: v }); });
+        tsClasi[idx].refreshOptions(false);
+        if (actual && valores.includes(actual)) tsClasi[idx].setValue(actual, true);
+    });
 }
 
 async function cargarListaVendedores() {
@@ -456,6 +512,11 @@ async function cargarDatos() {
         vendedor:          document.getElementById("filtro_vendedor").value || "TODOS",
         status:            document.getElementById("filtro_status").value
     };
+    // Agregar filtros de clasificación activos
+    Object.entries(tsClasi).forEach(([idx, ts]) => {
+        const v = ts.getValue();
+        if (v) params[`clasi${idx}`] = v;
+    });
     try {
         const resp = await fetch("/api/ventas", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(params) });
         if (!resp.ok) throw new Error("Error HTTP");
@@ -465,6 +526,9 @@ async function cargarDatos() {
         if (d.lista_cajas?.length)     poblarSelectCaja(d.lista_cajas);
         if (d.lista_productos?.length) poblarSelectProducto(d.lista_productos);
         if (d.lista_clientes?.length)  poblarSelectCliente(d.lista_clientes);
+
+        // Poblar filtros de clasificación dinámicos
+        actualizarFiltrosClasi(d.clasificaciones || {});
 
         const monedaStr = params.moneda;
         ultimosDatosVentas = d;
@@ -479,6 +543,7 @@ async function cargarDatos() {
         document.getElementById("val_fact_cred_cant").textContent = d.general?.facturas_credito_unicas || 0;
         document.getElementById("val_fact_cred_monto").textContent= fmt(d.general?.fact_cred_monto || 0) + ' ' + monedaStr;
         document.getElementById("val_total_igtf").textContent     = fmt(d.general?.total_igtf || 0) + ' ' + monedaStr;
+        document.getElementById("val_total_kilos").textContent    = fmt(d.total_kilos || 0) + ' Kg';
 
         // Tabla facturas
         const tbodyFact = document.getElementById("tabla_facturas");
