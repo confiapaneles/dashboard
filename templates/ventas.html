@@ -100,6 +100,7 @@
                 <div class="metric-toggle" id="metricToggle">
                     <button class="metric-toggle-btn active" data-metric="monto"    onclick="cambiarMetrica('monto')">$ Monto</button>
                     <button class="metric-toggle-btn"        data-metric="cantidad" onclick="cambiarMetrica('cantidad')"># Cantidad</button>
+                    <button class="metric-toggle-btn"        data-metric="kilos"    onclick="cambiarMetrica('kilos')">⚖ Peso</button>
                 </div>
                 <div class="total-kpi" id="txt_total_general">0,00</div>
             </div>
@@ -545,6 +546,9 @@ async function cargarDatos() {
         document.getElementById("val_total_igtf").textContent     = fmt(d.general?.total_igtf || 0) + ' ' + monedaStr;
         document.getElementById("val_total_kilos").textContent    = fmt(d.total_kilos || 0) + ' Kg';
 
+        // Renderizar pestaña Empaque
+        renderEmpaque(d.productos_kilos || []);
+
         // Tabla facturas
         const tbodyFact = document.getElementById("tabla_facturas");
         tbodyFact.innerHTML = '';
@@ -566,15 +570,31 @@ async function cargarDatos() {
 
 // ── Renderizar todos los gráficos según métrica activa ────────────────────
 function renderizarGraficos(d, monedaStr) {
-    const esCant = metricaActual === 'cantidad';
-    const suf    = esCant ? ' uds' : (' ' + (monedaStr || ultimaMonedaVentas));
-    const lbl    = esCant ? 'Cantidad' : 'Monto';
+    const esKilos = metricaActual === 'kilos';
+    const esCant  = metricaActual === 'cantidad';
+    const suf     = esKilos ? ' Kg' : (esCant ? ' uds' : (' ' + (monedaStr || ultimaMonedaVentas)));
+    const lbl     = esKilos ? 'Peso (Kg)' : (esCant ? 'Cantidad' : 'Monto');
 
-    const zonas     = esCant ? (d.zonas_cant     || d.zonas     || []) : (d.zonas     || []);
-    const clientes  = esCant ? (d.clientes_cant  || d.clientes  || []) : (d.clientes  || []);
-    const productos = esCant ? (d.productos_cant || d.productos || []) : (d.productos || []);
-    const vendedores= esCant ? (d.vendedores_cant|| d.vendedores|| []) : (d.vendedores|| []);
-    const detVend   = esCant ? (d.detalles_vendedor_cant || d.detalles_vendedor || {}) : (d.detalles_vendedor || {});
+    let zonas, clientes, productos, vendedores, detVend;
+    if (esKilos) {
+        zonas      = d.zonas_kilos     || [];
+        clientes   = d.clientes_kilos  || [];
+        productos  = d.productos_kilos || [];
+        vendedores = d.vendedores_kilos|| [];
+        detVend    = d.detalles_vendedor_kilos || {};
+    } else if (esCant) {
+        zonas      = d.zonas_cant      || d.zonas      || [];
+        clientes   = d.clientes_cant   || d.clientes   || [];
+        productos  = d.productos_cant  || d.productos  || [];
+        vendedores = d.vendedores_cant || d.vendedores  || [];
+        detVend    = d.detalles_vendedor_cant || d.detalles_vendedor || {};
+    } else {
+        zonas      = d.zonas      || [];
+        clientes   = d.clientes   || [];
+        productos  = d.productos  || [];
+        vendedores = d.vendedores || [];
+        detVend    = d.detalles_vendedor || {};
+    }
 
     // Gráfico resumen — usa agrupación activa
     renderChartTotales(tipoGraficoActual, d.historico_ventas || [], d.resumen_tipo, monedaStr);
@@ -611,8 +631,9 @@ function renderChartTotales(tipo, histDatos, resumenTipo, monedaStr) {
     if (chartsInst["chartTotales"]) chartsInst["chartTotales"].destroy();
     const ctx  = document.getElementById("chartTotales"); if (!ctx) return;
     const esCant = metricaActual === 'cantidad';
+    const esKilos = metricaActual === 'kilos';
     const fmt2 = v => (v||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
-    const und  = esCant ? 'uds' : ultimaMonedaStr;
+    const und  = esKilos ? 'Kg' : (esCant ? 'uds' : ultimaMonedaStr);
 
     if (tipo === 'pie') {
         const labels = Object.keys(ultimoResumenTipo);
@@ -774,6 +795,34 @@ function fechasDefault() {
     } else {
         const primero = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
         document.getElementById('fecha_inicio').value = primero.toISOString().split('T')[0];
+    }
+}
+
+// ── Renderizar pestaña Empaque (Kg) ───────────────────────────────────────
+function renderEmpaque(datos) {
+    const fmt = v => (v||0).toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2});
+    // Gráfico
+    const canvas = document.getElementById('chartEmpaque');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (window._chartEmpaque) window._chartEmpaque.destroy();
+        const labels = datos.map(x => x.label);
+        const values = datos.map(x => x.value);
+        const colores = ['#8e44ad','#2980b9','#27ae60','#e67e22','#e74c3c','#1abc9c','#f39c12','#3498db','#9b59b6','#34495e'];
+        window._chartEmpaque = new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Kg', data: values, backgroundColor: colores.concat(colores) }] },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw) + ' Kg' } } },
+                scales: { x: { ticks: { callback: v => fmt(v) } } }
+            }
+        });
+    }
+    // Tabla
+    const tbody = document.getElementById('tabla_empaque');
+    if (tbody) {
+        tbody.innerHTML = datos.map(x => `<tr><td>${x.label}</td><td class="text-end fw-bold">${fmt(x.value)} Kg</td></tr>`).join('');
     }
 }
 

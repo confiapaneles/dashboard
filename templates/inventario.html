@@ -390,8 +390,10 @@
                                 <th>Descripción</th>
                                 <th class="text-end">Existencia</th>
                                 <th class="text-end">Disponible</th>
+                                {% if current_user.tiene_permiso(15) %}
                                 <th class="text-end">Costo Unit.</th>
                                 <th class="text-end pe-3">Monto Total</th>
+                                {% endif %}
                                 <th>Ubicación</th>
                             </tr>
                         </thead>
@@ -1039,6 +1041,7 @@ function limpiarAlmacenFiltros() {
 
 function renderTablaAlmacenes(rows, totales) {
     const fmt  = v => (v||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const perm = window._permInventario || {};
     const tbody = document.getElementById('tabla_almacenes');
     const noMsg = document.getElementById('no_almacenes');
     const count = document.getElementById('almacen_count');
@@ -1059,7 +1062,10 @@ function renderTablaAlmacenes(rows, totales) {
         document.getElementById('alm_art').textContent = (totales?.almacenes || 0).toLocaleString('es-VE');
         document.getElementById('alm_exi').textContent = (totales?.disponible || 0).toLocaleString('es-VE');
         const elmVal = document.getElementById('alm_val');
-        if (elmVal) elmVal.textContent = fmt(totales?.valor || 0);
+        if (elmVal) {
+            if (perm.ver_costo !== false) elmVal.textContent = fmt(totales?.valor || 0);
+            else elmVal.textContent = '—';
+        }
     }
 
     const badgeTipo = (t) => {
@@ -1078,8 +1084,8 @@ function renderTablaAlmacenes(rows, totales) {
             <td style="font-size:0.88rem;">${r.DESCRIPCIO||'-'}</td>
             <td class="text-end fw-bold">${(r.EXISTENCIA||0).toLocaleString('es-VE')}</td>
             <td class="text-end">${(r.DISPONIBLE||0).toLocaleString('es-VE')}</td>
-            <td class="text-end text-costo">${fmt(r.COSTO_UNIT)}</td>
-            <td class="text-end pe-3 fw-bold text-pvp">${fmt(r.MONTO)}</td>
+            ${perm.ver_costo !== false ? `<td class="text-end text-costo">${fmt(r.COSTO_UNIT)}</td>` : ''}
+            ${perm.ver_costo !== false ? `<td class="text-end pe-3 fw-bold text-pvp">${fmt(r.MONTO)}</td>` : ''}
             <td style="font-size:0.82rem;color:#9ca3af;">${r.UBICACION||'-'}</td>
         </tr>
     `).join('');

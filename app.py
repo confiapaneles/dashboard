@@ -540,6 +540,9 @@ def get_ventas():
     nombres_clasi   = {}
     total_kilos     = 0.0
     por_producto_kilos = defaultdict(float)
+    por_zona_kilos     = defaultdict(float)
+    por_cliente_kilos  = defaultdict(float)
+    por_vendedor_kilos = defaultdict(float)
     clientes_unicos = set()
     por_dia_hist    = defaultdict(lambda: {"monto": 0.0, "cantidad": 0.0, "facturas": 0})
 
@@ -619,6 +622,9 @@ def get_ventas():
                 kilos = safe_float(rec.get('KILOS'))
                 total_kilos += kilos
                 por_producto_kilos[producto] += kilos
+                por_zona_kilos[zona]         += kilos
+                por_cliente_kilos[cliente]   += kilos
+                por_vendedor_kilos[vend]     += kilos
 
                 tipo_fact  = str(rec.get('TIPO', '')).strip()
                 tipo_texto = "Contado" if tipo_fact == '1' else "Crédito"
@@ -784,6 +790,9 @@ def get_ventas():
                 [{"label": k, "value": round(v, 2)} for k, v in por_producto_kilos.items()],
                 key=lambda x: x["value"], reverse=True
             )[:top_n],
+            "zonas_kilos":      sorted([{"label": k, "value": round(v, 2)} for k, v in por_zona_kilos.items()], key=lambda x: x["value"], reverse=True)[:top_n],
+            "clientes_kilos":   sorted([{"label": k, "value": round(v, 2)} for k, v in por_cliente_kilos.items()], key=lambda x: x["value"], reverse=True)[:top_n],
+            "vendedores_kilos": sorted([{"label": k, "value": round(v, 2)} for k, v in por_vendedor_kilos.items()], key=lambda x: x["value"], reverse=True)[:top_n],
             "facturas":         facturas_lista[:1000],
             "detalle_producto": detalle_producto,
             "historico_ventas": historico_ventas,

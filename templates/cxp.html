@@ -358,7 +358,7 @@ function renderResumen(rows) {
     rows.forEach(row => { const g = row.GRUPO || 'Sin Grupo'; gruposDict[g] = (gruposDict[g] || 0) + (row.SALDO || 0); });
     const grupos = Object.entries(gruposDict).filter(([, v]) => Math.abs(v) > 0.01).sort((a, b) => b[1] - a[1]);
 
-    document.getElementById('titulo_envej_cxp').textContent = bus ? `Vencimiento de Pagos — Filtrado: "${bus}"` : 'Vencimiento de Pagos';
+    document.getElementById('titulo_envej_cxp').textContent = hayFiltro ? 'Vencimiento de Pagos — Filtrado' : 'Vencimiento de Pagos';
     document.getElementById('resumen_grupos').innerHTML = grupos.length
         ? grupos.map(([k, v]) => `<div class="grupo-item"><span class="grupo-nombre">${k}</span><span class="grupo-monto">${fmt(v)}</span></div>`).join('')
         : '<p class="text-muted text-center p-3">Sin datos para el filtro aplicado</p>';
