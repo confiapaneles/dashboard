@@ -499,7 +499,8 @@ def get_ventas():
     busqueda_cliente  = (params.get('cliente') or params.get('busqueda_cliente', '')).strip().upper()
     busqueda_producto = params.get('busqueda_producto', '').strip().upper()
     caja_filtro       = (params.get('filtro_caja') or '').strip().upper()
-    status_filtro     = params.get('status', 'TODOS')
+    status_filtro     = params.get('tipo_factura', 'TODOS')
+    status_doc_filtro = params.get('status_doc', 'TODOS').strip().upper()
 
     # Filtros de clasificación (CLASI1-4 del tablero_facturas)
     filtros_clasi = {}
@@ -536,6 +537,7 @@ def get_ventas():
     all_clientes    = set()
     all_productos   = set()
     all_cajas       = set()
+    all_status_doc  = set()
     all_clasi       = {"1": set(), "2": set(), "3": set(), "4": set()}
     nombres_clasi   = {}
     total_kilos     = 0.0
@@ -584,6 +586,11 @@ def get_ventas():
                 caja = str(rec.get('CAJA', '')).strip().upper()
                 if caja: all_cajas.add(caja)
                 if caja_filtro and caja != caja_filtro: continue
+
+                # Status del documento (PROCESADO, TOTALMENTE DEVUELTA, etc.)
+                status_doc = str(rec.get('STATUS', '')).strip().upper()
+                if status_doc: all_status_doc.add(status_doc)
+                if status_doc_filtro and status_doc_filtro != 'TODOS' and status_doc != status_doc_filtro: continue
 
                 # Recolectar clasificaciones y filtrar
                 for ci in '1234':
@@ -783,6 +790,7 @@ def get_ventas():
             "lista_clientes":   sorted(list(all_clientes)),
             "lista_productos":  sorted(list(all_productos)),
             "lista_cajas":      sorted([c for c in all_cajas if c]),
+            "lista_status":     sorted([s for s in all_status_doc if s]),
             "clasificaciones":  {k: sorted(list(v)) for k, v in all_clasi.items() if v},
             "nombres_clasi":    nombres_clasi,
             "total_kilos":      round(total_kilos, 2),
@@ -1962,4 +1970,3 @@ def get_productos_inventario():
 # ─── ARRANQUE ─────────────────────────────────────────────────────────────
 port = int(os.environ.get('PORT', 5000))
 app.run(debug=False, host='0.0.0.0', port=port)
-

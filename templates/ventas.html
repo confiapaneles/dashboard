@@ -108,8 +108,8 @@
 
         <div class="filter-row">
             <div class="filter-col select-col">
-                <label>Status Factura</label>
-                <select id="filtro_status" onchange="cargarDatos()">
+                <label>Tipo Factura</label>
+                <select id="filtro_tipo" onchange="cargarDatos()">
                     <option value="TODOS">TODOS</option>
                     <option value="Contado">Contado</option>
                     <option value="Crédito">Crédito</option>
@@ -135,6 +135,12 @@
                 <label>Vendedor</label>
                 <select id="filtro_vendedor" onchange="cargarDatos()">
                     <option value="TODOS">Todos los vendedores</option>
+                </select>
+            </div>
+            <div class="filter-col select-col">
+                <label>Status</label>
+                <select id="filtro_status_doc">
+                    <option value="TODOS">Todos</option>
                 </select>
             </div>
         </div>
@@ -330,6 +336,7 @@ let vendedoresCargados = false;
 let tsCaja = null, tsProducto = null, tsCliente = null;
 let cajasSeleccionada = '', productoSeleccionado = '', clienteSeleccionado = '';
 let tsClasi = {};  // TomSelects dinámicos de clasificación
+let tsStatusDoc = null;  // TomSelect de status documento
 let ultimosDatosVentas = null, ultimaMonedaVentas = 'Bs';
 
 // ── Métrica activa (monto / cantidad) ─────────────────────────────────────
@@ -399,7 +406,7 @@ function actualizarBtnLimpiar() {
     let hayFiltro =
         document.getElementById('fecha_inicio').value !== iniDef ||
         document.getElementById('fecha_fin').value    !== hoyStr    ||
-        document.getElementById('filtro_status').value !== 'TODOS'  ||
+        document.getElementById('filtro_tipo').value !== 'TODOS'  ||
         document.getElementById('filtro_vendedor').value !== 'TODOS'||
         cajasSeleccionada !== '' || productoSeleccionado !== '' || clienteSeleccionado !== '';
     // Verificar filtros de clasificación
@@ -413,11 +420,12 @@ function limpiarFiltros() {
     const hoy = new Date();
     document.getElementById('fecha_fin').value   = hoy.toISOString().split('T')[0];
     document.getElementById('fecha_inicio').value = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
-    document.getElementById('filtro_status').value   = 'TODOS';
+    document.getElementById('filtro_tipo').value   = 'TODOS';
     document.getElementById('filtro_vendedor').value = 'TODOS';
     if (tsCaja)     tsCaja.setValue('', true);
     if (tsProducto) tsProducto.setValue('', true);
     if (tsCliente)  tsCliente.setValue('', true);
+    if (tsStatusDoc) tsStatusDoc.setValue('TODOS', true);
     // Limpiar clasificaciones
     Object.values(tsClasi).forEach(ts => ts.setValue('', true));
     cajasSeleccionada = ''; productoSeleccionado = ''; clienteSeleccionado = '';
@@ -511,7 +519,8 @@ async function cargarDatos() {
         busqueda_producto: productoSeleccionado,
         filtro_caja:       cajasSeleccionada,
         vendedor:          document.getElementById("filtro_vendedor").value || "TODOS",
-        status:            document.getElementById("filtro_status").value
+        tipo_factura:      document.getElementById("filtro_tipo").value,
+        status_doc:        tsStatusDoc ? tsStatusDoc.getValue().trim() : "TODOS"
     };
     // Agregar filtros de clasificación activos
     Object.entries(tsClasi).forEach(([idx, ts]) => {
@@ -530,6 +539,16 @@ async function cargarDatos() {
 
         // Poblar filtros de clasificación dinámicos
         actualizarFiltrosClasi(d.clasificaciones || {});
+
+        // Poblar TomSelect de Status documento
+        if (d.lista_status?.length && tsStatusDoc) {
+            const act = tsStatusDoc.getValue();
+            tsStatusDoc.clearOptions();
+            tsStatusDoc.addOption({ value: 'TODOS', text: 'Todos' });
+            d.lista_status.forEach(s => { if (s) tsStatusDoc.addOption({ value: s, text: s }); });
+            tsStatusDoc.refreshOptions(false);
+            tsStatusDoc.setValue(act && d.lista_status.includes(act) ? act : 'TODOS', true);
+        }
 
         const monedaStr = params.moneda;
         ultimosDatosVentas = d;
@@ -831,6 +850,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     initTomSelectCaja();
     initTomSelectProducto();
     initTomSelectCliente();
+    tsStatusDoc = new TomSelect('#filtro_status_doc', {
+        allowEmptyOption: false, placeholder: 'Todos los status...',
+        maxOptions: 20, onChange: () => cargarDatos()
+    });
     await cargarListaVendedores();
     await cargarDatos();
 });
@@ -886,4 +909,3 @@ async function verDetalleFactura(nroFactura, moneda) {
 </script>
 
 {% endblock %}
-
